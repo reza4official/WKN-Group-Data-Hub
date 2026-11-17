@@ -181,7 +181,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 - **Logo** dipakai sebagai favicon, ikon PWA, header, halaman login, kop PDF.
 - Profesional, rapi, interaktif: transisi halus, skeleton loading, toast, dialog konfirmasi aksi berbahaya, pencarian dan filter instan.
 - **Responsif dan konsisten** di ponsel, tablet, desktop: grid simetris, navigasi samping di desktop dan bawah/hamburger di ponsel, tabel dapat digulir dengan kolom utama tetap terlihat.
-- **Footer**: `© Copyright 2026 | PT. Wiratama Karya Nugraha | Dibuat di Makassar | @reza4official_ | vX.X.X` (lihat pertanyaan terbuka soal ejaan).
+- **Footer**: `© Copyright 2026 | PT. Wiratama Karya Nugraha | Dibuat di Makassar | @reza4official_ | vX.X.X`. Ejaan "Karya" sudah dikonfirmasi pemilik.
 - Dapat dipasang sebagai PWA (gratis), opsional tahap lanjut.
 
 ---
@@ -234,8 +234,8 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 
 ## 13. Pertanyaan Terbuka
 
-1. **Ejaan nama perusahaan**: footer yang Anda tulis "PT. Wiratama **Kaya** Nugraha", sedangkan di tempat lain "**Karya**". Dokumen ini memakai "Karya". Mana yang benar?
-2. **Logo**: mohon kirim file logo agar warna biru dan identitas bisa diambil.
+1. ~~Ejaan nama perusahaan~~ — **terjawab**: "Karya".
+2. **Logo**: pemilik akan mengirim nanti. Sementara memakai token tema placeholder.
 3. **Anak perusahaan**: nama-nama anak perusahaan WKN.
 4. **Nama role final**: setuju "Manajer Proyek" dan menambah "Admin Logistik/Gudang"?
 5. **Pendekatan password** (bagian 2 no. 1): setuju dengan derivasi di klien agar password benar-benar bebas aturan?
