@@ -5,7 +5,7 @@
 <style>
 /* Layout: sidebar + sticky topbar + content, footer di bawah. Abu muda/putih, aksen biru WKN (placeholder sampai logo diterima). */
 :root{
-  --wkn:#1d2bd6; --wkn-d:#1520a8; --wkn-soft:#e8eaff; --wkn-or:#ff9900; --wkn-ink:#ffffff;
+  --wkn:#1d2bd6; --wkn-d:#1520a8; --wkn-soft:#e8eaff; --wkn-or:#ff9900; --wkn-ink:#ffffff; --logo-fx:none;
   --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --line:#dde3ec; --line-2:#e9edf3;
   --fg:#18212f; --fg-2:#4b586b; --fg-3:#7a8697;
   --ok:#17803d; --ok-bg:#e3f4ea; --warn:#9a6500; --warn-bg:#fdf1d6; --bad:#b42318; --bad-bg:#fde6e3; --mute-bg:#eceff4;
@@ -14,13 +14,13 @@
   --r:10px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220;
+  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
   --bg:#0e1420; --surface:#151c2b; --surface-2:#1a2335; --line:#27324a; --line-2:#202b41;
   --fg:#e8edf6; --fg-2:#aab5c8; --fg-3:#7f8ba0;
   --ok:#5fd18a; --ok-bg:#12301f; --warn:#f0bf55; --warn-bg:#3a2e10; --bad:#ff8a7d; --bad-bg:#401a17; --mute-bg:#212b40;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220;
+  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
   --bg:#0e1420; --surface:#151c2b; --surface-2:#1a2335; --line:#27324a; --line-2:#202b41;
   --fg:#e8edf6; --fg-2:#aab5c8; --fg-3:#7f8ba0;
   --ok:#5fd18a; --ok-bg:#12301f; --warn:#f0bf55; --warn-bg:#3a2e10; --bad:#ff8a7d; --bad-bg:#401a17; --mute-bg:#212b40;
@@ -43,8 +43,8 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .side{position:sticky;top:env(safe-area-inset-top,0px);height:100vh;display:flex;flex-direction:column;padding:16px 0;gap:6px}
 .brand{display:flex;gap:12px;align-items:center;padding:6px 8px 14px}
 .brand .t{font:700 15px/1.15 var(--f-head)} .brand .s{font-size:11.5px;color:var(--fg-3)}
-.logo{flex:none;display:grid;place-items:center;background:#fff;border-radius:10px;padding:7px 8px;border:1px solid var(--line);box-shadow:var(--shadow)}.lg{display:block;width:64px;height:auto}
-.logochip{background:#fff;border-radius:14px;padding:14px 20px;box-shadow:var(--shadow);align-self:flex-start;width:fit-content;max-width:100%;border:1px solid var(--line)}.logochip img{display:block;width:260px;max-width:100%;height:auto}
+.logo{flex:none;display:grid;place-items:center}.lg{display:block;width:64px;height:auto;filter:var(--logo-fx)}
+.logochip{align-self:flex-start;width:fit-content;max-width:100%}.logochip img{display:block;width:260px;max-width:100%;height:auto;filter:var(--logo-fx)}
 .nav{overflow:auto;display:flex;flex-direction:column;gap:2px;padding-right:4px;flex:1;min-height:0}
 .nav h4{margin:14px 10px 4px;font:600 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3)}
 .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:var(--fg-2);text-decoration:none;font-weight:500;transition:background .15s,color .15s}
@@ -148,7 +148,7 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 
 /* PDF preview */
 .paper{background:#fff;color:#111;border:1px solid #cfd6e2;padding:26px;font-size:11.5px;min-width:560px;box-shadow:var(--shadow)}
-.paper .kop .logo{box-shadow:none;border:0;padding:0}.paper .kop{display:flex;gap:12px;align-items:center;border-bottom:3px solid #ff9900;padding-bottom:10px;margin-bottom:12px}
+.paper .kop .lg{filter:none}.paper .kop{display:flex;gap:12px;align-items:center;border-bottom:3px solid #ff9900;padding-bottom:10px;margin-bottom:12px}
 .paper table{min-width:0;font-size:10.5px} .paper th{background:#eef2f8;color:#334;position:static} .paper td,.paper th{border:1px solid #d5dbe6;padding:4px 6px}
 .drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--fg-2);background:var(--surface-2)}
 .drop:hover{border-color:var(--wkn)}
