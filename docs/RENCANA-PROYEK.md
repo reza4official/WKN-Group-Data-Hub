@@ -26,7 +26,7 @@ Bagian ini penting. Beberapa permintaan **tidak bisa dipenuhi apa adanya** di pa
 
 | # | Kebutuhan | Kendala | Solusi yang diusulkan |
 |---|-----------|---------|-----------------------|
-| 1 | Password bebas aturan | Firebase Auth mewajibkan password minimal 6 karakter dan tidak bisa dimatikan | Password yang diketik pengguna **tidak dikirim langsung** ke Firebase. Browser menurunkannya menjadi string tetap (PBKDF2 dengan salt dari username, hasil hex 64 karakter), lalu string itu yang menjadi password Firebase. Hasilnya pengguna boleh memakai password 1 karakter atau apa pun. Konsekuensi: password pendek tetap lemah secara keamanan, itu keputusan pemilik. |
+| 1 | Password bebas aturan | Firebase Auth mewajibkan minimal 6 karakter | **Diputuskan pemilik**: ikuti batas Firebase (minimal 6 karakter), tanpa syarat lain (huruf besar, angka, simbol tidak diwajibkan). Password dikirim apa adanya ke Firebase, tanpa derivasi di klien. |
 | 2 | Username bebas | Firebase Auth butuh email | Username dinormalisasi (huruf kecil, Unicode NFC) lalu di-encode (hex/base32) menjadi email sintetis `<encoded>@users.wkngroup.invalid`. Keunikan dijaga dokumen `usernames/{normalized}`. Spasi dan karakter unik tetap diperbolehkan. |
 | 3 | Aksi admin (buat akun, reset password, nonaktifkan, set claims) | Cloud Functions butuh paket Blaze (berbayar) | **Cloudflare Worker (gratis) menjadi backend inti.** Worker menyimpan service account Firebase sebagai secret, memverifikasi ID token pemanggil, memeriksa hierarki role, lalu memanggil Identity Toolkit dan Firestore REST API. |
 | 4 | Cloudflare di depan `wkngroup.web.app` | `web.app` milik Google, tidak bisa ditambahkan sebagai zone Cloudflare. WAF, caching, dan Rules Cloudflare tidak berlaku | Yang tetap gratis dan dipakai: **Workers (workers.dev), Turnstile (anti-bot), KV (rate limit), Cron Triggers**. Jika ingin Cloudflare Rules/WAF penuh, perlu domain sendiri (berbayar). "Rules" di dokumen ini berarti **Firestore Security Rules** dan **Hosting headers**. |
@@ -126,8 +126,7 @@ Izin per role dalam bentuk kunci: `inventory.read`, `inventory.write`, `inventor
 ## 6. Autentikasi
 
 **Login username + password**
-- Form: username, password (ikon mata), tombol Masuk. Tidak ada aturan format.
-- Password diturunkan di klien (lihat bagian 2 no. 1) sebelum dikirim ke Firebase.
+- Form: username, password (ikon mata), tombol Masuk. Satu-satunya aturan: minimal 6 karakter (batas Firebase), tanpa syarat lain.
 
 **Login Google**
 - Hanya untuk akun yang **sudah didaftarkan** (email cocok dengan `emailKontak` akun). Jika tidak cocok, pengguna langsung di-sign out dengan pesan jelas. **Tidak ada pendaftaran otomatis.**
@@ -193,7 +192,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 - Worker: verifikasi ID token Firebase, cek `disabled`, cek hierarki, rate limit KV, CORS hanya untuk `https://wkngroup.web.app`.
 - Secret (service account, kunci Turnstile) hanya di Wrangler secrets, tidak pernah di repo atau klien.
 - Hosting headers: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`.
-- Karena password bebas aturan, hash PBKDF2 di klien dan Firebase Auth tetap menyimpan hash sisi server. Risiko password lemah tetap pada pemilik akun.
+- Password hanya dibatasi minimal 6 karakter (batas Firebase); Firebase menyimpan hash di sisi server. Risiko password lemah tetap pada pemilik akun.
 
 **Anggaran kuota harian (gratis)**: baca 50 ribu, tulis 20 ribu, Worker 100 ribu request. Dengan agregat bulanan, satu muat dashboard sekitar puluhan baca. Satu transaksi ledger ≈ 3 tulis (entri, item, summary) + 1 audit = 4 tulis, jadi sekitar 5 ribu transaksi per hari. Pantau dan beri peringatan di aplikasi.
 
@@ -232,13 +231,15 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 
 ---
 
-## 13. Pertanyaan Terbuka
+## 13. Keputusan dan Pertanyaan Terbuka
 
-1. ~~Ejaan nama perusahaan~~ — **terjawab**: "Karya".
-2. **Logo**: pemilik akan mengirim nanti. Sementara memakai token tema placeholder.
-3. **Anak perusahaan**: nama-nama anak perusahaan WKN.
-4. **Nama role final**: setuju "Manajer Proyek" dan menambah "Admin Logistik/Gudang"?
-5. **Pendekatan password** (bagian 2 no. 1): setuju dengan derivasi di klien agar password benar-benar bebas aturan?
-6. **Cloudflare tanpa domain sendiri** (bagian 2 no. 4): menerima bahwa WAF/Rules Cloudflare tidak berlaku untuk `web.app`, dan Cloudflare dipakai untuk Worker, Turnstile, KV?
-7. **Siapa yang mengisi data harian** (Manajer Proyek atau staf gudang)? Menentukan perlu tidaknya role Admin Logistik.
-8. **Skala data**: perkiraan jumlah proyek, barang, dan transaksi per hari, untuk memastikan kuota gratis cukup.
+**Sudah diputuskan pemilik**
+- Nama perusahaan: "Karya".
+- Password: ikuti Firebase, minimal 6 karakter, tanpa syarat lain.
+- Cloudflare dipakai untuk Worker, Turnstile, KV (tanpa WAF/Rules, domain tetap di Firebase `wkngroup.web.app`).
+- Nama role: **Manajer Proyek** dan **Admin Logistik/Gudang** (input harian oleh keduanya).
+
+**Masih menunggu**
+1. **Logo**: akan dikirim pemilik nanti. Sementara memakai token tema placeholder.
+2. **Daftar anak perusahaan**: akan diberikan pemilik nanti.
+3. **Skala data**: perkiraan jumlah proyek, barang, dan transaksi per hari, untuk memastikan kuota gratis cukup.
