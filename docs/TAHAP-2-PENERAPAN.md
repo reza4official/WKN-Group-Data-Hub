@@ -64,6 +64,19 @@ Buka https://wkngroup-datahub.web.app dan periksa:
 - Keluar, lalu masuk dengan **Login Google** memakai email dari langkah 5: berhasil masuk sebagai akun yang sama.
 - Login Google dengan email lain (belum terdaftar): ditolak dengan pesan jelas.
 
+## Alternatif: service account dari proyek Google Cloud lain (mis. `wkn-worker`)
+Disarankan membuat service account **di dalam** `wkngroup-datahub`. Jika tetap ingin memakai akun yang dibuat di proyek lain, lakukan semua ini:
+
+1. **Beri izin di proyek target.** Google Cloud Console, pilih proyek `wkngroup-datahub` → IAM & Admin → IAM → **Grant access**. Principal: email service account (mis. `firebase-authentication-admin@wkn-worker.iam.gserviceaccount.com`). Peran: **Firebase Authentication Admin** dan **Cloud Datastore User**.
+2. **Aktifkan API di proyek pemilik kunci.** Pilih proyek `wkn-worker` → APIs & Services → Library: aktifkan **Cloud Firestore API** dan **Identity Toolkit API**. (Pemanggilan dihitung ke proyek pemilik kunci.)
+3. **Bootstrap** dengan proyek target eksplisit:
+```powershell
+node scripts/bootstrap-developer.mjs --key 'D:\jalur\kunci.json' --allow-other-project --project wkngroup-datahub
+```
+4. Worker tidak perlu diubah: `FIREBASE_PROJECT_ID` sudah `wkngroup-datahub`.
+
+**Risiko yang belum teruji:** Login Google memakai *custom token* yang ditandatangani service account ini. Untuk akun dari proyek lain, Firebase mungkin menolak token itu. Jika Login Google gagal dengan pesan "Login Google gagal" padahal username dan password berhasil, penyebabnya ini, dan solusinya membuat service account di dalam `wkngroup-datahub`.
+
 ## 8. Bila Login Google gagal
 | Gejala | Penyebab dan solusi |
 |--------|---------------------|

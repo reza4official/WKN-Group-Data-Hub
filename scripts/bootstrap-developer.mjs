@@ -52,14 +52,21 @@ if (!emulator) {
   }
   if (!sa.client_email || !sa.private_key || !sa.project_id) fatal('Berkas service account tidak lengkap.')
   project = sa.project_id
+  if (args.has('allow-other-project')) {
+    // Kunci dari proyek Google Cloud lain, diberi izin di proyek Firebase target lewat IAM.
+    project = args.get('project')
+    if (!project || project === true) fatal('Dengan --allow-other-project, tentukan proyek target: --project wkngroup-datahub')
+    console.log(`Catatan: kunci berasal dari proyek "${sa.project_id}", target data: "${project}".`)
+  }
   // Pengaman: kunci harus berasal dari proyek yang sama dengan .firebaserc (kesalahan umum: membuat
   // service account di proyek Google Cloud lain, misalnya yang namanya sama dengan nama akun).
   try {
     const rc = JSON.parse(readFileSync(new URL('../.firebaserc', import.meta.url), 'utf8'))
     const expected = rc?.projects?.default
-    if (expected && expected !== project) {
+    if (expected && expected !== project && !args.has('allow-other-project')) {
       fatal(
         `Berkas kunci berasal dari proyek "${project}", padahal proyek aplikasi ini "${expected}".\n` +
+          'Jika sengaja memakai kunci dari proyek lain, tambahkan: --allow-other-project --project ' + expected + '\n' +
           `Buat ulang service account DI DALAM proyek "${expected}" (Google Cloud Console, pilih proyek itu di bagian atas halaman,\n` +
           'lalu IAM & Admin -> Service Accounts). Lihat docs/PERSIAPAN-TAHAP-2.md bagian B.',
       )
@@ -219,6 +226,6 @@ function fatal(msg) {
 }
 function usage(code, msg) {
   if (msg) console.error(`${msg}\n`)
-  console.log('Pemakaian:\n  node scripts/bootstrap-developer.mjs --key "<jalur ke service-account.json>"\n\nPilihan pengujian lokal:\n  --emulator --project demo-xxx [--username U --name N --email E --password-env NAMA_VAR]')
+  console.log('Pemakaian:\n  node scripts/bootstrap-developer.mjs --key "<jalur ke service-account.json>"\n\nKunci dari proyek Google Cloud lain (sudah diberi izin di proyek target):\n  node scripts/bootstrap-developer.mjs --key "<jalur>" --allow-other-project --project wkngroup-datahub\n\nPilihan pengujian lokal:\n  --emulator --project demo-xxx [--username U --name N --email E --password-env NAMA_VAR]')
   exit(code)
 }
