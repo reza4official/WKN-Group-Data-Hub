@@ -51,7 +51,7 @@ Browser (SPA)  ──►  Firebase Hosting  (wkngroup.web.app, aset statis)
               └── Apps Script Web App ──► Google Sheets (cermin/backup)
 ```
 
-- **Frontend**: Vite + React + TypeScript, Tailwind CSS, React Router. Responsif dan mobile-first.
+- **Frontend**: Vite + React + TypeScript, CSS dengan token tema (tanpa Tailwind, agar identik dengan mockup), router berbasis hash buatan sendiri (tanpa React Router). Responsif dan mobile-first. Font Inter dan Space Grotesk dipasang lokal lewat `@fontsource`.
 - **Ekspor/impor**: SheetJS (pasang dari cdn.sheetjs.com karena paket npm `xlsx` usang), jsPDF + jspdf-autotable. Semua berjalan di browser.
 - **Grafik**: Recharts atau Chart.js.
 - **Deploy**: Firebase CLI (`firebase deploy`), Wrangler untuk Worker, GitHub Actions opsional (gratis untuk repo ini).

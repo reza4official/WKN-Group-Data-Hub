@@ -1,0 +1,6 @@
+# Konfigurasi Cloudflare Worker. Belum dideploy (menunggu Tahap 0.3 dan 0.5 dari pemilik).
+# JANGAN menaruh account_id, kunci, atau service account Firebase di berkas ini.
+# Rahasia dipasang dengan: wrangler secret put <NAMA>
+name = "wkn-data-hub-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"

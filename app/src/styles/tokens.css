@@ -1,0 +1,88 @@
+/* Token tema WKN: abu muda dan putih, aksen biru dan kuning dari logo. */
+:root {
+  --wkn: #1414e0;
+  --wkn-d: #0d0db0;
+  --wkn-soft: #e9e9ff;
+  --wkn-ink: #ffffff;
+  --wkn-or: #ff9900;
+  --acc-soft: #fff2d4;
+  --acc-ink: #9a5b00;
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --surface-2: #f6f8fb;
+  --line: #dde3ec;
+  --line-2: #e9edf3;
+  --fg: #18212f;
+  --fg-2: #4b586b;
+  --fg-3: #6b7788;
+  --ok: #17803d;
+  --ok-bg: #e3f4ea;
+  --warn: #9a6500;
+  --warn-bg: #fdf1d6;
+  --bad: #b42318;
+  --bad-bg: #fde6e3;
+  --mute-bg: #eceff4;
+  --shadow: 0 1px 2px rgba(20, 33, 56, 0.05), 0 4px 14px rgba(20, 33, 56, 0.06);
+  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-head: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --r: 10px;
+  --logo-fx: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --wkn: #8490ff;
+    --wkn-d: #aab3ff;
+    --wkn-soft: #1b1f4a;
+    --wkn-ink: #0b1220;
+    --wkn-or: #ffb020;
+    --acc-soft: #3a2e10;
+    --acc-ink: #ffb020;
+    --bg: #0e1420;
+    --surface: #151c2b;
+    --surface-2: #1a2335;
+    --line: #27324a;
+    --line-2: #202b41;
+    --fg: #e8edf6;
+    --fg-2: #aab5c8;
+    --fg-3: #8d99ad;
+    --ok: #5fd18a;
+    --ok-bg: #12301f;
+    --warn: #f0bf55;
+    --warn-bg: #3a2e10;
+    --bad: #ff8a7d;
+    --bad-bg: #401a17;
+    --mute-bg: #212b40;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25);
+    --logo-fx: drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255, 255, 255, 0.85));
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --wkn: #8490ff;
+  --wkn-d: #aab3ff;
+  --wkn-soft: #1b1f4a;
+  --wkn-ink: #0b1220;
+  --wkn-or: #ffb020;
+  --acc-soft: #3a2e10;
+  --acc-ink: #ffb020;
+  --bg: #0e1420;
+  --surface: #151c2b;
+  --surface-2: #1a2335;
+  --line: #27324a;
+  --line-2: #202b41;
+  --fg: #e8edf6;
+  --fg-2: #aab5c8;
+  --fg-3: #8d99ad;
+  --ok: #5fd18a;
+  --ok-bg: #12301f;
+  --warn: #f0bf55;
+  --warn-bg: #3a2e10;
+  --bad: #ff8a7d;
+  --bad-bg: #401a17;
+  --mute-bg: #212b40;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25);
+  --logo-fx: drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255, 255, 255, 0.85));
+  color-scheme: dark;
+}

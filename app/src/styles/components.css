@@ -1,0 +1,388 @@
+/* Tombol */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 9px;
+  padding: 8px 14px;
+  min-height: 38px;
+  font-weight: 600;
+  color: var(--fg);
+  transition:
+    transform 0.1s,
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.btn:hover {
+  border-color: var(--wkn);
+  color: var(--wkn);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.pri {
+  background: var(--wkn);
+  border-color: var(--wkn);
+  color: var(--wkn-ink);
+}
+.btn.pri:hover {
+  background: var(--wkn-d);
+  border-color: var(--wkn-d);
+  color: var(--wkn-ink);
+}
+.btn.bad {
+  color: var(--bad);
+}
+.btn.bad:hover {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.btn.sm {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+}
+.btn.ico {
+  padding: 0;
+  width: 38px;
+}
+.btn[disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Formulir */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.field > label {
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--fg-2);
+}
+.hint {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.err {
+  color: var(--bad);
+  font-size: 12.5px;
+}
+.in {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 11px;
+  min-height: 40px;
+}
+.in:focus {
+  border-color: var(--wkn);
+  outline: 2px solid var(--wkn-soft);
+}
+.in[aria-invalid='true'] {
+  border-color: var(--bad);
+}
+.sel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 7px 30px 7px 11px;
+  min-height: 38px;
+  max-width: 100%;
+}
+.pw {
+  position: relative;
+}
+.pw .in {
+  padding-right: 44px;
+}
+.pw button {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 34px;
+  height: 32px;
+  border: 0;
+  background: none;
+  color: var(--fg-3);
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+}
+.pw button:hover {
+  color: var(--wkn);
+  background: var(--wkn-soft);
+}
+
+/* Kartu */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.card .hd {
+  display: flex;
+  gap: 10px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-2);
+  flex-wrap: wrap;
+  min-height: 60px;
+}
+.card .hd h2 {
+  font-size: 15.5px;
+}
+.card .bd {
+  padding: 16px;
+}
+
+/* Pill status */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.pill.warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.pill.bad {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.pill.mute {
+  background: var(--mute-bg);
+  color: var(--fg-2);
+}
+.pill.blue {
+  background: var(--wkn-soft);
+  color: var(--wkn);
+}
+
+/* Tabel dengan penanda geser di tepi */
+.tw {
+  overflow-x: auto;
+  max-width: 100%;
+  background-color: var(--surface);
+  background-repeat: no-repeat;
+  background-size:
+    44px 100%,
+    44px 100%,
+    16px 100%,
+    16px 100%;
+  background-attachment: local, local, scroll, scroll;
+  background-image:
+    linear-gradient(to right, var(--surface) 30%, transparent),
+    linear-gradient(to left, var(--surface) 30%, transparent),
+    radial-gradient(farthest-side at 0 50%, rgba(15, 25, 45, 0.3), transparent),
+    radial-gradient(farthest-side at 100% 50%, rgba(15, 25, 45, 0.3), transparent);
+  background-position:
+    left center,
+    right center,
+    left center,
+    right center;
+}
+.tw table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 640px;
+}
+.tw th,
+.tw td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--line-2);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.tw td.wrap {
+  white-space: normal;
+  min-width: 190px;
+}
+.tw th {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-3);
+  font-weight: 600;
+  background: var(--surface-2);
+}
+.tw td.r,
+.tw th.r {
+  text-align: right;
+}
+.tw tbody tr:hover td {
+  background: var(--surface-2);
+}
+
+/* Keadaan kosong */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--fg-2);
+}
+.empty .badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--wkn-soft);
+  color: var(--wkn);
+}
+.empty .badge svg.i {
+  width: 26px;
+  height: 26px;
+}
+.empty h2 {
+  font-size: 18px;
+  color: var(--fg);
+}
+.empty p {
+  margin: 0;
+  max-width: 52ch;
+}
+
+/* Modal, panel samping, toast */
+.ov {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 16, 28, 0.5);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade 0.15s;
+}
+.ov.end {
+  justify-content: flex-end;
+  padding: 0;
+}
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: min(520px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: pop 0.18s;
+}
+.modal .mh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line-2);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.modal .mb {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal .mf {
+  padding: 14px 18px;
+  border-top: 1px solid var(--line-2);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.drawer {
+  background: var(--surface);
+  width: min(520px, 100%);
+  height: 100%;
+  overflow: auto;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.25);
+  animation: slide 0.2s;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.toasts {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 70;
+  max-width: calc(100% - 32px);
+}
+.toast {
+  background: var(--fg);
+  color: var(--bg);
+  padding: 11px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  animation: pop 0.2s;
+  font-weight: 500;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes slide {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+}
+
+/* Galeri komponen (hanya mode pengembangan) */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

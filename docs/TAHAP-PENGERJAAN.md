@@ -24,9 +24,11 @@ Setiap tahap berakhir dengan satu rilis berversi (vX.X.X), kriteria selesai yang
 
 ## Tahap 1 — v0.1.0 Fondasi dan tampilan
 
+**Status: selesai di sisi kode. Deploy ke `wkngroup.web.app` menunggu Tahap 0.1 (proyek Firebase) dari pemilik.**
+
 **Tujuan:** kerangka aplikasi yang tampil sama dengan mockup, belum ada data sungguhan.
 
-- Inisialisasi repo: Vite + React + TypeScript + Tailwind, ESLint, Prettier, `firebase.json`, `.firebaserc`, `wrangler.toml`.
+- Inisialisasi repo: Vite + React + TypeScript, CSS token (tanpa Tailwind), ESLint, Prettier, Vitest, `firebase.json`, `.firebaserc`, `wrangler.toml`.
 - Struktur: `app/` (frontend), `worker/` (Cloudflare Worker), `firestore.rules`, `docs/`, `assets/`.
 - Token tema dari mockup (terang/gelap, biru, kuning, putih), font Inter + Space Grotesk.
 - Komponen dasar: tombol, input, `PasswordInput` (ikon mata), tabel dengan penanda geser, kartu, modal, panel samping, toast, pill status.

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.firebase/
+*.log
+.env
+.env.*
+.dev.vars
+.wrangler/
+# Kunci dan service account tidak boleh masuk repo
+*service-account*.json
+*-firebase-adminsdk-*.json
