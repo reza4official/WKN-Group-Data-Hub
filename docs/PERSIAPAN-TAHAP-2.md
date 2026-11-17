@@ -92,7 +92,7 @@ firebase deploy --only hosting
 
 Worker memakai service account untuk membuat akun, mereset password, dan menulis data. Dibuat khusus dengan izin seminimal mungkin.
 
-1. Buka https://console.cloud.google.com, pilih proyek Firebase Anda di bagian atas.
+1. Buka https://console.cloud.google.com. Di bagian atas halaman, klik pemilih proyek dan pilih **`wkngroup-datahub`** (bukan membuat proyek baru). Jika tidak terlihat, ganti ke tab **All** pada pemilih itu.
 2. Menu **IAM & Admin → Service Accounts → Create service account**.
 3. Nama: `wkn-worker`. Klik **Create and continue**.
 4. Beri dua peran:
@@ -100,8 +100,9 @@ Worker memakai service account untuk membuat akun, mereset password, dan menulis
    - **Cloud Datastore User**
 5. Klik **Done**.
 6. Klik akun `wkn-worker` → tab **Keys → Add key → Create new key → JSON → Create**. Berkas JSON terunduh.
-7. **Simpan berkas itu di tempat aman** (misal pengelola password). Jangan unggah ke GitHub, chat, atau email.
-8. Pastikan dua API aktif di **APIs & Services → Library**: **Identity Toolkit API** dan **Cloud Firestore API** (keduanya biasanya sudah aktif otomatis).
+7. **Periksa isi berkas**: buka dengan Notepad dan pastikan baris `"project_id"` bernilai `wkngroup-datahub`. Jika berbeda, service account dibuat di proyek yang salah; ulangi dari langkah 1.
+8. **Simpan berkas itu di tempat aman** (misal pengelola password). Jangan unggah ke GitHub, chat, atau email.
+9. Pastikan dua API aktif di **APIs & Services → Library**: **Identity Toolkit API** dan **Cloud Firestore API** (keduanya biasanya sudah aktif otomatis).
 
 **Jika tombol Create key diblokir** (pesan "Service account key creation is disabled"): proyek Anda berada di organisasi dengan kebijakan ketat. Kabari saya; ada jalur alternatif.
 

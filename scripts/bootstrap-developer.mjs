@@ -52,6 +52,21 @@ if (!emulator) {
   }
   if (!sa.client_email || !sa.private_key || !sa.project_id) fatal('Berkas service account tidak lengkap.')
   project = sa.project_id
+  // Pengaman: kunci harus berasal dari proyek yang sama dengan .firebaserc (kesalahan umum: membuat
+  // service account di proyek Google Cloud lain, misalnya yang namanya sama dengan nama akun).
+  try {
+    const rc = JSON.parse(readFileSync(new URL('../.firebaserc', import.meta.url), 'utf8'))
+    const expected = rc?.projects?.default
+    if (expected && expected !== project) {
+      fatal(
+        `Berkas kunci berasal dari proyek "${project}", padahal proyek aplikasi ini "${expected}".\n` +
+          `Buat ulang service account DI DALAM proyek "${expected}" (Google Cloud Console, pilih proyek itu di bagian atas halaman,\n` +
+          'lalu IAM & Admin -> Service Accounts). Lihat docs/PERSIAPAN-TAHAP-2.md bagian B.',
+      )
+    }
+  } catch (e) {
+    if (e?.code !== 'ENOENT') throw e
+  }
 } else if (!project?.startsWith('demo-')) {
   fatal('Mode --emulator hanya untuk proyek berawalan "demo-" (--project demo-xxx).')
 }
