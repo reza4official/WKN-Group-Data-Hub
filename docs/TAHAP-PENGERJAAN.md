@@ -46,7 +46,7 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 2 — v0.2.0 Autentikasi dan Worker dasar
 
-**Status: kode selesai dan lulus uji emulator. Penerapan ke proyek asli: [`TAHAP-2-PENERAPAN.md`](TAHAP-2-PENERAPAN.md). Belum teruji: pop-up Login Google sungguhan.**
+**Status: selesai dan teruji di produksi (v0.2.2). Login username dan Login Google berfungsi di `wkngroup-datahub.web.app`. Panduan: [`TAHAP-2-PENERAPAN.md`](TAHAP-2-PENERAPAN.md).**
 
 **Tujuan:** pengguna dapat masuk. Hanya akun terdaftar yang bisa masuk.
 

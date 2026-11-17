@@ -80,6 +80,7 @@ node scripts/bootstrap-developer.mjs --key 'D:\jalur\kunci.json' --allow-other-p
 ## 8. Bila Login Google gagal
 | Gejala | Penyebab dan solusi |
 |--------|---------------------|
+| Pesan `server_error - Firestore get gagal (403)` | Secret Worker masih berisi kunci dari proyek lain. Pasang ulang dengan kunci yang `project_id`-nya `wkngroup-datahub`, lalu `npx wrangler deploy`. Setiap kali kunci diganti, secret Worker harus dipasang ulang |
 | Pop-up tidak terbuka | Izinkan pop-up untuk situs ini |
 | `auth/unauthorized-domain` | Firebase Console → Authentication → Settings → Authorized domains, tambahkan `wkngroup-datahub.web.app` |
 | Pesan "Tidak dapat terhubung ke server" | `apiUrl` salah, atau `ALLOWED_ORIGINS` di `worker/wrangler.toml` belum memuat origin Anda. Ubah lalu `npx wrangler deploy` ulang |
