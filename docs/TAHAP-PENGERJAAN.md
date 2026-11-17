@@ -12,7 +12,7 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 | # | Tugas | Pelaku |
 |---|-------|--------|
-| 0.1 | Buat proyek Firebase (paket **Spark**), aktifkan Hosting, Authentication, Firestore. Atur ID proyek agar domain menjadi `wkngroup.web.app` | Pemilik |
+| 0.1 | Buat proyek Firebase (paket **Spark**), aktifkan Hosting, Authentication, Firestore. Project ID `wkngroup-datahub`; alamat `wkngroup.web.app` lewat situs Hosting tambahan `wkngroup` | Pemilik |
 | 0.2 | Aktifkan Authentication: **Email/Password** dan **Google** | Pemilik |
 | 0.3 | Buat akun **Cloudflare** (Free), catat Account ID | Pemilik |
 | 0.4 | Buat akun Cloudflare **Turnstile** (gratis), simpan site key dan secret | Pemilik |

@@ -12,7 +12,7 @@ Perkiraan waktu: 45–60 menit.
 
 | Nilai | Dari langkah | Boleh dikirim? |
 |-------|--------------|----------------|
-| ID proyek Firebase | A1 | Ya |
+| Konfirmasi Project ID `wkngroup-datahub` berhasil dibuat | A1 | Ya |
 | Objek `firebaseConfig` | A2 | Ya (kunci web memang publik) |
 | Lokasi Firestore yang dipilih | A5 | Ya |
 | Subdomain `workers.dev` | C2 | Ya |
@@ -32,8 +32,9 @@ Perkiraan waktu: 45–60 menit.
 1. Buka https://console.firebase.google.com dan masuk dengan akun Google milik perusahaan.
 2. Klik **Create a project** (Buat proyek).
 3. Nama: `WKN Group Data Hub`.
-4. Pada **Project ID**, klik ikon pensil dan isi `wkngroup` bila tersedia. ID **tidak bisa diubah** setelah dibuat.
-   - Jika `wkngroup` sudah dipakai orang lain, pakai ID lain (misal `wkn-data-hub`). Lihat A6 untuk memperoleh alamat `wkngroup.web.app`.
+4. Pada **Project ID**, klik ikon pensil dan isi **`wkngroup-datahub`**. ID **tidak bisa diubah** setelah dibuat.
+   - Jika `wkngroup-datahub` sudah dipakai orang lain, kabari saya sebelum memilih ID lain.
+   - Karena ID bukan `wkngroup`, alamat `wkngroup.web.app` diperoleh lewat langkah **A6 (wajib)**.
 5. Google Analytics: matikan (tidak dibutuhkan).
 6. Klik **Create project**.
 7. **Tetap di paket Spark (gratis).** Jika ada tawaran upgrade ke Blaze, abaikan.
@@ -65,10 +66,13 @@ Perkiraan waktu: 45–60 menit.
 
 **Cek:** tab **Data** terbuka dan kosong.
 
-### A6. Pastikan alamat `wkngroup.web.app`
-- Jika Project ID Anda `wkngroup`: alamatnya sudah `wkngroup.web.app`, lanjut.
-- Jika memakai ID lain: di **Hosting**, klik **Add another site**, isi Site ID `wkngroup`, lalu simpan. `firebase.json` di repo sudah menunjuk ke situs `wkngroup`.
-- Jika `wkngroup` sudah dipakai di seluruh Firebase: kabari saya, kita pilih nama lain dan ubah satu baris di `firebase.json`.
+### A6. Buat situs `wkngroup` (wajib)
+Situs bawaan proyek ini beralamat `wkngroup-datahub.web.app`. Alamat resmi `wkngroup.web.app` dibuat sebagai situs tambahan:
+1. Menu **Build → Hosting**, klik **Add another site**.
+2. Site ID: `wkngroup`, lalu **Deploy/Create**.
+3. Jika `wkngroup` sudah dipakai di seluruh Firebase, kabari saya. Kita pilih nama lain dan ubah satu baris di `firebase.json`.
+
+`firebase.json` di repo sudah menunjuk ke situs `wkngroup`, dan `.firebaserc` sudah berisi `wkngroup-datahub`.
 
 ### A7. Pasang alat bantu dan deploy v0.1.0 (opsional, tetapi disarankan)
 Di komputer Anda, butuh Node.js 22.12 atau lebih baru (https://nodejs.org).
@@ -78,7 +82,7 @@ npm install -g firebase-tools
 firebase login
 ```
 
-Ambil kode ini dari GitHub, lalu buka `.firebaserc` dan ganti `GANTI-DENGAN-ID-PROYEK-FIREBASE` dengan Project ID Anda. Kemudian:
+Ambil kode ini dari GitHub (`.firebaserc` sudah berisi `wkngroup-datahub`). Kemudian:
 
 ```bash
 cd app
@@ -170,11 +174,11 @@ Jangan jalankan dulu sebelum saya beri nama dan format persisnya.
 
 ## Daftar periksa akhir
 
-- [ ] Proyek Firebase di paket Spark, ID tercatat
+- [ ] Proyek Firebase `wkngroup-datahub` di paket Spark
 - [ ] `firebaseConfig` tersalin
 - [ ] Authentication: Email/Password dan Google aktif, `wkngroup.web.app` ada di Authorized domains
 - [ ] Firestore dibuat di `asia-southeast2`, mode Production
-- [ ] Alamat `wkngroup.web.app` bisa dibuka (halaman default atau v0.1.0)
+- [ ] Situs tambahan `wkngroup` dibuat; `wkngroup.web.app` bisa dibuka (halaman default atau v0.1.0)
 - [ ] Service account `wkn-worker` dibuat, dua peran, kunci JSON tersimpan aman
 - [ ] Akun Cloudflare, Account ID, subdomain workers.dev, KV `wkn-ratelimit`, Turnstile (Site Key dan Secret Key)
 - [ ] Data akun Developer (username, nama, email Google) siap
@@ -184,7 +188,8 @@ Jangan jalankan dulu sebelum saya beri nama dan format persisnya.
 
 | Gejala | Penyebab dan solusi |
 |--------|---------------------|
-| Project ID `wkngroup` tidak tersedia | Pakai ID lain, lalu tambah situs `wkngroup` di Hosting (A6) |
+| Project ID `wkngroup-datahub` tidak tersedia | Kabari saya sebelum memilih ID lain |
+| Situs `wkngroup` tidak tersedia di Hosting | Kabari saya; kita pilih nama situs lain |
 | Firebase meminta upgrade ke Blaze | Jangan upgrade. Fitur yang dibutuhkan sudah tersedia di Spark |
 | Tidak bisa membuat key service account | Kebijakan organisasi memblokir; kabari saya |
 | `firebase deploy` menolak izin | Jalankan `firebase login` ulang dengan akun yang memiliki proyek |

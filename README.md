@@ -32,7 +32,7 @@ Galeri komponen (hanya mode dev): buka `http://localhost:5173/#komponen`.
 
 ## Deploy
 
-Belum dikonfigurasi. Menunggu proyek Firebase (Tahap 0). Setelah itu ganti ID di `.firebaserc`, lalu:
+Belum dikonfigurasi. Menunggu proyek Firebase (Tahap 0). ID proyek di `.firebaserc` sudah `wkngroup-datahub`. Setelah proyek dibuat:
 
 ```bash
 cd app && npm run build && cd ..
