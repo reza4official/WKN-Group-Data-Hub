@@ -1,6 +1,12 @@
-# Konfigurasi Cloudflare Worker. Belum dideploy (menunggu Tahap 0.3 dan 0.5 dari pemilik).
-# JANGAN menaruh account_id, kunci, atau service account Firebase di berkas ini.
-# Rahasia dipasang dengan: wrangler secret put <NAMA>
+# Konfigurasi Cloudflare Worker (API WKN Data Hub).
+# JANGAN menaruh account_id, kunci, atau service account di berkas ini.
+# Rahasia dipasang dengan:  wrangler secret put FIREBASE_SERVICE_ACCOUNT
 name = "wkn-data-hub-api"
 main = "src/index.ts"
 compatibility_date = "2026-11-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "wkngroup-datahub"
+# Origin yang boleh memanggil API ini (dipisah koma).
+ALLOWED_ORIGINS = "https://wkngroup-datahub.web.app,https://wkngroup-datahub.firebaseapp.com,http://localhost:5173"
+# USE_EMULATOR sengaja tidak diisi di sini. Hanya untuk pengujian lokal dengan proyek berawalan "demo-".

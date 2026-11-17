@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Tahap 2: aturan dasar. Default menolak semua. Penulisan data dilakukan lewat Worker
+// (service account), bukan dari klien. Aturan diperluas di tahap berikutnya.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Akun Google "sementara" (belum terdaftar) tidak punya dokumen users, sehingga ditolak di sini.
+    function active() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false;
+    }
+
+    // Profil: hanya pemiliknya yang boleh membaca (juga bila dinonaktifkan, agar aplikasi dapat
+    // menampilkan pesan). Tidak ada penulisan dari klien dan tidak boleh melihat daftar akun.
+    match /users/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    // Daftar role dan izinnya: hanya untuk akun terdaftar yang aktif.
+    match /roles/{roleId} {
+      allow get, list: if active();
+      allow write: if false;
+    }
+
+    // Pencarian username dan semua koleksi lain: hanya Worker.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

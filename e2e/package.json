@@ -1,0 +1,17 @@
+{
+  "name": "wkn-e2e",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Uji end-to-end lokal dengan emulator Firebase (tidak menyentuh proyek asli)",
+  "scripts": {
+    "worker": "tsx worker-dev.ts",
+    "login": "node login.mjs",
+    "google-link": "node google-link.mjs",
+    "google-popup": "node google-popup.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0",
+    "tsx": "4.23.15"
+  }
+}

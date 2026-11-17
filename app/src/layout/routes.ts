@@ -5,6 +5,8 @@ export type RouteDef = {
   label: string
   icon: IconName
   group: string
+  /** Izin yang diperlukan (salah satu cukup). Kosong berarti semua akun masuk boleh. */
+  perm?: string[]
   /** Versi tempat fitur ini dibangun (lihat docs/TAHAP-PENGERJAAN.md). */
   arrives: string
   description: string
@@ -16,6 +18,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Dashboard',
     icon: 'dash',
     group: 'Ringkasan',
+    perm: ['dashboard'],
     arrives: 'v0.6.0',
     description:
       'Ringkasan stok per barang: masuk, keluar, sisa, perbandingan bulan lalu, dan persentase pemakaian.',
@@ -25,6 +28,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Transaksi Stok',
     icon: 'swap',
     group: 'Inventory',
+    perm: ['inventory.read'],
     arrives: 'v0.5.0',
     description: 'Pencatatan barang masuk dan keluar per proyek, lengkap dengan pencatat dan waktunya.',
   },
@@ -33,6 +37,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Katalog Barang',
     icon: 'tag',
     group: 'Inventory',
+    perm: ['catalog'],
     arrives: 'v0.4.0',
     description: 'Daftar baku barang dan satuan yang dipakai bersama oleh semua proyek.',
   },
@@ -41,6 +46,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Proyek & Perusahaan',
     icon: 'build',
     group: 'Inventory',
+    perm: ['projects'],
     arrives: 'v0.4.0',
     description: 'Perusahaan induk, anak perusahaan, proyek, dan saldo awal barang.',
   },
@@ -49,6 +55,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Impor / Ekspor',
     icon: 'xls',
     group: 'Inventory',
+    perm: ['export', 'import'],
     arrives: 'v0.7.0',
     description: 'Ekspor dan impor data dalam bentuk Excel dan PDF.',
   },
@@ -57,6 +64,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Akun Pengguna',
     icon: 'users',
     group: 'Administrasi',
+    perm: ['users'],
     arrives: 'v0.3.0',
     description: 'Membuat, mengubah, dan menghapus akun untuk role di bawah Anda.',
   },
@@ -65,6 +73,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Role & Akses',
     icon: 'shield',
     group: 'Administrasi',
+    perm: ['roles'],
     arrives: 'v0.3.0',
     description: 'Hirarki role dan pengaturan hak akses.',
   },
@@ -73,6 +82,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Permintaan Reset',
     icon: 'key',
     group: 'Administrasi',
+    perm: ['resets'],
     arrives: 'v0.3.0',
     description: 'Permintaan reset password beserta siapa yang mengeksekusi dan kapan.',
   },
@@ -81,6 +91,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Database Karyawan',
     icon: 'id',
     group: 'Administrasi',
+    perm: ['employees'],
     arrives: 'v0.8.0',
     description: 'Data karyawan yang terhubung dengan profil pengguna.',
   },
@@ -89,6 +100,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Log Audit',
     icon: 'log',
     group: 'Administrasi',
+    perm: ['audit'],
     arrives: 'v0.3.0',
     description: 'Catatan permanen siapa melakukan apa, tanggal, dan jam.',
   },
@@ -102,8 +114,15 @@ export const ROUTES: RouteDef[] = [
   },
 ]
 
-export const DEFAULT_ROUTE = ROUTES[0]
-
 export function findRoute(id: string): RouteDef | undefined {
   return ROUTES.find((r) => r.id === id)
+}
+
+/** Penjaga rute dasar berdasarkan izin role. Penegakan sesungguhnya ada di Firestore Rules dan Worker. */
+export function canAccess(route: RouteDef, perms: ReadonlySet<string>): boolean {
+  return !route.perm || route.perm.some((p) => perms.has(p))
+}
+
+export function accessibleRoutes(perms: ReadonlySet<string>): RouteDef[] {
+  return ROUTES.filter((r) => canAccess(r, perms))
 }

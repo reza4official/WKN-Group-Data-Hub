@@ -2,11 +2,12 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { COMPANY } from '../lib/version'
 import { Footer } from './Footer'
 import { Sidebar } from './Sidebar'
+import type { RouteDef } from './routes'
 import { Topbar } from './Topbar'
 
-type Props = { current: string; title: string; children: ReactNode }
+type Props = { routes: RouteDef[]; current: string; title: string; children: ReactNode }
 
-export function AppShell({ current, title, children }: Props) {
+export function AppShell({ routes, current, title, children }: Props) {
   const [open, setOpen] = useState(false)
   const [prev, setPrev] = useState(current)
   // Menu seluler menutup sendiri saat berpindah halaman (disetel saat render, bukan di efek).
@@ -24,7 +25,7 @@ export function AppShell({ current, title, children }: Props) {
 
   return (
     <div className="app">
-      <Sidebar id="sidebar" current={current} open={open} />
+      <Sidebar id="sidebar" routes={routes} current={current} open={open} />
       <div className={`scrim${open ? ' open' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
       <div className="main">
         <Topbar

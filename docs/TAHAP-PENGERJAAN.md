@@ -46,6 +46,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 2 — v0.2.0 Autentikasi dan Worker dasar
 
+**Status: kode selesai dan lulus uji emulator. Penerapan ke proyek asli: [`TAHAP-2-PENERAPAN.md`](TAHAP-2-PENERAPAN.md). Belum teruji: pop-up Login Google sungguhan.**
+
 **Tujuan:** pengguna dapat masuk. Hanya akun terdaftar yang bisa masuk.
 
 - Worker: kerangka API, verifikasi ID token Firebase, CORS hanya untuk `https://wkngroup-datahub.web.app`, pembuat token akses Google OAuth dari service account.

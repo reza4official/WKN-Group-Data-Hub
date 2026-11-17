@@ -13,11 +13,11 @@ export function PasswordInput({ label, error, id, ...rest }: Props) {
       <label htmlFor={inputId}>{label}</label>
       <div className="pw">
         <input
+          autoComplete="off"
           {...rest}
           id={inputId}
           className="in"
           type={shown ? 'text' : 'password'}
-          autoComplete="off"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${inputId}-err` : undefined}
         />

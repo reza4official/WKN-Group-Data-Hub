@@ -1,0 +1,138 @@
+.login {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 0 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+  padding-block: calc(24px + env(safe-area-inset-top, 0px)) 24px;
+}
+.hero {
+  padding: 30px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: flex-start;
+}
+.hero h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.1;
+}
+.hero p {
+  color: var(--fg-2);
+  max-width: 46ch;
+  margin: 0;
+}
+.mark {
+  background: linear-gradient(transparent 62%, var(--wkn-or) 62% 90%, transparent 90%);
+  padding: 0 2px;
+}
+.lbox {
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lbox h2.ttl {
+  font-size: 21px;
+}
+.lbox h2.ttl::after {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 3px;
+  border-radius: 3px;
+  margin-top: 8px;
+  background: linear-gradient(90deg, var(--wkn) 0 28px, var(--wkn-or) 28px);
+}
+.sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-3);
+  font-size: 12px;
+}
+.sep::before,
+.sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.notice {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-weight: 500;
+}
+.center-screen {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  place-items: center;
+  padding-block: calc(24px + env(safe-area-inset-top, 0px)) 24px;
+}
+.splash {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+.me {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+.me .av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--wkn-soft);
+  color: var(--wkn);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex: none;
+}
+.me .who {
+  min-width: 0;
+  flex: 1;
+}
+.me .n {
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me .r {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+@media (max-width: 900px) {
+  .login {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    align-items: start;
+  }
+  .hero {
+    gap: 14px;
+    padding: 6px 0 14px;
+  }
+  .hero p {
+    display: none;
+  }
+  .hero h1 {
+    font-size: 24px;
+  }
+  .lbox {
+    padding: 20px;
+  }
+}

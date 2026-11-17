@@ -1,10 +1,16 @@
 {
   "name": "wkn-data-hub-worker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Cloudflare Worker (API) untuk WKN Group Data Hub. Logika diisi mulai Tahap 2.",
   "scripts": {
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.0",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
   }
 }

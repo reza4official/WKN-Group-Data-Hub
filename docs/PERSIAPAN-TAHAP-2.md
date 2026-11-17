@@ -45,7 +45,7 @@ Perkiraan waktu: 45–60 menit.
 1. Di halaman proyek, klik ikon **`</>` (Web)**.
 2. Nama aplikasi: `WKN Data Hub Web`. **Jangan** centang Firebase Hosting di langkah ini.
 3. Klik **Register app**.
-4. Salin blok `firebaseConfig` (berisi `apiKey`, `authDomain`, `projectId`, `appId`, dan sejenisnya). Ini aman dibagikan.
+4. Salin blok `firebaseConfig` (berisi `apiKey`, `authDomain`, `projectId`, `appId`, dan sejenisnya). Ini aman dibagikan. Nilainya nanti dimasukkan ke `app/src/config/public-config.json` (lihat `TAHAP-2-PENERAPAN.md`).
 
 ### A3. Aktifkan Authentication
 1. Menu **Build → Authentication → Get started**.
@@ -152,15 +152,7 @@ npm install -g wrangler
 wrangler login
 ```
 
-Browser terbuka untuk memberi izin. Pasang rahasia Worker nanti (diarahkan saya pada Tahap 2) dengan perintah seperti ini, ditempel isi berkas JSON saat diminta:
-
-```bash
-cd worker
-wrangler secret put FIREBASE_SERVICE_ACCOUNT
-wrangler secret put TURNSTILE_SECRET
-```
-
-Jangan jalankan dulu sebelum saya beri nama dan format persisnya.
+Browser terbuka untuk memberi izin. Pemasangan rahasia Worker dijelaskan di `TAHAP-2-PENERAPAN.md` (isi berkas dikirim lewat pipa PowerShell, bukan ditempel). `TURNSTILE_SECRET` baru dibutuhkan di Tahap 3.
 
 ---
 
