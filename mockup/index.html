@@ -93,7 +93,9 @@ textarea.in{min-height:70px;resize:vertical}
 .pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.mute{background:var(--mute-bg);color:var(--fg-2)} .pill.blue{background:var(--wkn-soft);color:var(--wkn)}
 .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .search{position:relative;flex:1;min-width:180px;max-width:360px} .search svg{position:absolute;left:11px;top:11px;color:var(--fg-3)} .search .in{padding-left:36px}
-.tw{overflow-x:auto;max-width:100%}
+.tw{overflow-x:auto;max-width:100%;background-color:var(--surface);background-repeat:no-repeat;background-size:44px 100%,44px 100%,16px 100%,16px 100%;background-attachment:local,local,scroll,scroll;
+  background-image:linear-gradient(to right,var(--surface) 30%,transparent),linear-gradient(to left,var(--surface) 30%,transparent),radial-gradient(farthest-side at 0 50%,rgba(15,25,45,.3),transparent),radial-gradient(farthest-side at 100% 50%,rgba(15,25,45,.3),transparent);
+  background-position:left center,right center,left center,right center}
 table{border-collapse:collapse;width:100%;min-width:640px}
 th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:middle}
 th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg-3);font-weight:600;white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
