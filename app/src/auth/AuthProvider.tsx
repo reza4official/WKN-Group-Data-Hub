@@ -112,10 +112,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await signOut(auth).catch(() => {})
         throw new LoginError('Tidak dapat terhubung ke server. Periksa koneksi Anda.')
       }
-      const body = (await res.json().catch(() => ({}))) as { customToken?: string; error?: string }
+      const body = (await res.json().catch(() => ({}))) as {
+        customToken?: string
+        error?: string
+        detail?: string
+      }
       if (!res.ok || !body.customToken) {
         await signOut(auth).catch(() => {})
-        throw new LoginError(googleLinkMessage(body.error, res.status))
+        throw new LoginError(googleLinkMessage(body.error, res.status, body.detail))
       }
       await signInWithCustomToken(auth, body.customToken)
     } catch (e) {

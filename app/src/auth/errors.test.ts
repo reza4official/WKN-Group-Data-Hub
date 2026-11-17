@@ -17,6 +17,9 @@ describe('pesan kesalahan login', () => {
     expect(googleLinkMessage('not_registered')).toContain('belum terdaftar')
     expect(googleLinkMessage('disabled')).toContain('dinonaktifkan')
     expect(googleLinkMessage('server_error')).toBe('Login Google gagal (kode: server_error). Coba lagi.')
+    expect(googleLinkMessage('server_error', 500, 'Firestore get gagal (403)')).toBe(
+      'Login Google gagal (kode: server_error - Firestore get gagal (403)). Coba lagi.',
+    )
     expect(googleLinkMessage(undefined, 502)).toBe('Login Google gagal (kode: HTTP 502). Coba lagi.')
   })
 })

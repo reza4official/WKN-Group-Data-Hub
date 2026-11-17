@@ -1,7 +1,7 @@
 import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
 
-export const VERSION = '0.2.0'
+export const VERSION = '0.2.2'
 
 function allowedOrigin(request: Request, env: Env): string | null {
   const origin = request.headers.get('Origin')
@@ -46,7 +46,10 @@ export default {
       return json({ error: 'not_found' }, 404, origin)
     } catch (e) {
       console.error('Kesalahan tak terduga', e)
-      return json({ error: 'server_error', message: 'Terjadi kesalahan pada server.' }, 500, origin)
+      // Ringkasan langkah yang gagal (mis. "Firestore get gagal (403)") membantu penelusuran. Pesan ini
+      // dibuat oleh kode kita sendiri dan tidak memuat rahasia.
+      const detail = e instanceof Error ? e.message.slice(0, 160) : undefined
+      return json({ error: 'server_error', message: 'Terjadi kesalahan pada server.', detail }, 500, origin)
     }
   },
 }

@@ -1,6 +1,6 @@
 import { createPublicKey, createVerify } from 'node:crypto'
 import { beforeEach, describe, expect, it } from 'vitest'
-import worker from '../src/index'
+import worker, { VERSION } from '../src/index'
 import { resetJwksCache } from '../src/lib/idToken'
 import { resetAccessTokenCache } from '../src/lib/serviceAccount'
 import { claims, installFetch, makeEnv, rsaKeys, signJwt, type World } from './helpers'
@@ -97,6 +97,20 @@ describe('POST /auth/google-link', () => {
   })
 })
 
+describe('kesalahan server', () => {
+  it('menyertakan langkah yang gagal tanpa membocorkan rahasia', async () => {
+    const real = globalThis.fetch
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).includes('/documents/users/') ? new Response('denied', { status: 403 }) : real(input, init)) as typeof fetch
+    const r = await call(idToken())
+    expect(r.status).toBe(500)
+    expect(r.body.error).toBe('server_error')
+    expect(r.body.detail).toBe('Firestore get gagal (403)')
+    expect(JSON.stringify(r.body)).not.toContain('PRIVATE KEY')
+    expect(world.deleted).toEqual([])
+  })
+})
+
 describe('CORS dan rute', () => {
   it('origin tidak diizinkan ditolak', async () => {
     const r = await call(idToken(), {}, 'https://jahat.example')
@@ -121,7 +135,7 @@ describe('CORS dan rute', () => {
 
   it('health memberi versi, rute lain 404', async () => {
     const h = await worker.fetch(new Request('https://api.test/health'), env)
-    expect(await h.json()).toMatchObject({ ok: true, version: '0.2.0' })
+    expect(await h.json()).toMatchObject({ ok: true, version: VERSION })
     expect((await worker.fetch(new Request('https://api.test/x'), env)).status).toBe(404)
   })
 })

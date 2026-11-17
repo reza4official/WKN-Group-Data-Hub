@@ -22,7 +22,7 @@ export function loginErrorMessage(code: string | undefined): string {
   }
 }
 
-export function googleLinkMessage(error: string | undefined, status?: number): string {
+export function googleLinkMessage(error: string | undefined, status?: number, detail?: string): string {
   switch (error) {
     case 'not_registered':
       return 'Email Google ini belum terdaftar. Minta atasan Anda membuatkan akun terlebih dahulu.'
@@ -35,7 +35,7 @@ export function googleLinkMessage(error: string | undefined, status?: number): s
     default: {
       // Kode kesalahan ditampilkan agar mudah dilaporkan dan ditelusuri di log Worker.
       const code = error ?? (status ? `HTTP ${status}` : 'tidak diketahui')
-      return `Login Google gagal (kode: ${code}). Coba lagi.`
+      return `Login Google gagal (kode: ${code}${detail ? ` - ${detail}` : ''}). Coba lagi.`
     }
   }
 }

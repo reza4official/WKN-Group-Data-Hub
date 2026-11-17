@@ -2,6 +2,10 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.2.2
+
+- Worker menyertakan ringkasan langkah yang gagal pada `server_error` (tanpa rahasia); aplikasi menampilkannya di pesan gagal Login Google.
+
 ## v0.2.1
 
 - Pesan gagal Login Google kini menyertakan kode kesalahan dari server untuk memudahkan penelusuran.
