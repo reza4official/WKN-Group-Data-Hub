@@ -2,6 +2,10 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.2.1
+
+- Pesan gagal Login Google kini menyertakan kode kesalahan dari server untuk memudahkan penelusuran.
+
 ## v0.2.0 — Tahap 2: Autentikasi dan Worker dasar
 
 - Login username + password. Username bebas (spasi, simbol, Unicode); satu-satunya aturan password: minimal 6 karakter (batas Firebase).

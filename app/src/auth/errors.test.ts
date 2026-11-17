@@ -16,6 +16,7 @@ describe('pesan kesalahan login', () => {
   it('penolakan login Google', () => {
     expect(googleLinkMessage('not_registered')).toContain('belum terdaftar')
     expect(googleLinkMessage('disabled')).toContain('dinonaktifkan')
-    expect(googleLinkMessage('x')).toBe('Login Google gagal. Coba lagi.')
+    expect(googleLinkMessage('server_error')).toBe('Login Google gagal (kode: server_error). Coba lagi.')
+    expect(googleLinkMessage(undefined, 502)).toBe('Login Google gagal (kode: HTTP 502). Coba lagi.')
   })
 })

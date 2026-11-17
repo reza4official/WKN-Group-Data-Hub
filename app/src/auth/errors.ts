@@ -22,7 +22,7 @@ export function loginErrorMessage(code: string | undefined): string {
   }
 }
 
-export function googleLinkMessage(error: string | undefined, fallback?: string): string {
+export function googleLinkMessage(error: string | undefined, status?: number): string {
   switch (error) {
     case 'not_registered':
       return 'Email Google ini belum terdaftar. Minta atasan Anda membuatkan akun terlebih dahulu.'
@@ -32,7 +32,10 @@ export function googleLinkMessage(error: string | undefined, fallback?: string):
       return 'Email Google belum terverifikasi.'
     case 'ambiguous':
       return 'Email ini terdaftar pada lebih dari satu akun. Hubungi atasan Anda.'
-    default:
-      return fallback ?? 'Login Google gagal. Coba lagi.'
+    default: {
+      // Kode kesalahan ditampilkan agar mudah dilaporkan dan ditelusuri di log Worker.
+      const code = error ?? (status ? `HTTP ${status}` : 'tidak diketahui')
+      return `Login Google gagal (kode: ${code}). Coba lagi.`
+    }
   }
 }

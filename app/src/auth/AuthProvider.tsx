@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const body = (await res.json().catch(() => ({}))) as { customToken?: string; error?: string }
       if (!res.ok || !body.customToken) {
         await signOut(auth).catch(() => {})
-        throw new LoginError(googleLinkMessage(body.error))
+        throw new LoginError(googleLinkMessage(body.error, res.status))
       }
       await signInWithCustomToken(auth, body.customToken)
     } catch (e) {
