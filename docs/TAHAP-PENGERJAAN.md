@@ -8,6 +8,8 @@ Setiap tahap berakhir dengan satu rilis berversi (vX.X.X), kriteria selesai yang
 
 ## Tahap 0 — Persiapan (dikerjakan pemilik, tanpa kode)
 
+Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
+
 | # | Tugas | Pelaku |
 |---|-------|--------|
 | 0.1 | Buat proyek Firebase (paket **Spark**), aktifkan Hosting, Authentication, Firestore. Atur ID proyek agar domain menjadi `wkngroup.web.app` | Pemilik |
