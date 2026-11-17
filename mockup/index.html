@@ -56,9 +56,10 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .me .n{font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .me .r{font-size:12px;color:var(--fg-3)}
 .me > div:nth-child(2){min-width:0;flex:1}
 .main{min-width:0;display:flex;flex-direction:column;min-height:100vh}
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;padding:14px 0 12px;flex-wrap:wrap}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:10px 12px;padding:14px 0 12px;flex-wrap:wrap;min-height:72px}
+.top .burger{order:0}.top h1{order:1}.top .ctl{order:2}.top .themebtn{order:3}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
-.top h1{font-size:22px;margin-right:auto;min-width:0}
+.top h1{font-size:22px;margin-right:auto;min-width:0;flex:1 1 auto}
 .top .crumb{font-size:12px;color:var(--fg-3);display:block;font-family:var(--f-body);font-weight:500;letter-spacing:0}
 .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sel{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 30px 7px 11px;min-height:38px;max-width:100%}
@@ -83,7 +84,7 @@ textarea.in{min-height:70px;resize:vertical}
 .hint{font-size:12px;color:var(--fg-3)} .err{color:var(--bad);font-size:12.5px;min-height:18px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
-.card .hd{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.card .hd{display:flex;gap:10px 14px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line-2);flex-wrap:wrap;min-height:60px}
 .card .hd h2{font-size:15.5px} .card .bd{padding:16px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .kpi{padding:14px 16px;display:flex;flex-direction:column;gap:2px}
@@ -97,7 +98,8 @@ textarea.in{min-height:70px;resize:vertical}
   background-image:linear-gradient(to right,var(--surface) 30%,transparent),linear-gradient(to left,var(--surface) 30%,transparent),radial-gradient(farthest-side at 0 50%,rgba(15,25,45,.3),transparent),radial-gradient(farthest-side at 100% 50%,rgba(15,25,45,.3),transparent);
   background-position:left center,right center,left center,right center}
 table{border-collapse:collapse;width:100%;min-width:640px}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:middle}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:middle;white-space:nowrap}
+td.wrap{white-space:normal;min-width:190px}
 th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg-3);font-weight:600;white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
 th.s{cursor:pointer;user-select:none} th.s:hover{color:var(--wkn)}
 td.r,th.r{text-align:right} tbody tr:hover td{background:var(--surface-2)} tr.click{cursor:pointer}
@@ -119,7 +121,7 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 .chk.dis{opacity:.55;cursor:not-allowed}
 .rolerow{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);width:100%;text-align:left}
 .rolerow.on{border-color:var(--wkn);background:var(--wkn-soft)}
-.lvl{font:700 12px var(--f-head);background:var(--mute-bg);border-radius:6px;padding:2px 7px;color:var(--fg-2)}
+.lvl{min-width:34px;text-align:center;font:700 12px var(--f-head);background:var(--mute-bg);border-radius:6px;padding:2px 7px;color:var(--fg-2)}
 .stack{display:flex;flex-direction:column;gap:10px}
 
 /* Overlays */
@@ -157,15 +159,22 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 @media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .trio,.roles2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:900px){
   .app{grid-template-columns:minmax(0,1fr)}
-  .side{position:fixed;left:0;top:0;bottom:0;width:min(290px,86%);z-index:45;background:var(--bg);padding:calc(16px + env(safe-area-inset-top,0px)) 14px 16px max(14px,env(safe-area-inset-left,0px));transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 40px rgba(0,0,0,.25);border-right:1px solid var(--line)}
-  .side.open{transform:none}
+  .side{position:fixed;left:0;top:0;bottom:0;width:min(290px,86%);z-index:45;background:var(--bg);padding:calc(16px + env(safe-area-inset-top,0px)) 14px 16px max(14px,env(safe-area-inset-left,0px));transform:translateX(-105%);transition:transform .2s,visibility .2s;visibility:hidden;border-right:1px solid var(--line)}
+  .side.open{transform:none;visibility:visible;box-shadow:10px 0 40px rgba(0,0,0,.25)}
   .burger{display:inline-flex}
   .login{grid-template-columns:minmax(0,1fr);gap:0}.hero{padding-bottom:6px}
+}
+@media (max-width:900px){
+  .top .themebtn{order:2}.top .ctl{order:3;flex:1 1 100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.top .ctl:empty{display:none}
+  .top .ctl .sel{width:100%;min-width:0}
+  .hero{align-items:flex-start;gap:14px;padding:22px 0 4px}.hero p,.feat{display:none}.hero h1{font-size:24px}.logochip img{width:170px}
+  .lbox{padding:20px}
 }
 @media (max-width:640px){
   .grid2{grid-template-columns:minmax(0,1fr)} .kpis{gap:10px} .kpi .v{font-size:23px}
   .top h1{font-size:19px} .hb .row{grid-template-columns:100px 1fr 46px}
-  .ctl{width:100%} .ctl .sel{flex:1 1 140px;min-width:0}
+  .card .hd .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.card .hd .tools .search,.card .hd .tools .sel,.card .hd .tools .btn.pri{grid-column:1/-1;max-width:none}
+  .sel{padding:7px 24px 7px 10px;font-size:13.5px}
 }
 </style>
 
@@ -467,7 +476,7 @@ function renderApp(){
     <div class="me"><div class="av">${initials(S.me.name)}</div><div><div class="n">${esc(S.me.name)}</div><div class="r">${esc(roleOf(S.me.role).name)}</div></div><button class="btn ico sm" data-act="logout" title="Keluar" aria-label="Keluar">${ic('out')}</button></div>
     <button class="btn sm" data-act="switch">${ic('users')}Pindah akun demo</button></aside>
     <div class="main"><header class="top"><button class="btn ico burger" data-act="menu" aria-label="Menu">${ic('menu')}</button><h1 id="ttl"></h1><div class="ctl" id="ctl"></div>
-      <button class="btn ico" data-act="theme" title="Tema" aria-label="Ganti tema">${ic('sun')}</button></header>
+      <button class="btn ico themebtn" data-act="theme" title="Tema" aria-label="Ganti tema">${ic('sun')}</button></header>
       <main class="content" id="content"></main><footer class="foot">${footer()}</footer></div></div>`;
   render();
 }
@@ -512,7 +521,7 @@ function dashTable(rows){
   const k=S.sort.k,d=S.sort.d;r.sort((a,b)=>(typeof a[k]==='string'?a[k].localeCompare(b[k]):((a[k]??-1)-(b[k]??-1)))*d);
   const th=(key,l,cls='')=>`<th class="s ${cls}" data-act="sort" data-k="${key}">${l}${S.sort.k===key?(S.sort.d>0?' ↑':' ↓'):''}</th>`;
   if(!r.length)return `<div class="empty">Tidak ada barang yang cocok dengan pencarian.</div>`;
-  return `<table><thead><tr>${th('name','Barang')}<th>Satuan</th>${th('open','Awal','r')}${th('inn','Masuk','r')}${th('out','Keluar','r')}${th('rem','Sisa','r')}${th('dOut','Laju harian vs bln lalu','r')}${th('pct','Pemakaian')}${th('cover','Cukup (hari)','r')}${th('st','Status')}</tr></thead><tbody>${r.map(x=>`<tr class="click" data-act="detail" data-id="${x.iid}"><td style="min-width:170px"><b>${esc(x.name)}</b><div class="sm muted">${esc(x.cat)}</div></td><td class="muted" style="white-space:nowrap">${esc(x.unit)}</td><td class="r num">${fmt(x.open)}</td><td class="r num in-c">${fmt(x.inn)}</td><td class="r num out-c">${fmt(x.out)}</td><td class="r num"><b>${fmt(x.rem)}</b></td><td class="r">${dlt(x.dOut)}<div class="sm muted num">keluar bln lalu ${fmt(x.pOut)}</div></td><td style="min-width:120px"><div class="bar ${x.pct>75?'vh':x.pct>55?'hi':''}"><i style="width:${Math.min(100,x.pct)}%"></i></div><div class="sm muted num">${x.pct.toFixed(1)}%</div></td><td class="r num">${x.cover===null?'—':Math.floor(x.cover)}</td><td>${statusPill(x)}</td></tr>`).join('')}</tbody></table>`;
+  return `<table><thead><tr>${th('name','Barang')}<th>Satuan</th>${th('open','Awal','r')}${th('inn','Masuk','r')}${th('out','Keluar','r')}${th('rem','Sisa','r')}${th('dOut','Laju harian vs bln lalu','r')}${th('pct','Pemakaian')}${th('cover','Cukup (hari)','r')}${th('st','Status')}</tr></thead><tbody>${r.map(x=>`<tr class="click" data-act="detail" data-id="${x.iid}"><td style="min-width:190px;white-space:normal"><b>${esc(x.name)}</b><div class="sm muted">${esc(x.cat)}</div></td><td class="muted" style="white-space:nowrap">${esc(x.unit)}</td><td class="r num">${fmt(x.open)}</td><td class="r num in-c">${fmt(x.inn)}</td><td class="r num out-c">${fmt(x.out)}</td><td class="r num"><b>${fmt(x.rem)}</b></td><td class="r">${dlt(x.dOut)}<div class="sm muted num">keluar bln lalu ${fmt(x.pOut)}</div></td><td style="min-width:120px"><div class="bar ${x.pct>75?'vh':x.pct>55?'hi':''}"><i style="width:${Math.min(100,x.pct)}%"></i></div><div class="sm muted num">${x.pct.toFixed(1)}%</div></td><td class="r num">${x.cover===null?'—':Math.floor(x.cover)}</td><td>${statusPill(x)}</td></tr>`).join('')}</tbody></table>`;
 }
 function actChart(pids){
   const days=[];for(let i=29;i>=0;i--)days.push(addDays(TODAY,-i));
@@ -560,7 +569,7 @@ function vInv(){
    <button class="btn sm" data-act="exp" data-t="xlsx">${ic('xls')}Excel</button><button class="btn sm" data-act="exp" data-t="pdf">${ic('pdf')}PDF</button>
    ${can('inventory.write')?`<button class="btn pri" data-act="addTx">${ic('plus')}Catat transaksi</button>`:''}</div></div>
    <div class="tw"><table><thead><tr><th>Hari / Tanggal</th><th>Nama barang</th><th>Satuan</th><th class="r">Masuk</th><th class="r">Keluar</th><th class="r">Tersisa</th><th>Keterangan</th><th>Dicatat oleh</th><th></th></tr></thead><tbody>
-   ${rows.map(r=>`<tr><td class="num" style="white-space:nowrap">${fdate(r.date)}</td><td><b>${esc(item(r.iid).name)}</b>${r.type==='awal'?` ${pill('blue','Saldo awal')}`:''}${r.type==='koreksi'?` ${pill('warn','Koreksi')}`:''}${corrected.has(r.id)?` ${pill('mute','Dikoreksi')}`:''}</td><td class="muted">${esc(item(r.iid).unit)}</td><td class="r num in-c">${r.in?fmt(r.in):'—'}</td><td class="r num out-c">${r.out?fmt(r.out):'—'}</td><td class="r num"><b>${fmt(r.bal)}</b></td><td>${esc(r.note)}</td><td class="sm"><div>${esc(by(r.by))}</div><div class="muted">${esc(r.at)}</div></td><td>${can('inventory.correct')&&(r.type==='masuk'||r.type==='keluar')&&!corrected.has(r.id)?`<button class="btn sm" data-act="reverse" data-id="${r.id}" title="Buat entri koreksi (reversal)">${ic('undo')}Koreksi</button>`:''}</td></tr>`).join('')||`<tr><td colspan="9"><div class="empty">Belum ada transaksi pada ${ymLabel(S.ym)}.</div></td></tr>`}
+   ${rows.map(r=>`<tr><td class="num" style="white-space:nowrap">${fdate(r.date)}</td><td><b>${esc(item(r.iid).name)}</b>${r.type==='awal'?` ${pill('blue','Saldo awal')}`:''}${r.type==='koreksi'?` ${pill('warn','Koreksi')}`:''}${corrected.has(r.id)?` ${pill('mute','Dikoreksi')}`:''}</td><td class="muted">${esc(item(r.iid).unit)}</td><td class="r num in-c">${r.in?fmt(r.in):'—'}</td><td class="r num out-c">${r.out?fmt(r.out):'—'}</td><td class="r num"><b>${fmt(r.bal)}</b></td><td class="wrap">${esc(r.note)}</td><td class="sm"><div>${esc(by(r.by))}</div><div class="muted">${esc(r.at)}</div></td><td>${can('inventory.correct')&&(r.type==='masuk'||r.type==='keluar')&&!corrected.has(r.id)?`<button class="btn sm" data-act="reverse" data-id="${r.id}" title="Buat entri koreksi (reversal)">${ic('undo')}Koreksi</button>`:''}</td></tr>`).join('')||`<tr><td colspan="9"><div class="empty">Belum ada transaksi pada ${ymLabel(S.ym)}.</div></td></tr>`}
    </tbody></table></div><div class="bd sm muted" style="border-top:1px solid var(--line-2)">Kolom “Tersisa” dihitung otomatis dari saldo awal dan seluruh transaksi berurutan. Transaksi tidak dapat diedit atau dihapus; kesalahan dikoreksi lewat entri koreksi yang tercatat atas nama pelakunya.</div></div>`;
 }
 function vCat(){
@@ -599,7 +608,7 @@ function impPreview(){const v=S.imp.rows.filter(r=>!r.e).length,bad=S.imp.rows.l
 function vUsers(){
   const ok=u=>lvl(u)<lvl(S.me);
   return `<div class="card"><div class="hd"><div><h2>Akun pengguna</h2><div class="sm muted">Anda dapat mengelola akun dengan level di bawah ${esc(roleOf(S.me.role).name)} (${lvl(S.me)}).</div></div><button class="btn pri" data-act="addUser">${ic('plus')}Tambah akun</button></div>
-  <div class="tw"><table><thead><tr><th>Pengguna</th><th>Role</th><th>Perusahaan / Proyek</th><th>Status</th><th class="r">Aksi</th></tr></thead><tbody>${[...users].sort((a,b)=>lvl(b)-lvl(a)).map(u=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><div class="av">${initials(u.name)}</div><div><b>${esc(u.name)}</b><div class="sm muted">@${esc(u.un)}</div></div></div></td><td>${rolePill(u.role)} <span class="lvl">${lvl(u)}</span></td><td class="sm">${esc(companies.find(c=>c.id===u.cid).name)}<div class="muted">${u.pids.map(p=>esc(proj(p).name.split(' ').slice(0,3).join(' '))).join(', ')||'Semua proyek'}</div></td><td>${u.active?pill('ok','Aktif'):pill('mute','Nonaktif')}</td>
+  <div class="tw"><table><thead><tr><th>Pengguna</th><th>Role</th><th>Perusahaan / Proyek</th><th>Status</th><th class="r">Aksi</th></tr></thead><tbody>${[...users].sort((a,b)=>lvl(b)-lvl(a)).map(u=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><div class="av">${initials(u.name)}</div><div><b>${esc(u.name)}</b><div class="sm muted">@${esc(u.un)}</div></div></div></td><td>${rolePill(u.role)} <span class="lvl">${lvl(u)}</span></td><td class="sm wrap">${esc(companies.find(c=>c.id===u.cid).name)}<div class="muted">${u.pids.map(p=>esc(proj(p).name.split(' ').slice(0,3).join(' '))).join(', ')||'Semua proyek'}</div></td><td>${u.active?pill('ok','Aktif'):pill('mute','Nonaktif')}</td>
    <td class="r">${ok(u)&&can('users')?`<div style="display:inline-flex;gap:6px"><button class="btn sm" data-act="resetPw" data-id="${u.id}">${ic('key')}Reset password</button><button class="btn sm" data-act="toggleUser" data-id="${u.id}">${u.active?'Nonaktifkan':'Aktifkan'}</button><button class="btn sm bad ico" data-act="delUser" data-id="${u.id}" title="Hapus akun" aria-label="Hapus akun">${ic('trash')}</button></div>`:`<span class="sm muted" title="Level sama atau lebih tinggi">${ic('lock')}</span>`}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
 function vRoles(){
@@ -620,7 +629,7 @@ function empTable(){const q=S.emQ.toLowerCase();const r=users.filter(u=>[u.name,
   return `<table><thead><tr><th>Nama</th><th>Username</th><th>No. HP</th><th>Email</th><th>Role</th><th>Terakhir diperbarui</th></tr></thead><tbody>${r.map(u=>`<tr><td><b>${esc(u.name)}</b></td><td>@${esc(u.un)}</td><td class="num">${esc(u.phone)}</td><td>${esc(u.email)}</td><td>${rolePill(u.role)}</td><td class="sm">${esc(u.upd)}<div class="muted">${esc(u.updAt)}</div></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">Tidak ditemukan.</div></td></tr>'}</tbody></table>`}
 function vAud(){return `<div class="card"><div class="hd"><div><h2>Log audit</h2><div class="sm muted">Hanya bisa bertambah. Tidak ada yang dapat mengubah atau menghapus catatan.</div></div><div class="search">${ic('search')}<input class="in" id="aq" placeholder="Cari pelaku atau aksi…" value="${esc(S.audQ)}"></div></div><div class="tw" id="tbl">${audTable()}</div></div>`}
 function audTable(){const q=S.audQ.toLowerCase();const r=audit.filter(a=>(by(a.by)+a.act+a.tgt+a.det).toLowerCase().includes(q));
-  return `<table><thead><tr><th>Waktu</th><th>Pelaku</th><th>Aksi</th><th>Target</th><th>Rincian</th></tr></thead><tbody>${r.map(a=>`<tr><td class="num sm" style="white-space:nowrap">${esc(a.at)}</td><td><b>${esc(by(a.by))}</b></td><td>${pill('blue',esc(a.act))}</td><td>${esc(a.tgt)}</td><td class="sm muted">${esc(a.det)}</td></tr>`).join('')||'<tr><td colspan="5"><div class="empty">Tidak ada catatan.</div></td></tr>'}</tbody></table>`}
+  return `<table><thead><tr><th>Waktu</th><th>Pelaku</th><th>Aksi</th><th>Target</th><th>Rincian</th></tr></thead><tbody>${r.map(a=>`<tr><td class="num sm" style="white-space:nowrap">${esc(a.at)}</td><td><b>${esc(by(a.by))}</b></td><td>${pill('blue',esc(a.act))}</td><td>${esc(a.tgt)}</td><td class="sm muted wrap">${esc(a.det)}</td></tr>`).join('')||'<tr><td colspan="5"><div class="empty">Tidak ada catatan.</div></td></tr>'}</tbody></table>`}
 function vProf(){const u=S.me;
   return `<div class="card" style="max-width:640px"><div class="hd"><div style="display:flex;gap:12px;align-items:center"><div class="av" style="width:48px;height:48px;font-size:16px">${initials(u.name)}</div><div><h2>${esc(u.name)}</h2><div class="sm muted">@${esc(u.un)} · ${esc(roleOf(u.role).name)}</div></div></div></div>
   <form class="bd stack" data-form="profile" novalidate><div class="grid2"><div class="field"><label for="fn">Nama</label><input class="in" id="fn" value="${esc(u.name)}"></div><div class="field"><label for="fh">No. HP</label><input class="in" id="fh" value="${esc(u.phone)}" inputmode="tel"></div></div>
@@ -687,7 +696,7 @@ function fillTx(){
 function upTx(){const p=$('#tp').value,i=$('#ti').value;if(!$('#tu'))return;$('#tu').textContent='('+(item(i)?.unit||'')+')';const rows=balanceRows(p,i);$('#tbal').textContent=rows.length?`Sisa saat ini: ${fmt(rows[rows.length-1].bal)} ${item(i).unit}`:''}
 
 /* ============ Event wiring ============ */
-document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const f=A[t.dataset.act];if(f){if(t.type==='checkbox')return;f(t,e)}});
+document.addEventListener('click',e=>{const sd=$('#side');if(sd&&sd.classList.contains('open')&&!e.target.closest('#side')&&!e.target.closest('[data-act=menu]'))sd.classList.remove('open');const t=e.target.closest('[data-act]');if(!t)return;const f=A[t.dataset.act];if(f){if(t.type==='checkbox')return;f(t,e)}});
 document.addEventListener('change',e=>{const t=e.target;
   if(t.dataset.act==='perm'){A.perm(t);return}
   if(t.id==='selP'){S.pid=t.value;render()}else if(t.id==='selM'){S.ym=t.value;render()}else if(t.id==='selI'){S.iFilter=t.value;render()}
