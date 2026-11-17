@@ -211,7 +211,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 | Versi | Isi |
 |-------|-----|
 | **v0.1.0** | Scaffolding repo, tema (token warna + logo placeholder), layout responsif, footer + versi, deploy Firebase Hosting ke wkngroup.web.app |
-| **v0.2.0** | Auth: username/password (derivasi), Google (akun terdaftar), ikon mata, Worker dasar, Firestore Rules awal, akun Developer pertama |
+| **v0.2.0** | Auth: username/password (min. 6 karakter), Google (akun terdaftar), ikon mata, Worker dasar, Firestore Rules awal, akun Developer pertama |
 | **v0.3.0** | Role dinamis + hierarki, kelola akun bawahan, permintaan dan eksekusi reset password beserta audit |
 | **v0.4.0** | Perusahaan, proyek, katalog barang, saldo awal |
 | **v0.5.0** | Ledger masuk/keluar/koreksi lewat Worker, tabel transaksi, summary bulanan |
