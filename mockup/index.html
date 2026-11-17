@@ -107,7 +107,9 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 .bar{height:7px;background:var(--mute-bg);border-radius:9px;overflow:hidden;min-width:70px} .bar i{display:block;height:100%;background:var(--wkn);border-radius:9px;transition:width .5s}
 .bar.hi i{background:var(--warn)} .bar.vh i{background:var(--bad)}
 .delta{font-weight:600;font-size:12.5px;white-space:nowrap} .delta.up{color:var(--bad)} .delta.dn{color:var(--ok)} .delta.na{color:var(--fg-3)}
-.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}.roles2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.col{display:flex;flex-direction:column}.grow{flex:1}.attn{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.hb{gap:16px}.hr{display:grid;gap:6px}.hrt{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.hrt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}.hr .bar{height:9px}.bar.mk{position:relative}.bar.mk::after{content:'';position:absolute;left:75%;top:-2px;bottom:-2px;width:1.5px;background:var(--fg-3);opacity:.55}
+.roles2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .hb{display:grid;gap:11px} .hb .row{display:grid;grid-template-columns:minmax(90px,150px) 1fr 52px;gap:10px;align-items:center;font-size:13px} .hb .row b{text-align:right;font-weight:600}
 .tabs{display:flex;gap:4px;background:var(--mute-bg);padding:4px;border-radius:10px;width:max-content;max-width:100%;overflow:auto}
 .tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;color:var(--fg-2)} .tabs button.on{background:var(--surface);color:var(--wkn);box-shadow:var(--shadow)}
@@ -156,7 +158,7 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 .drop:hover{border-color:var(--wkn)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--fg-2)} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 
-@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .trio,.roles2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .pair,.roles2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:900px){
   .app{grid-template-columns:minmax(0,1fr)}
   .side{position:fixed;left:0;top:0;bottom:0;width:min(290px,86%);z-index:45;background:var(--bg);padding:calc(16px + env(safe-area-inset-top,0px)) 14px 16px max(14px,env(safe-area-inset-left,0px));transform:translateX(-105%);transition:transform .2s,visibility .2s;visibility:hidden;border-right:1px solid var(--line)}
@@ -510,11 +512,11 @@ function vDash(){
    <div class="card"><div class="hd"><div><h2>Ringkasan per barang · ${ymLabel(S.ym)}</h2><div class="sm muted">Bulan berjalan dihitung sampai 17 Nov. Perbandingan memakai laju pemakaian per hari agar adil.</div></div><div class="tools"><div class="search">${ic('search')}<input class="in" id="q" placeholder="Cari barang…" value="${esc(S.q)}" aria-label="Cari barang"></div>
      <button class="btn sm" data-act="exp" data-t="xlsx">${ic('xls')}Excel</button><button class="btn sm" data-act="exp" data-t="pdf">${ic('pdf')}PDF</button></div></div>
      <div class="tw" id="tbl">${dashTable(rows)}</div></div>
-   </div><div class="trio">
-    <div class="card"><div class="hd"><h2>Pemakaian tertinggi</h2><span class="hint">keluar ÷ (awal + masuk)</span></div><div class="bd hb">${top.map(r=>`<div class="row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</span><div class="bar ${r.pct>75?'vh':r.pct>55?'hi':''}"><i style="width:${Math.min(100,r.pct)}%"></i></div><b class="num">${r.pct.toFixed(0)}%</b></div>`).join('')||'<div class="empty">Belum ada data.</div>'}</div></div>
-    <div class="card"><div class="hd"><h2>Perlu perhatian</h2></div><div class="bd list">${rows.filter(r=>r.st==='bad'||r.st==='warn'||r.stl==='Tidak bergerak').slice(0,5).map(r=>`<div class="li"><div class="g"><b>${esc(r.name)}</b><div class="sm muted">Sisa ${fmt(r.rem)} ${esc(r.unit)} · min ${fmt(r.min)}${r.cover!==null?` · cukup ±${Math.floor(r.cover)} hari`:''}</div></div>${statusPill(r)}</div>`).join('')||'<div class="empty">Semua stok aman.</div>'}</div></div>
-    <div class="card"><div class="hd"><h2>Aktivitas 30 hari</h2><span class="hint">jumlah transaksi per hari</span></div><div class="bd">${actChart(pids)}</div></div>
-   </div>`;
+   </div><div class="pair">
+    <div class="card col"><div class="hd"><div><h2>Pemakaian tertinggi</h2><div class="sm muted">keluar ÷ (saldo awal + masuk) · garis = 75%</div></div></div><div class="bd hb grow">${top.map(r=>`<div class="hr"><div class="hrt"><span title="${esc(r.name)}">${esc(r.name)}</span><b class="num">${r.pct.toFixed(0)}%</b></div><div class="bar mk ${r.pct>75?'vh':r.pct>55?'hi':''}"><i style="width:${Math.min(100,r.pct)}%"></i></div><div class="sm muted num">keluar ${fmt(r.out)} dari ${fmt(r.open+r.inn)} ${esc(r.unit)}</div></div>`).join('')||'<div class="empty">Belum ada data.</div>'}</div></div>
+    <div class="card col"><div class="hd"><div><h2>Aktivitas 30 hari</h2><div class="sm muted">jumlah transaksi masuk + keluar per hari</div></div></div><div class="bd grow" style="display:flex;align-items:center">${actChart(pids)}</div></div>
+   </div>
+   ${(()=>{const at=rows.filter(r=>r.st==='bad'||r.st==='warn'||r.stl==='Tidak bergerak');return `<div class="card"><div class="hd"><div><h2>Perlu perhatian</h2><div class="sm muted">${at.length} barang di bawah atau mendekati batas minimum</div></div></div><div class="bd attn">${at.map(r=>`<div class="li"><div class="g"><b>${esc(r.name)}</b><div class="sm muted num">Sisa ${fmt(r.rem)} ${esc(r.unit)} · min ${fmt(r.min)}${r.cover!==null?` · cukup ±${Math.floor(r.cover)} hari`:''}</div></div>${statusPill(r)}</div>`).join('')||'<div class="empty" style="grid-column:1/-1">Semua stok aman.</div>'}</div></div>`})()}`;
 }
 function dashTable(rows){
   const q=S.q.toLowerCase();let r=rows.filter(x=>x.name.toLowerCase().includes(q));
@@ -523,13 +525,31 @@ function dashTable(rows){
   if(!r.length)return `<div class="empty">Tidak ada barang yang cocok dengan pencarian.</div>`;
   return `<table><thead><tr>${th('name','Barang')}<th>Satuan</th>${th('open','Awal','r')}${th('inn','Masuk','r')}${th('out','Keluar','r')}${th('rem','Sisa','r')}${th('dOut','Laju harian vs bln lalu','r')}${th('pct','Pemakaian')}${th('cover','Cukup (hari)','r')}${th('st','Status')}</tr></thead><tbody>${r.map(x=>`<tr class="click" data-act="detail" data-id="${x.iid}"><td style="min-width:190px;white-space:normal"><b>${esc(x.name)}</b><div class="sm muted">${esc(x.cat)}</div></td><td class="muted" style="white-space:nowrap">${esc(x.unit)}</td><td class="r num">${fmt(x.open)}</td><td class="r num in-c">${fmt(x.inn)}</td><td class="r num out-c">${fmt(x.out)}</td><td class="r num"><b>${fmt(x.rem)}</b></td><td class="r">${dlt(x.dOut)}<div class="sm muted num">keluar bln lalu ${fmt(x.pOut)}</div></td><td style="min-width:120px"><div class="bar ${x.pct>75?'vh':x.pct>55?'hi':''}"><i style="width:${Math.min(100,x.pct)}%"></i></div><div class="sm muted num">${x.pct.toFixed(1)}%</div></td><td class="r num">${x.cover===null?'—':Math.floor(x.cover)}</td><td>${statusPill(x)}</td></tr>`).join('')}</tbody></table>`;
 }
+function niceScale(max,n=4){max=Math.max(max,1);const raw=max/n,p=10**Math.floor(Math.log10(raw)),f=raw/p,step=(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;const top=Math.ceil(max/step)*step;const t=[];for(let v=0;v<=top+1e-9;v+=step)t.push(v);return{top,ticks:t}}
+const dShort=s=>`${P(s).getUTCDate()} ${MON[P(s).getUTCMonth()]}`;
 function actChart(pids){
   const days=[];for(let i=29;i>=0;i--)days.push(addDays(TODAY,-i));
-  const cnt=days.map(d=>ledger.filter(l=>pids.includes(l.pid)&&l.type!=='awal'&&l.date===d).length),mx=Math.max(1,...cnt);
-  const w=300,h=90,bw=w/30;
-  return `<svg viewBox="0 0 ${w} ${h+18}" style="width:100%;height:auto" role="img" aria-label="Aktivitas transaksi 30 hari terakhir">${[0,.5,1].map(f=>`<line x1="0" x2="${w}" y1="${h-f*h}" y2="${h-f*h}" stroke="var(--line-2)" stroke-width="1"/>`).join('')}
-   ${cnt.map((c,i)=>`<rect x="${i*bw+1.5}" y="${h-c/mx*h}" width="${bw-3}" height="${c/mx*h}" rx="2" fill="${i===29?'var(--wkn)':'var(--wkn-soft)'}" stroke="var(--wkn)" stroke-width=".6"/>`).join('')}
-   <text x="0" y="${h+13}" font-size="9" fill="var(--fg-3)">${P(days[0]).getUTCDate()} ${MON[P(days[0]).getUTCMonth()]}</text><text x="${w}" y="${h+13}" font-size="9" fill="var(--fg-3)" text-anchor="end">17 Nov</text><text x="${w}" y="9" font-size="9" fill="var(--fg-3)" text-anchor="end">maks ${mx}</text></svg>`;
+  const cnt=days.map(d=>ledger.filter(l=>pids.includes(l.pid)&&l.type!=='awal'&&l.date===d).length);
+  const sc=niceScale(Math.max(...cnt),4),W=480,H=300,L=36,R=8,T=10,B=26,iw=W-L-R,ih=H-T-B,bw=iw/30,Y=v=>T+ih-v/sc.top*ih;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Jumlah transaksi per hari, 30 hari terakhir">
+   ${sc.ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="${v===0?1.2:.6}" ${v===0?'':'stroke-dasharray="3 3"'}/><text x="${L-6}" y="${Y(v)+3.5}" font-size="11.5" fill="var(--fg-3)" text-anchor="end">${v}</text>`).join('')}
+   ${cnt.map((c,i)=>{const x=L+i*bw+bw*.18,w=bw*.64,h=c/sc.top*ih;return `<rect x="${x.toFixed(1)}" y="${(Y(c)).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${i===29?'var(--wkn)':'var(--wkn)'}" opacity="${i===29?1:.35}"><title>${fdate(days[i])}: ${c} transaksi</title></rect>`}).join('')}
+   ${[0,7,14,21,29].map(i=>`<text x="${(L+i*bw+bw/2).toFixed(1)}" y="${H-7}" font-size="11.5" fill="var(--fg-3)" text-anchor="${i===0?'start':i===29?'end':'middle'}">${i===29?'Hari ini':dShort(days[i])}</text>`).join('')}</svg>`;
+}
+function stockChart(series,days,min){
+  const sc=niceScale(Math.max(...series,min*1.15),4),W=480,H=250,L=44,R=12,T=14,B=26,iw=W-L-R,ih=H-T-B,X=i=>L+i*iw/29,Y=v=>T+ih-v/sc.top*ih;
+  const line=series.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join('');
+  const area=`${line}L${X(29).toFixed(1)},${Y(0)}L${X(0).toFixed(1)},${Y(0)}Z`;const last=series[29],low=last<=min;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Sisa stok 30 hari terakhir">
+   ${sc.ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="${v===0?1.2:.6}" ${v===0?'':'stroke-dasharray="3 3"'}/><text x="${L-6}" y="${Y(v)+3.5}" font-size="11.5" fill="var(--fg-3)" text-anchor="end">${fmt(v)}</text>`).join('')}
+   <path d="${area}" fill="var(--wkn)" opacity=".12"/>
+   <line x1="${L}" x2="${W-R}" y1="${Y(min)}" y2="${Y(min)}" stroke="var(--bad)" stroke-width="1.4" stroke-dasharray="5 4"/>
+   <text x="${L+6}" y="${Y(min)-6}" font-size="11.5" font-weight="700" fill="var(--bad)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Batas minimum ${fmt(min)}</text>
+   <path d="${line}" fill="none" stroke="var(--wkn)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+   ${series.map((v,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="9" fill="transparent"><title>${fdate(days[i])}: ${fmt(v)}</title></circle>`).join('')}
+   <circle cx="${X(29)}" cy="${Y(last)}" r="5" fill="${low?'var(--bad)':'var(--wkn)'}" stroke="var(--surface)" stroke-width="2"/>
+   <text x="${X(29)-9}" y="${Y(last)+(Y(last)<T+22?18:-10)}" font-size="11" font-weight="700" fill="${low?'var(--bad)':'var(--wkn)'}" stroke="var(--surface)" stroke-width="4" paint-order="stroke" text-anchor="end">${fmt(last)}</text>
+   ${[0,7,14,21,29].map(i=>`<text x="${X(i).toFixed(1)}" y="${H-7}" font-size="11.5" fill="var(--fg-3)" text-anchor="${i===0?'start':i===29?'end':'middle'}">${i===29?'Hari ini':dShort(days[i])}</text>`).join('')}</svg>`;
 }
 function detailDrawer(iid){
   const pids=scopePids(),c=item(iid),cur=calc(pids,iid,S.ym),pv=calc(pids,iid,prevYm(S.ym));
@@ -547,11 +567,7 @@ function detailDrawer(iid){
    <div class="card"><div class="hd"><h2>Masuk vs keluar</h2></div><div class="bd"><table style="min-width:0"><thead><tr><th></th><th class="r">${MON[+prevYm(S.ym).slice(5)-1]}</th><th class="r">${MON[+S.ym.slice(5)-1]}</th><th class="r">Selisih</th></tr></thead><tbody>
     <tr><td>Masuk</td><td class="r num">${fmt(pv.inn)}</td><td class="r num in-c">${fmt(cur.inn)}</td><td class="r">${pv.inn?dlt((cur.inn-pv.inn)/pv.inn*100,false).replace('var(--bad)','var(--ok)'):'—'}</td></tr>
     <tr><td>Keluar</td><td class="r num">${fmt(pv.out)}</td><td class="r num out-c">${fmt(cur.out)}</td><td class="r">${pv.out?dlt((cur.out-pv.out)/pv.out*100):'—'}</td></tr></tbody></table></div></div>
-   <div class="card"><div class="hd"><h2>Sisa stok 30 hari</h2></div><div class="bd"><svg viewBox="0 0 ${W} ${H+16}" style="width:100%;height:auto" role="img" aria-label="Grafik sisa stok 30 hari">
-    ${[0,.5,1].map(f=>{const v=mn+(mx-mn)*f;return `<line x1="${pad}" x2="${W-8}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line-2)"/><text x="${pad-5}" y="${Y(v)+3}" font-size="9" fill="var(--fg-3)" text-anchor="end">${fmt(Math.round(v))}</text>`}).join('')}
-    <line x1="${pad}" x2="${W-8}" y1="${Y(min)}" y2="${Y(min)}" stroke="var(--bad)" stroke-dasharray="4 3"/><text x="${W-8}" y="${Y(min)-4}" font-size="9" fill="var(--bad)" text-anchor="end">minimum</text>
-    <path d="${path}" fill="none" stroke="var(--wkn)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${X(29)}" cy="${Y(series[29])}" r="4" fill="var(--wkn)"/>
-    <text x="${pad}" y="${H+12}" font-size="9" fill="var(--fg-3)">${P(days[0]).getUTCDate()} ${MON[P(days[0]).getUTCMonth()]}</text><text x="${W-8}" y="${H+12}" font-size="9" fill="var(--fg-3)" text-anchor="end">17 Nov</text></svg></div></div>
+   <div class="card"><div class="hd"><div><h2>Sisa stok 30 hari</h2><div class="sm muted">satuan ${esc(c.unit)}</div></div></div><div class="bd">${stockChart(series,days,min)}</div></div>
    <div class="card"><div class="hd"><h2>Transaksi terakhir</h2></div><div class="bd list">${recent.map(l=>`<div class="li"><div class="g"><b>${fdate(l.date)}</b><div class="sm muted">${esc(l.note)} · ${esc(by(l.by))}</div></div><b class="num ${l.in?'in-c':'out-c'}" style="${l.in?'color:var(--ok)':'color:var(--bad)'}">${l.in?'+'+fmt(l.in):'−'+fmt(l.out)}</b></div>`).join('')}</div></div>
   </div>`;
   document.body.append(dr);
