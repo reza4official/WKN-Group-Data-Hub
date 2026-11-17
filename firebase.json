@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "wkngroup",
     "public": "app/dist",
     "ignore": [
       "firebase.json",

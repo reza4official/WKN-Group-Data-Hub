@@ -34,7 +34,7 @@ Perkiraan waktu: 45–60 menit.
 3. Nama: `WKN Group Data Hub`.
 4. Pada **Project ID**, klik ikon pensil dan isi **`wkngroup-datahub`**. ID **tidak bisa diubah** setelah dibuat.
    - Jika `wkngroup-datahub` sudah dipakai orang lain, kabari saya sebelum memilih ID lain.
-   - Karena ID bukan `wkngroup`, alamat `wkngroup.web.app` diperoleh lewat langkah **A6 (wajib)**.
+   - Alamat aplikasi otomatis menjadi `https://wkngroup-datahub.web.app`.
 5. Google Analytics: matikan (tidak dibutuhkan).
 6. Klik **Create project**.
 7. **Tetap di paket Spark (gratis).** Jika ada tawaran upgrade ke Blaze, abaikan.
@@ -52,10 +52,10 @@ Perkiraan waktu: 45–60 menit.
 2. Tab **Sign-in method**, aktifkan:
    - **Email/Password** (aktifkan hanya yang atas; Email link tidak perlu).
    - **Google**: isi *Project support email* dengan email Anda, lalu **Save**.
-3. Tab **Settings → Authorized domains**. Pastikan ada `wkngroup.web.app`. Jika belum, klik **Add domain** dan tambahkan. Tambahkan juga `localhost` untuk pengembangan (biasanya sudah ada).
+3. Tab **Settings → Authorized domains**. Pastikan ada `wkngroup-datahub.web.app`. Jika belum, klik **Add domain** dan tambahkan. Tambahkan juga `localhost` untuk pengembangan (biasanya sudah ada).
 
 ### A4. Aktifkan Hosting
-1. Menu **Build → Hosting → Get started**, lalu ikuti sampai selesai (perintahnya dijalankan di A7).
+1. Menu **Build → Hosting → Get started**, lalu ikuti sampai selesai (perintahnya dijalankan di A6).
 
 ### A5. Buat database Firestore
 1. Menu **Build → Firestore Database → Create database**.
@@ -66,15 +66,7 @@ Perkiraan waktu: 45–60 menit.
 
 **Cek:** tab **Data** terbuka dan kosong.
 
-### A6. Buat situs `wkngroup` (wajib)
-Situs bawaan proyek ini beralamat `wkngroup-datahub.web.app`. Alamat resmi `wkngroup.web.app` dibuat sebagai situs tambahan:
-1. Menu **Build → Hosting**, klik **Add another site**.
-2. Site ID: `wkngroup`, lalu **Deploy/Create**.
-3. Jika `wkngroup` sudah dipakai di seluruh Firebase, kabari saya. Kita pilih nama lain dan ubah satu baris di `firebase.json`.
-
-`firebase.json` di repo sudah menunjuk ke situs `wkngroup`, dan `.firebaserc` sudah berisi `wkngroup-datahub`.
-
-### A7. Pasang alat bantu dan deploy v0.1.0 (opsional, tetapi disarankan)
+### A6. Pasang alat bantu dan deploy v0.1.0 (opsional, tetapi disarankan)
 Di komputer Anda, butuh Node.js 22.12 atau lebih baru (https://nodejs.org).
 
 ```bash
@@ -82,7 +74,7 @@ npm install -g firebase-tools
 firebase login
 ```
 
-Ambil kode ini dari GitHub (`.firebaserc` sudah berisi `wkngroup-datahub`). Kemudian:
+Ambil kode ini dari GitHub (`.firebaserc` sudah berisi `wkngroup-datahub`, dan `firebase.json` memakai situs bawaan proyek). Kemudian:
 
 ```bash
 cd app
@@ -92,7 +84,7 @@ cd ..
 firebase deploy --only hosting
 ```
 
-**Cek:** https://wkngroup.web.app menampilkan aplikasi dengan logo WKN, dan footer berakhir `v0.1.0`.
+**Cek:** https://wkngroup-datahub.web.app menampilkan aplikasi dengan logo WKN, dan footer berakhir `v0.1.0`.
 
 ---
 
@@ -134,7 +126,7 @@ Berkas JSON ini nanti dipasang sebagai secret Worker di langkah E, tidak pernah 
 ### C4. Turnstile (anti-bot untuk permintaan reset password)
 1. Menu **Turnstile → Add widget**.
 2. Nama: `WKN Data Hub`.
-3. Hostname: tambahkan `wkngroup.web.app` dan `localhost`.
+3. Hostname: tambahkan `wkngroup-datahub.web.app` dan `localhost`.
 4. Mode widget: **Managed**.
 5. Klik **Create**, lalu catat dua nilai:
    - **Site Key**: aman dibagikan.
@@ -176,9 +168,9 @@ Jangan jalankan dulu sebelum saya beri nama dan format persisnya.
 
 - [ ] Proyek Firebase `wkngroup-datahub` di paket Spark
 - [ ] `firebaseConfig` tersalin
-- [ ] Authentication: Email/Password dan Google aktif, `wkngroup.web.app` ada di Authorized domains
+- [ ] Authentication: Email/Password dan Google aktif, `wkngroup-datahub.web.app` ada di Authorized domains
 - [ ] Firestore dibuat di `asia-southeast2`, mode Production
-- [ ] Situs tambahan `wkngroup` dibuat; `wkngroup.web.app` bisa dibuka (halaman default atau v0.1.0)
+- [ ] `wkngroup-datahub.web.app` bisa dibuka (halaman default atau v0.1.0)
 - [ ] Service account `wkn-worker` dibuat, dua peran, kunci JSON tersimpan aman
 - [ ] Akun Cloudflare, Account ID, subdomain workers.dev, KV `wkn-ratelimit`, Turnstile (Site Key dan Secret Key)
 - [ ] Data akun Developer (username, nama, email Google) siap
@@ -189,12 +181,11 @@ Jangan jalankan dulu sebelum saya beri nama dan format persisnya.
 | Gejala | Penyebab dan solusi |
 |--------|---------------------|
 | Project ID `wkngroup-datahub` tidak tersedia | Kabari saya sebelum memilih ID lain |
-| Situs `wkngroup` tidak tersedia di Hosting | Kabari saya; kita pilih nama situs lain |
 | Firebase meminta upgrade ke Blaze | Jangan upgrade. Fitur yang dibutuhkan sudah tersedia di Spark |
 | Tidak bisa membuat key service account | Kebijakan organisasi memblokir; kabari saya |
 | `firebase deploy` menolak izin | Jalankan `firebase login` ulang dengan akun yang memiliki proyek |
-| Login Google gagal "unauthorized domain" | Tambahkan `wkngroup.web.app` di Authentication → Settings → Authorized domains |
-| Turnstile menolak hostname | Pastikan `wkngroup.web.app` ada di daftar hostname widget |
+| Login Google gagal "unauthorized domain" | Tambahkan `wkngroup-datahub.web.app` di Authentication → Settings → Authorized domains |
+| Turnstile menolak hostname | Pastikan `wkngroup-datahub.web.app` ada di daftar hostname widget |
 
 ## Setelah semua selesai
 

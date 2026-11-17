@@ -2,7 +2,7 @@
 
 Melengkapi `RENCANA-PROYEK.md`. Acuan tampilan: `mockup/index.html`. Logo: `assets/`.
 Ukuran usaha: **S** (sekitar 1 sesi kerja), **M** (2–3 sesi), **L** (4 sesi atau lebih).
-Setiap tahap berakhir dengan satu rilis berversi (vX.X.X), kriteria selesai yang bisa diperiksa, dan deploy ke https://wkngroup.web.app.
+Setiap tahap berakhir dengan satu rilis berversi (vX.X.X), kriteria selesai yang bisa diperiksa, dan deploy ke https://wkngroup-datahub.web.app.
 
 ---
 
@@ -12,7 +12,7 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 | # | Tugas | Pelaku |
 |---|-------|--------|
-| 0.1 | Buat proyek Firebase (paket **Spark**), aktifkan Hosting, Authentication, Firestore. Project ID `wkngroup-datahub`; alamat `wkngroup.web.app` lewat situs Hosting tambahan `wkngroup` | Pemilik |
+| 0.1 | Buat proyek Firebase (paket **Spark**), aktifkan Hosting, Authentication, Firestore. Project ID `wkngroup-datahub`; alamat aplikasi `https://wkngroup-datahub.web.app` | Pemilik |
 | 0.2 | Aktifkan Authentication: **Email/Password** dan **Google** | Pemilik |
 | 0.3 | Buat akun **Cloudflare** (Free), catat Account ID | Pemilik |
 | 0.4 | Buat akun Cloudflare **Turnstile** (gratis), simpan site key dan secret | Pemilik |
@@ -20,13 +20,13 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 | 0.6 | Siapkan data: daftar anak perusahaan, proyek awal, anggota tim, barang dan saldo awal (Excel) | Pemilik |
 | 0.7 | Buat Google Sheet cadangan dan Apps Script web app (tahap 9) | Pemilik, dibantu |
 
-**Selesai bila:** URL `wkngroup.web.app` menampilkan halaman default Firebase, dan semua kunci tersimpan aman di luar repo.
+**Selesai bila:** URL `wkngroup-datahub.web.app` menampilkan halaman default Firebase, dan semua kunci tersimpan aman di luar repo.
 
 ---
 
 ## Tahap 1 — v0.1.0 Fondasi dan tampilan
 
-**Status: selesai di sisi kode. Deploy ke `wkngroup.web.app` menunggu Tahap 0.1 (proyek Firebase) dari pemilik.**
+**Status: selesai di sisi kode. Deploy ke `wkngroup-datahub.web.app` menunggu Tahap 0.1 (proyek Firebase) dari pemilik.**
 
 **Tujuan:** kerangka aplikasi yang tampil sama dengan mockup, belum ada data sungguhan.
 
@@ -48,7 +48,7 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 **Tujuan:** pengguna dapat masuk. Hanya akun terdaftar yang bisa masuk.
 
-- Worker: kerangka API, verifikasi ID token Firebase, CORS hanya untuk `https://wkngroup.web.app`, pembuat token akses Google OAuth dari service account.
+- Worker: kerangka API, verifikasi ID token Firebase, CORS hanya untuk `https://wkngroup-datahub.web.app`, pembuat token akses Google OAuth dari service account.
 - Login username + password: username dinormalisasi lalu dipetakan ke email sintetis, dokumen `usernames/{normalisasi}` menjaga keunikan. Satu-satunya aturan password: minimal 6 karakter (batas Firebase).
 - Login Google: hanya untuk email yang cocok dengan akun terdaftar, selain itu langsung sign out dengan pesan jelas.
 - Sesi permanen (tanpa auto logout). Cek flag `disabled` setiap aplikasi dibuka.

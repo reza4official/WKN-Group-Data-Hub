@@ -1,7 +1,7 @@
 # WKN Group Data Hub — Rencana, Rancangan, dan Kebutuhan Proyek
 
 Versi dokumen: 0.1 (draft) · Target rilis aplikasi pertama: **v0.1.0**
-Domain: https://wkngroup.web.app · Semua layanan harus **gratis**.
+Domain: https://wkngroup-datahub.web.app · Semua layanan harus **gratis**.
 
 ---
 
@@ -29,7 +29,7 @@ Bagian ini penting. Beberapa permintaan **tidak bisa dipenuhi apa adanya** di pa
 | 1 | Password bebas aturan | Firebase Auth mewajibkan minimal 6 karakter | **Diputuskan pemilik**: ikuti batas Firebase (minimal 6 karakter), tanpa syarat lain (huruf besar, angka, simbol tidak diwajibkan). Password dikirim apa adanya ke Firebase, tanpa derivasi di klien. |
 | 2 | Username bebas | Firebase Auth butuh email | Username dinormalisasi (huruf kecil, Unicode NFC) lalu di-encode (hex/base32) menjadi email sintetis `<encoded>@users.wkngroup.invalid`. Keunikan dijaga dokumen `usernames/{normalized}`. Spasi dan karakter unik tetap diperbolehkan. |
 | 3 | Aksi admin (buat akun, reset password, nonaktifkan, set claims) | Cloud Functions butuh paket Blaze (berbayar) | **Cloudflare Worker (gratis) menjadi backend inti.** Worker menyimpan service account Firebase sebagai secret, memverifikasi ID token pemanggil, memeriksa hierarki role, lalu memanggil Identity Toolkit dan Firestore REST API. |
-| 4 | Cloudflare di depan `wkngroup.web.app` | `web.app` milik Google, tidak bisa ditambahkan sebagai zone Cloudflare. WAF, caching, dan Rules Cloudflare tidak berlaku | Yang tetap gratis dan dipakai: **Workers (workers.dev), Turnstile (anti-bot), KV (rate limit), Cron Triggers**. Jika ingin Cloudflare Rules/WAF penuh, perlu domain sendiri (berbayar). "Rules" di dokumen ini berarti **Firestore Security Rules** dan **Hosting headers**. |
+| 4 | Cloudflare di depan `wkngroup-datahub.web.app` | `web.app` milik Google, tidak bisa ditambahkan sebagai zone Cloudflare. WAF, caching, dan Rules Cloudflare tidak berlaku | Yang tetap gratis dan dipakai: **Workers (workers.dev), Turnstile (anti-bot), KV (rate limit), Cron Triggers**. Jika ingin Cloudflare Rules/WAF penuh, perlu domain sendiri (berbayar). "Rules" di dokumen ini berarti **Firestore Security Rules** dan **Hosting headers**. |
 | 5 | Penyimpanan file/logo | Cloud Storage for Firebase dan Cloudflare R2 mungkin meminta kartu pembayaran atau paket Blaze | Tidak dipakai di v1. Logo dan aset disajikan sebagai file statis Firebase Hosting. Verifikasi ulang kebijakan terbaru sebelum menambah upload file. |
 | 6 | Backup | Ekspor terkelola Firestore butuh Blaze | Worker Cron Trigger menyalin data ke Google Sheets (cermin) secara berkala, ditambah ekspor Excel manual. |
 | 7 | Tanpa auto logout | Aman dari sisi Firebase (refresh token tidak kedaluwarsa sendiri), tapi akun yang dinonaktifkan harus tetap terputus | Persistensi lokal + pengecekan flag `disabled` setiap aplikasi dibuka dan pada setiap aturan Firestore. |
@@ -40,7 +40,7 @@ Bagian ini penting. Beberapa permintaan **tidak bisa dipenuhi apa adanya** di pa
 ## 3. Arsitektur dan Stack (semua gratis)
 
 ```
-Browser (SPA)  ──►  Firebase Hosting  (wkngroup.web.app, aset statis)
+Browser (SPA)  ──►  Firebase Hosting  (wkngroup-datahub.web.app, aset statis)
     │
     ├──►  Firebase Auth       (Google + username/password)
     ├──►  Firestore           (data, dijaga Security Rules)
@@ -189,7 +189,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 
 - **Firestore Security Rules**: default tolak semua. Baca dibatasi per level/cakupan. Ledger, summary, dan akun hanya ditulis lewat Worker (klien tidak bisa menulis langsung).
 - `auditLog`: hanya create, tidak ada update/delete, waktu dari server.
-- Worker: verifikasi ID token Firebase, cek `disabled`, cek hierarki, rate limit KV, CORS hanya untuk `https://wkngroup.web.app`.
+- Worker: verifikasi ID token Firebase, cek `disabled`, cek hierarki, rate limit KV, CORS hanya untuk `https://wkngroup-datahub.web.app`.
 - Secret (service account, kunci Turnstile) hanya di Wrangler secrets, tidak pernah di repo atau klien.
 - Hosting headers: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`.
 - Password hanya dibatasi minimal 6 karakter (batas Firebase); Firebase menyimpan hash di sisi server. Risiko password lemah tetap pada pemilik akun.
@@ -210,7 +210,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 
 | Versi | Isi |
 |-------|-----|
-| **v0.1.0** | Scaffolding repo, tema (token warna + logo placeholder), layout responsif, footer + versi, deploy Firebase Hosting ke wkngroup.web.app |
+| **v0.1.0** | Scaffolding repo, tema (token warna + logo placeholder), layout responsif, footer + versi, deploy Firebase Hosting ke wkngroup-datahub.web.app |
 | **v0.2.0** | Auth: username/password (min. 6 karakter), Google (akun terdaftar), ikon mata, Worker dasar, Firestore Rules awal, akun Developer pertama |
 | **v0.3.0** | Role dinamis + hierarki, kelola akun bawahan, permintaan dan eksekusi reset password beserta audit |
 | **v0.4.0** | Perusahaan, proyek, katalog barang, saldo awal |
@@ -236,7 +236,7 @@ Per barang dan per proyek (filter perusahaan/proyek/periode):
 **Sudah diputuskan pemilik**
 - Nama perusahaan: "Karya".
 - Password: ikuti Firebase, minimal 6 karakter, tanpa syarat lain.
-- Cloudflare dipakai untuk Worker, Turnstile, KV (tanpa WAF/Rules, domain tetap di Firebase `wkngroup.web.app`).
+- Cloudflare dipakai untuk Worker, Turnstile, KV (tanpa WAF/Rules, domain tetap di Firebase `wkngroup-datahub.web.app`).
 - Nama role: **Manajer Proyek** dan **Admin Logistik/Gudang** (input harian oleh keduanya).
 
 **Masih menunggu**
