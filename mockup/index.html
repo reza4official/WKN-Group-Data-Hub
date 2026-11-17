@@ -5,7 +5,7 @@
 <style>
 /* Layout: sidebar + sticky topbar + content, footer di bawah. Abu muda/putih, aksen biru WKN (placeholder sampai logo diterima). */
 :root{
-  --wkn:#1d2bd6; --wkn-d:#1520a8; --wkn-soft:#e8eaff; --wkn-or:#ff9900; --wkn-ink:#ffffff; --logo-fx:none;
+  --wkn:#1414e0; --wkn-d:#0d0db0; --wkn-soft:#e9e9ff; --wkn-or:#ff9900; --acc-soft:#fff2d4; --acc-ink:#9a5b00; --wkn-ink:#ffffff; --logo-fx:none;
   --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --line:#dde3ec; --line-2:#e9edf3;
   --fg:#18212f; --fg-2:#4b586b; --fg-3:#7a8697;
   --ok:#17803d; --ok-bg:#e3f4ea; --warn:#9a6500; --warn-bg:#fdf1d6; --bad:#b42318; --bad-bg:#fde6e3; --mute-bg:#eceff4;
@@ -14,13 +14,13 @@
   --r:10px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
+  --wkn:#8490ff; --wkn-d:#aab3ff; --wkn-soft:#1b1f4a; --wkn-or:#ffb020; --acc-soft:#3a2e10; --acc-ink:#ffb020; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
   --bg:#0e1420; --surface:#151c2b; --surface-2:#1a2335; --line:#27324a; --line-2:#202b41;
   --fg:#e8edf6; --fg-2:#aab5c8; --fg-3:#7f8ba0;
   --ok:#5fd18a; --ok-bg:#12301f; --warn:#f0bf55; --warn-bg:#3a2e10; --bad:#ff8a7d; --bad-bg:#401a17; --mute-bg:#212b40;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --wkn:#7482ff; --wkn-d:#a0aaff; --wkn-soft:#1c2147; --wkn-or:#ffa726; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
+  --wkn:#8490ff; --wkn-d:#aab3ff; --wkn-soft:#1b1f4a; --wkn-or:#ffb020; --acc-soft:#3a2e10; --acc-ink:#ffb020; --wkn-ink:#0b1220; --logo-fx:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,255,255,.85));
   --bg:#0e1420; --surface:#151c2b; --surface-2:#1a2335; --line:#27324a; --line-2:#202b41;
   --fg:#e8edf6; --fg-2:#aab5c8; --fg-3:#7f8ba0;
   --ok:#5fd18a; --ok-bg:#12301f; --warn:#f0bf55; --warn-bg:#3a2e10; --bad:#ff8a7d; --bad-bg:#401a17; --mute-bg:#212b40;
@@ -64,6 +64,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sel{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 30px 7px 11px;min-height:38px;max-width:100%}
 .burger{display:none}
+.top{position:sticky}.top::after{content:'';position:absolute;left:0;bottom:0;width:96px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--wkn) 0 64px,var(--wkn-or) 64px 100%)}
+.nav a.on{box-shadow:inset 4px 0 0 var(--wkn-or)}
+.ic.y{background:var(--acc-soft)!important;color:var(--acc-ink)!important}
+.mark{background:linear-gradient(transparent 62%,var(--wkn-or) 62% 90%,transparent 90%);color:inherit;padding:0 2px}
+.lbox h2.ttl::after{content:'';display:block;width:44px;height:3px;border-radius:3px;margin-top:8px;background:linear-gradient(90deg,var(--wkn) 0 28px,var(--wkn-or) 28px)}
+.foot{border-top:1px solid var(--line);position:relative}.foot::before{content:'';position:absolute;left:50%;top:-2px;width:72px;height:3px;margin-left:-36px;border-radius:3px;background:linear-gradient(90deg,var(--wkn) 0 48px,var(--wkn-or) 48px)}
+:focus-visible{outline-color:var(--wkn-or)}
 .content{flex:1;display:flex;flex-direction:column;gap:18px;padding-bottom:24px}
 .foot{padding:16px 0 22px;border-top:1px solid var(--line);color:var(--fg-3);font-size:12.5px;text-align:center}
 
@@ -112,7 +119,7 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 .roles2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .hb{display:grid;gap:11px} .hb .row{display:grid;grid-template-columns:minmax(90px,150px) 1fr 52px;gap:10px;align-items:center;font-size:13px} .hb .row b{text-align:right;font-weight:600}
 .tabs{display:flex;gap:4px;background:var(--mute-bg);padding:4px;border-radius:10px;width:max-content;max-width:100%;overflow:auto}
-.tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;color:var(--fg-2)} .tabs button.on{background:var(--surface);color:var(--wkn);box-shadow:var(--shadow)}
+.tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;color:var(--fg-2)} .tabs button.on{background:var(--surface);color:var(--wkn);box-shadow:var(--shadow),inset 0 -3px 0 var(--wkn-or)}
 .empty{padding:34px 16px;text-align:center;color:var(--fg-3)}
 .list{display:grid;gap:10px}
 .li{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;flex-wrap:wrap}
@@ -152,7 +159,7 @@ td.in-c{color:var(--ok);font-weight:600} td.out-c{color:var(--bad);font-weight:6
 
 /* PDF preview */
 .paper{background:#fff;color:#111;border:1px solid #cfd6e2;padding:26px;font-size:11.5px;min-width:560px;box-shadow:var(--shadow)}
-.paper .kop .lg{filter:none}.paper .kop{display:flex;gap:12px;align-items:center;border-bottom:3px solid #ff9900;padding-bottom:10px;margin-bottom:12px}
+.paper .kop .lg{filter:none}.paper .kop{display:flex;gap:12px;align-items:center;border-bottom:3px solid #ff9900;box-shadow:0 3px 0 -0px #fff,0 6px 0 -3px #1414e0;padding-bottom:10px;margin-bottom:12px}
 .paper table{min-width:0;font-size:10.5px} .paper th{background:#eef2f8;color:#334;position:static} .paper td,.paper th{border:1px solid #d5dbe6;padding:4px 6px}
 .drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--fg-2);background:var(--surface-2)}
 .drop:hover{border-color:var(--wkn)}
@@ -366,11 +373,11 @@ const rolePill=id=>pill('blue',esc(roleOf(id).name));
 function renderLogin(){
   $('#root').innerHTML=`<div class="login"><section class="hero">
     <div class="logochip"><img src="${FULL}" alt="PT. Wiratama Karya Nugraha"></div><div class="t" style="font:700 15px var(--f-head);color:var(--fg-2);letter-spacing:.06em;text-transform:uppercase">Data Hub</div>
-    <h1>Satu pusat data untuk seluruh proyek dan anak perusahaan WKN.</h1>
+    <h1>Satu pusat data untuk seluruh proyek dan anak perusahaan <span class="mark">WKN</span>.</h1>
     <p>Pantau stok bahan dan material tiap proyek jalan dan jembatan, lengkap dengan jejak siapa yang mencatat dan kapan.</p>
     <div class="feat"><div><span class="ic">${ic('box')}</span><span>Stok masuk, keluar, dan sisa per proyek</span></div><div><span class="ic">${ic('pulse')}</span><span>Perbandingan bulan lalu dan persentase pemakaian</span></div><div><span class="ic">${ic('shield')}</span><span>Setiap input tercatat: siapa, tanggal, jam</span></div></div>
   </section>
-  <section class="card lbox"><div><h2 style="font-size:21px">Masuk ke akun</h2><div class="hint">Mockup interaktif. Semua data adalah contoh.</div></div>
+  <section class="card lbox"><div><h2 class="ttl" style="font-size:21px">Masuk ke akun</h2><div class="hint">Mockup interaktif. Semua data adalah contoh.</div></div>
   <form class="stack" data-form="login" novalidate>
     <div class="field"><label for="lu">Username</label><input class="in" id="lu" autocomplete="off" placeholder="mis. ahmad.fauzi"></div>
     ${pw('lp','Password','Minimal 6 karakter')}
@@ -505,9 +512,9 @@ function vDash(){
   const top=[...rows].sort((a,b)=>b.pct-a.pct).slice(0,6);
   return `<div class="kpis">
    <div class="card kpi"><div class="l"><span class="ic">${ic('box')}</span>Jenis barang aktif</div><div class="v num">${rows.length}</div><div class="d">${pids.length} proyek dalam cakupan</div></div>
-   <div class="card kpi"><div class="l"><span class="ic">${ic('swap')}</span>Transaksi ${MON[+S.ym.slice(5)-1]}</div><div class="v num">${tx}</div><div class="d">masuk + keluar, tidak termasuk saldo awal</div></div>
+   <div class="card kpi"><div class="l"><span class="ic y">${ic('swap')}</span>Transaksi ${MON[+S.ym.slice(5)-1]}</div><div class="v num">${tx}</div><div class="d">masuk + keluar, tidak termasuk saldo awal</div></div>
    <div class="card kpi"><div class="l"><span class="ic" style="background:var(--bad-bg);color:var(--bad)">${ic('alert')}</span>Stok kritis</div><div class="v num" style="color:${crit?'var(--bad)':'inherit'}">${crit}</div><div class="d">sisa di bawah batas minimum</div></div>
-   <div class="card kpi"><div class="l"><span class="ic">${ic('clock')}</span>Tidak bergerak</div><div class="v num">${idle}</div><div class="d">tanpa transaksi 14 hari atau lebih</div></div></div>
+   <div class="card kpi"><div class="l"><span class="ic y">${ic('clock')}</span>Tidak bergerak</div><div class="v num">${idle}</div><div class="d">tanpa transaksi 14 hari atau lebih</div></div></div>
   <div class="cols">
    <div class="card"><div class="hd"><div><h2>Ringkasan per barang · ${ymLabel(S.ym)}</h2><div class="sm muted">Bulan berjalan dihitung sampai 17 Nov. Perbandingan memakai laju pemakaian per hari agar adil.</div></div><div class="tools"><div class="search">${ic('search')}<input class="in" id="q" placeholder="Cari barang…" value="${esc(S.q)}" aria-label="Cari barang"></div>
      <button class="btn sm" data-act="exp" data-t="xlsx">${ic('xls')}Excel</button><button class="btn sm" data-act="exp" data-t="pdf">${ic('pdf')}PDF</button></div></div>
@@ -533,7 +540,7 @@ function actChart(pids){
   const sc=niceScale(Math.max(...cnt),4),W=480,H=300,L=36,R=8,T=10,B=26,iw=W-L-R,ih=H-T-B,bw=iw/30,Y=v=>T+ih-v/sc.top*ih;
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Jumlah transaksi per hari, 30 hari terakhir">
    ${sc.ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="${v===0?1.2:.6}" ${v===0?'':'stroke-dasharray="3 3"'}/><text x="${L-6}" y="${Y(v)+3.5}" font-size="11.5" fill="var(--fg-3)" text-anchor="end">${v}</text>`).join('')}
-   ${cnt.map((c,i)=>{const x=L+i*bw+bw*.18,w=bw*.64,h=c/sc.top*ih;return `<rect x="${x.toFixed(1)}" y="${(Y(c)).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${i===29?'var(--wkn)':'var(--wkn)'}" opacity="${i===29?1:.35}"><title>${fdate(days[i])}: ${c} transaksi</title></rect>`}).join('')}
+   ${cnt.map((c,i)=>{const x=L+i*bw+bw*.18,w=bw*.64,h=c/sc.top*ih;return `<rect x="${x.toFixed(1)}" y="${(Y(c)).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${i===29?'var(--wkn-or)':'var(--wkn)'}" ${i===29?'stroke="var(--wkn)" stroke-width="1.6"':''} opacity="${i===29?1:.35}"><title>${fdate(days[i])}: ${c} transaksi</title></rect>`}).join('')}
    ${[0,7,14,21,29].map(i=>`<text x="${(L+i*bw+bw/2).toFixed(1)}" y="${H-7}" font-size="11.5" fill="var(--fg-3)" text-anchor="${i===0?'start':i===29?'end':'middle'}">${i===29?'Hari ini':dShort(days[i])}</text>`).join('')}</svg>`;
 }
 function stockChart(series,days,min){
@@ -547,7 +554,7 @@ function stockChart(series,days,min){
    <text x="${L+6}" y="${Y(min)-6}" font-size="11.5" font-weight="700" fill="var(--bad)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Batas minimum ${fmt(min)}</text>
    <path d="${line}" fill="none" stroke="var(--wkn)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
    ${series.map((v,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="9" fill="transparent"><title>${fdate(days[i])}: ${fmt(v)}</title></circle>`).join('')}
-   <circle cx="${X(29)}" cy="${Y(last)}" r="5" fill="${low?'var(--bad)':'var(--wkn)'}" stroke="var(--surface)" stroke-width="2"/>
+   <circle cx="${X(29)}" cy="${Y(last)}" r="5" fill="${low?'var(--bad)':'var(--wkn-or)'}" stroke="${low?'var(--surface)':'var(--wkn)'}" stroke-width="2"/>
    <text x="${X(29)-9}" y="${Y(last)+(Y(last)<T+22?18:-10)}" font-size="11" font-weight="700" fill="${low?'var(--bad)':'var(--wkn)'}" stroke="var(--surface)" stroke-width="4" paint-order="stroke" text-anchor="end">${fmt(last)}</text>
    ${[0,7,14,21,29].map(i=>`<text x="${X(i).toFixed(1)}" y="${H-7}" font-size="11.5" fill="var(--fg-3)" text-anchor="${i===0?'start':i===29?'end':'middle'}">${i===29?'Hari ini':dShort(days[i])}</text>`).join('')}</svg>`;
 }
