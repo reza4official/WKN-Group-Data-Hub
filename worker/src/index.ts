@@ -2,7 +2,7 @@ import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
 import { loginOptions, loginWithAssertion, registerCredential, registerOptions, removeCredential } from './handlers/biometric'
 import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
-import { addEntry, correctEntry } from './handlers/ledger'
+import { addEntry, correctEntry, importEntries } from './handlers/ledger'
 import { addProjectItem, setOpening, updateProjectItem } from './handlers/items'
 import { createCompany, createProject, updateCompany, updateProject } from './handlers/projects'
 import { createRole, deleteRole, updateRole } from './handlers/roles'
@@ -12,7 +12,7 @@ import { loadActor, type Actor } from './lib/actor'
 import { HttpError, type Body } from './lib/http'
 import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.6.0'
+export const VERSION = '0.7.0'
 
 const MAX_BODY = 20_000
 
@@ -71,6 +71,7 @@ const AUTHED: Record<string, (c: Ctx, body: Body, req: Request) => Promise<unkno
   '/items/update': updateProjectItem,
   '/ledger/add': addEntry,
   '/ledger/correct': correctEntry,
+  '/ledger/import': importEntries,
 }
 
 export default {

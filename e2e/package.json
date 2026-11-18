@@ -1,6 +1,6 @@
 {
   "name": "wkn-e2e",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "description": "Uji end-to-end lokal dengan emulator Firebase (tidak menyentuh proyek asli)",
@@ -13,6 +13,7 @@
     "tahap4": "node tahap4.mjs",
     "tahap5": "node tahap5.mjs",
     "tahap6": "node tahap6.mjs",
+    "tahap7": "node tahap7.mjs",
     "ledger-concurrency": "node ledger-concurrency.mjs",
     "biometric": "node biometric.mjs"
   },

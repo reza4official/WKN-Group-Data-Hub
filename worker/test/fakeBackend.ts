@@ -111,6 +111,16 @@ export class FakeBackend {
       const rest = url.slice(docsBase.length)
       if (rest.endsWith(':runQuery')) return this.runQuery(body as Raw, rest.slice(1, -':runQuery'.length))
       if (rest === ':commit') return this.commit(body as Raw)
+      if (rest === ':batchGet') {
+        const names = (body as { documents: string[] }).documents
+        return this.ok(
+          names.map((n) => {
+            const path = n.split('/documents/')[1]
+            const d = this.docs.get(path)
+            return d ? { found: this.raw(path, d) } : { missing: n }
+          }),
+        )
+      }
       const path = rest.replace(/^\//, '')
       const d = this.docs.get(path)
       return d ? this.ok(this.raw(path, d)) : new Response('{}', { status: 404 })

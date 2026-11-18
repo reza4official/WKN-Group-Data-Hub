@@ -8,21 +8,20 @@ import { Icon } from '../components/Icon'
 import { Overlay } from '../components/Overlay'
 import { Pill, type PillTone } from '../components/Pill'
 import { ScrollTable } from '../components/ScrollTable'
-import { listCatalog, listDays, listMonths, listProjectItems, listProjects, type Project } from '../lib/data'
+import { listDays, listMonths, listProjects, type Project } from '../lib/data'
 import {
   addDays,
   compareProjects,
   kpis,
-  mergeByItem,
   monthlyBars,
   prevYm,
   sortRows,
   stockSeries,
-  summarizeItem,
   type DashItem,
   type DashRow,
   type SortKey,
 } from '../lib/dashboard'
+import { loadDashboard, type DashboardData } from '../lib/dashboardData'
 import { todayWita } from '../lib/time'
 import { useLoad } from '../lib/useLoad'
 
@@ -58,11 +57,7 @@ function Delta({ v, invert }: { v: number | null; invert?: boolean }) {
   )
 }
 
-interface Loaded {
-  rows: DashRow[]
-  perProject: Map<string, DashRow[]>
-  items: Map<string, DashItem[]>
-}
+type Loaded = DashboardData
 
 export function DashboardPage() {
   const { state } = useAuth()
@@ -83,46 +78,7 @@ export function DashboardPage() {
   const scoped: Project[] = choice === 'all' ? list : list.filter((p) => p.id === choice)
 
   const data = useLoad<Loaded>(
-    async () => {
-      const catalog = await listCatalog()
-      const cat = new Map(catalog.map((c) => [c.id, c]))
-      const perProject = new Map<string, DashRow[]>()
-      const items = new Map<string, DashItem[]>()
-      for (const p of scoped) {
-        const raw = await listProjectItems(p.id)
-        const dash: DashItem[] = raw.map((it) => {
-          const c = cat.get(it.id)
-          return {
-            id: it.id,
-            projectId: p.id,
-            name: c?.name ?? it.id,
-            unit: c?.unit ?? '',
-            category: c?.category ?? '',
-            openingQty: it.openingQty,
-            openingDate: it.openingDate,
-            currentStock: it.currentStock ?? 0,
-            minStock: it.minStock,
-            lastTxDate: it.lastTxDate,
-            txCount: it.txCount,
-            active: it.active,
-          }
-        })
-        items.set(p.id, dash)
-        // Hanya total bulan ini dan bulan lalu per barang yang dibaca (bukan transaksi mentah).
-        const eligible = dash.filter(
-          (d) =>
-            d.active && d.openingQty !== null && d.openingDate !== null && d.openingDate.slice(0, 7) <= ym,
-        )
-        const months = await Promise.all(eligible.map((d) => listMonths(p.id, d.id, prevYm(ym))))
-        const rows: DashRow[] = []
-        eligible.forEach((d, i) => {
-          const r = summarizeItem(d, months[i], ym, today)
-          if (r) rows.push(r)
-        })
-        perProject.set(p.id, rows)
-      }
-      return { rows: mergeByItem([...perProject.values()].flat()), perProject, items }
-    },
+    () => loadDashboard(scoped, ym, today),
     `dash:${scoped.map((p) => p.id).join(',')}:${ym}`,
   )
 

@@ -2,6 +2,15 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.7.0 — Tahap 7: Ekspor dan impor
+
+- **Ekspor** (menu Impor / Ekspor): Excel (.xlsx) dan PDF berkop logo, memuat proyek, periode, pembuat (nama dan role), dan waktu cetak WITA. Isi: Transaksi (termasuk saldo awal, koreksi, pencatat, waktu catat) dan/atau Ringkasan per barang.
+- **Impor transaksi dari Excel**: unduh template (daftar barang proyek, pilihan Jenis), unggah, **pratinjau validasi per baris** (alasan jelas, perkiraan penulisan), konfirmasi. Hanya baris valid yang dikirim; server memeriksa ulang (stok tidak boleh negatif, tanggal, saldo awal) dan menolak baris yang salah dengan alasan.
+- Worker `/ledger/import`: satu commit atomik per permintaan (maks. 150 baris, 10 barang), idempoten per sesi impor, satu catatan audit "Impor transaksi", pencatat tiap baris = pengimpor. Barang masuk diproses lebih dulu, lalu keluar menurut tanggal. Hasil identik dengan pencatatan satu per satu (diuji pembanding).
+- Berkas dibaca dan dibuat di perangkat; pustaka ExcelJS dan jsPDF dimuat hanya saat dibutuhkan. Batas 2 MB, 3.000 baris, `.xlsx`. Perlindungan rumus (sel berawalan `=+-@`).
+- Pemuat data dashboard dipindah ke `lib/dashboardData` (dipakai bersama ekspor).
+- Tes: Worker 152, aplikasi 180, aturan Firestore 20; end-to-end Tahap 7 (24), Tahap 6 (22).
+
 ## v0.6.0 — Tahap 6: Dashboard
 
 - **Dashboard**: KPI (jenis barang, transaksi bulan, stok kritis, tidak bergerak), tabel ringkasan per barang (awal, masuk, keluar, sisa), perbandingan laju pemakaian harian dengan bulan lalu, persentase pemakaian, estimasi hari stok, status (Aman, Menipis, Kritis, Tidak bergerak), pencarian dan pengurutan.

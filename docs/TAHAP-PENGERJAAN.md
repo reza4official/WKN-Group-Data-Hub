@@ -125,6 +125,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 7 — v0.7.0 Ekspor dan impor
 
+**Status: kode selesai dan lulus uji (Worker 152, aplikasi 180, e2e 24). Penerapan: [`TAHAP-7-PENERAPAN.md`](TAHAP-7-PENERAPAN.md). Penyimpangan: ExcelJS (npm) menggantikan SheetJS CDN. Belum teruji: file Excel dari Excel/WPS sungguhan milik pengguna dan Firestore produksi.**
+
 - Ekspor Excel (SheetJS dari cdn.sheetjs.com) dan PDF (jsPDF + autotable) berkop logo, nama pembuat, waktu cetak.
 - Impor: unduh template, unggah, pratinjau validasi per baris, konfirmasi. Penulisan lewat Worker dalam batch maks. 500, tercatat atas nama pelaku.
 - Peringatan kuota tulis harian sebelum impor besar.

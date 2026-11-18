@@ -63,6 +63,23 @@ export async function getDocument(env: Env, sa: ServiceAccount, path: string): P
   return toDoc((await res.json()) as RawDoc)
 }
 
+/** Membaca banyak dokumen sekaligus dengan satu permintaan (hemat sub-permintaan Worker). Kunci peta = jalur dokumen. */
+export async function batchGetDocuments(env: Env, sa: ServiceAccount, paths: string[]): Promise<Map<string, Doc>> {
+  const out = new Map<string, Doc>()
+  if (paths.length === 0) return out
+  const docName = (p: string) => `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/${p}`
+  const res = await fetch(`${endpoints(env).firestoreDocs}:batchGet`, {
+    method: 'POST',
+    headers: await headers(env, sa),
+    body: JSON.stringify({ documents: paths.map(docName) }),
+  })
+  if (!res.ok) throw new Error(`Firestore batchGet gagal (${res.status})`)
+  for (const r of (await res.json()) as { found?: RawDoc }[]) {
+    if (r.found) out.set(r.found.name.split('/documents/')[1], toDoc(r.found))
+  }
+  return out
+}
+
 export interface Filter {
   field: string
   op: 'EQUAL' | 'LESS_THAN' | 'GREATER_THAN_OR_EQUAL'

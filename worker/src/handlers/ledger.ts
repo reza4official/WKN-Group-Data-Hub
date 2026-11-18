@@ -1,7 +1,7 @@
 import type { Env } from '../env'
 import { requirePerm, type Actor } from '../lib/actor'
 import { auditWrite } from '../lib/audit'
-import { commit, CommitError, getDocument, queryDocuments, type Doc, type Write } from '../lib/firestore'
+import { batchGetDocuments, commit, CommitError, getDocument, queryDocuments, type Doc, type Write } from '../lib/firestore'
 import { HttpError, isoDate, oneOf, optStr, positiveQuantity, str, todayWita, type Body } from '../lib/http'
 import { fromMilli, toMilli } from '../lib/qty'
 import { assertProjectAccess } from '../lib/scope'
@@ -248,5 +248,219 @@ export async function correctEntry(c: Ctx, body: Body): Promise<Applied> {
       throw e
     }
     return { id: corrId, currentStock: fromMilli(toMilli(num(item.data.currentStock)) + inM - outM) }
+  })
+}
+
+// ---------- Impor massal ----------
+
+const MAX_IMPORT_ROWS = 150
+const MAX_IMPORT_ITEMS = 10
+const IMPORT_ID = /^[A-Za-z0-9-]{8,48}$/
+
+export interface ImportResult {
+  index: number
+  status: 'ok' | 'duplicate' | 'error'
+  code?: string
+  message?: string
+}
+
+interface ParsedRow {
+  index: number
+  itemId: string
+  type: 'masuk' | 'keluar'
+  qM: number
+  date: string
+  note: string
+}
+
+/**
+ * Mengimpor sekumpulan transaksi satu proyek dalam SATU commit atomik. Setiap baris divalidasi sendiri:
+ * baris yang salah ditolak (dengan alasan) dan baris yang benar dimasukkan. Barang masuk diproses lebih dulu,
+ * lalu barang keluar menurut tanggal; keluar ditolak bila membuat saldo negatif pada titik waktu mana pun.
+ * Batas 150 baris dan 10 barang per permintaan menjaga jumlah sub-permintaan Worker (paket gratis: 50) dan 500 penulisan per commit.
+ */
+export async function importEntries(c: Ctx, body: Body): Promise<{ results: ImportResult[]; accepted: number; rejected: number; duplicates: number }> {
+  requirePerm(c.actor, 'import')
+  requirePerm(c.actor, 'inventory.write')
+  const pid = str(body, 'projectId', { label: 'Proyek' })
+  assertProjectAccess(c.actor, pid)
+  const importId = str(body, 'importId', { max: 48, label: 'ID impor' })
+  if (!IMPORT_ID.test(importId)) throw new HttpError(400, 'bad_request', 'ID impor tidak valid.')
+  const fileName = optStr(body, 'fileName', 120, 'Nama berkas') ?? ''
+  const raw = body.rows
+  if (!Array.isArray(raw) || raw.length === 0) throw new HttpError(400, 'bad_request', 'Tidak ada baris untuk diimpor.')
+  if (raw.length > MAX_IMPORT_ROWS) throw new HttpError(400, 'too_many_rows', `Maksimal ${MAX_IMPORT_ROWS} baris per permintaan.`)
+
+  const today = todayWita()
+  const errors = new Map<number, ImportResult>()
+  const parsed: ParsedRow[] = []
+  raw.forEach((r, i) => {
+    const index = i + 1
+    try {
+      if (!r || typeof r !== 'object') throw new HttpError(400, 'bad_request', 'Baris tidak valid.')
+      const row = r as Body
+      const date = isoDate(row, 'date', 'Tanggal')
+      if (!date) throw new HttpError(400, 'bad_request', 'Tanggal wajib diisi.')
+      if (date > today) throw new HttpError(400, 'bad_request', 'Tanggal tidak boleh di masa depan.')
+      parsed.push({
+        index,
+        itemId: str(row, 'itemId', { label: 'Barang' }),
+        type: oneOf(row, 'type', ['masuk', 'keluar'] as const, 'Jenis'),
+        qM: toMilli(positiveQuantity(row, 'qty', 'Jumlah')),
+        date,
+        note: optStr(row, 'note', 200, 'Keterangan') ?? '',
+      })
+    } catch (e) {
+      if (!(e instanceof HttpError)) throw e
+      errors.set(index, { index, status: 'error', code: e.code, message: e.message })
+    }
+  })
+  if (new Set(parsed.map((p) => p.itemId)).size > MAX_IMPORT_ITEMS) {
+    throw new HttpError(400, 'too_many_items', `Maksimal ${MAX_IMPORT_ITEMS} barang berbeda per permintaan.`)
+  }
+
+  return withRetry(async () => {
+    const project = await getDocument(c.env, c.sa, `projects/${pid}`)
+    if (!project) throw new HttpError(404, 'not_found', 'Proyek tidak ditemukan.')
+    if (project.data.active === false) throw new HttpError(409, 'inactive', 'Proyek sudah nonaktif.')
+
+    const results = new Map<number, ImportResult>(errors)
+    const fail = (index: number, code: string, message: string) => results.set(index, { index, status: 'error', code, message })
+
+    // Baris yang sudah pernah masuk (permintaan diulang) dilewati, bukan dicatat ulang.
+    const existing = await batchGetDocuments(c.env, c.sa, parsed.map((p) => `projects/${pid}/ledger/${importId}-${p.index}`))
+    const fresh: ParsedRow[] = []
+    for (const p of parsed) {
+      if (existing.has(`projects/${pid}/ledger/${importId}-${p.index}`)) results.set(p.index, { index: p.index, status: 'duplicate', message: 'Baris ini sudah pernah diimpor.' })
+      else fresh.push(p)
+    }
+
+    const writes: Write[] = []
+    let accepted = 0
+    const byItem = new Map<string, ParsedRow[]>()
+    for (const p of fresh) byItem.set(p.itemId, [...(byItem.get(p.itemId) ?? []), p])
+
+    for (const [iid, rows] of byItem) {
+      const item = await getDocument(c.env, c.sa, itemPath(pid, iid))
+      if (!item) {
+        rows.forEach((r) => fail(r.index, 'not_found', 'Barang tidak ada di proyek ini.'))
+        continue
+      }
+      const openingDate = item.data.openingDate
+      if (item.data.active === false) {
+        rows.forEach((r) => fail(r.index, 'inactive', 'Barang ini nonaktif di proyek.'))
+        continue
+      }
+      if (item.data.openingQty === null || item.data.openingQty === undefined || typeof openingDate !== 'string') {
+        rows.forEach((r) => fail(r.index, 'no_opening', 'Barang ini belum punya saldo awal.'))
+        continue
+      }
+      const cand = rows.filter((r) => {
+        if (r.date < openingDate) {
+          fail(r.index, 'bad_request', `Tanggal sebelum saldo awal (${openingDate}).`)
+          return false
+        }
+        return true
+      })
+      if (cand.length === 0) continue
+
+      const minDate = cand.reduce((m, r) => (r.date < m ? r.date : m), cand[0].date)
+      const minYm = minDate.slice(0, 7)
+      const [dayDocs, monthDocs] = await Promise.all([
+        queryDocuments(c.env, c.sa, 'days', [{ field: 'date', op: 'GREATER_THAN_OR_EQUAL', value: minDate }], MAX_DAYS + 1, itemPath(pid, iid)),
+        queryDocuments(c.env, c.sa, 'months', [{ field: 'ym', op: 'GREATER_THAN_OR_EQUAL', value: minYm }], 400, itemPath(pid, iid)),
+      ])
+      if (dayDocs.length > MAX_DAYS) throw new HttpError(400, 'bad_request', 'Rentang tanggal terlalu panjang untuk diperiksa. Gunakan tanggal yang lebih baru.')
+
+      // Garis waktu dalam memori: total harian yang ada + baris yang diterima sejauh ini.
+      const dayIn = new Map<string, number>()
+      const dayOut = new Map<string, number>()
+      const dayDoc = new Map<string, Doc>()
+      for (const d of dayDocs) {
+        const k = String(d.data.date)
+        dayIn.set(k, toMilli(num(d.data.in)))
+        dayOut.set(k, toMilli(num(d.data.out)))
+        dayDoc.set(k, d)
+      }
+      let stock = toMilli(num(item.data.currentStock))
+      const net = () => [...new Set([...dayIn.keys(), ...dayOut.keys()])].map((date) => ({ date, net: (dayIn.get(date) ?? 0) - (dayOut.get(date) ?? 0) }))
+      const accept: ParsedRow[] = []
+      const order = [...cand.filter((r) => r.type === 'masuk').sort((a, b) => a.date.localeCompare(b.date) || a.index - b.index), ...cand.filter((r) => r.type === 'keluar').sort((a, b) => a.date.localeCompare(b.date) || a.index - b.index)]
+      for (const r of order) {
+        if (r.type === 'keluar') {
+          const low = lowestBalanceFrom(stock, net(), r.date)
+          if (low - r.qM < 0) {
+            fail(r.index, 'insufficient', `Stok tidak cukup. Jumlah keluar maksimal pada tanggal itu: ${fromMilli(Math.max(low, 0))}.`)
+            continue
+          }
+          dayOut.set(r.date, (dayOut.get(r.date) ?? 0) + r.qM)
+          stock -= r.qM
+        } else {
+          dayIn.set(r.date, (dayIn.get(r.date) ?? 0) + r.qM)
+          stock += r.qM
+        }
+        accept.push(r)
+      }
+      if (accept.length === 0) continue
+
+      const prevCount = num(item.data.txCount)
+      const prevLast = typeof item.data.lastTxDate === 'string' ? item.data.lastTxDate : ''
+      let last = prevLast
+      accept.forEach((r, n) => {
+        results.set(r.index, { index: r.index, status: 'ok' })
+        if (r.date > last) last = r.date
+        writes.push({
+          path: `projects/${pid}/ledger/${importId}-${r.index}`,
+          data: {
+            itemId: iid, date: r.date, ym: r.date.slice(0, 7), type: r.type,
+            in: r.type === 'masuk' ? fromMilli(r.qM) : 0, out: r.type === 'keluar' ? fromMilli(r.qM) : 0,
+            seq: prevCount + n + 1, note: r.note, source: 'import', importId,
+            createdBy: c.actor.uid, createdByName: c.actor.name, createdByRole: c.actor.roleName,
+          },
+          precondition: { exists: false },
+          serverTime: ['createdAt'],
+        })
+      })
+      accepted += accept.length
+      writes.push({
+        path: itemPath(pid, iid),
+        data: { currentStock: fromMilli(stock), txCount: prevCount + accept.length, ...(last !== prevLast ? { lastTxDate: last } : {}) },
+        mask: ['currentStock', 'txCount', ...(last !== prevLast ? ['lastTxDate'] : [])],
+        precondition: pre(item),
+      })
+      for (const date of new Set(accept.map((r) => r.date))) {
+        writes.push({ path: `${itemPath(pid, iid)}/days/${date}`, data: { date, in: fromMilli(dayIn.get(date) ?? 0), out: fromMilli(dayOut.get(date) ?? 0) }, precondition: pre(dayDoc.get(date) ?? null) })
+      }
+      for (const ym of new Set(accept.map((r) => r.date.slice(0, 7)))) {
+        const md = monthDocs.find((d) => d.id === ym) ?? null
+        const m = md?.data ?? {}
+        const mine = accept.filter((r) => r.date.slice(0, 7) === ym)
+        writes.push({
+          path: `${itemPath(pid, iid)}/months/${ym}`,
+          data: {
+            ym,
+            in: fromMilli(toMilli(num(m.in)) + mine.filter((r) => r.type === 'masuk').reduce((s, r) => s + r.qM, 0)),
+            out: fromMilli(toMilli(num(m.out)) + mine.filter((r) => r.type === 'keluar').reduce((s, r) => s + r.qM, 0)),
+            corrIn: num(m.corrIn), corrOut: num(m.corrOut),
+            count: num(m.count) + mine.length, corrCount: num(m.corrCount),
+          },
+          precondition: pre(md),
+        })
+      }
+    }
+
+    const rejected = [...results.values()].filter((r) => r.status === 'error').length
+    const duplicates = [...results.values()].filter((r) => r.status === 'duplicate').length
+    if (writes.length > 0) {
+      writes.push(auditWrite(c.actor, 'ledger.import', { type: 'ledger', id: importId, label: String(project.data.name) }, { berkas: fileName, diterima: accepted, ditolak: rejected, duplikat: duplicates }))
+      if (writes.length > 480) throw new HttpError(400, 'too_many_rows', 'Impor terlalu besar untuk satu permintaan.')
+      try {
+        await commit(c.env, c.sa, writes)
+      } catch (e) {
+        if (e instanceof CommitError && e.conflict) throw new Retry()
+        throw e
+      }
+    }
+    return { results: [...results.values()].sort((a, b) => a.index - b.index), accepted, rejected, duplicates }
   })
 }
