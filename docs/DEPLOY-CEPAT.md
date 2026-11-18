@@ -15,7 +15,7 @@ Berhenti dengan pesan jelas di langkah pertama yang gagal.
 ## Opsi
 | Perintah | Fungsi |
 |---|---|
-| `.\deploy.cmd -Pull` | ambil kode terbaru dulu (`git stash`, `git pull`, `git stash pop`), lalu deploy |
+| `.\deploy.cmd -Pull` | pindah ke cabang `master` bila perlu, ambil kode terbaru (`git stash`, `git pull origin master`, `git stash pop`), lalu deploy |
 | `.\deploy.cmd -Test` | jalankan tes Worker dan aplikasi sebelum deploy |
 | `.\deploy.cmd -OnlyHosting` | hanya aplikasi (juga `-OnlyWorker`, `-OnlyFirestore`) |
 | `.\deploy.cmd -SkipFirestore` | lewati satu langkah (juga `-SkipWorker`, `-SkipHosting`) |

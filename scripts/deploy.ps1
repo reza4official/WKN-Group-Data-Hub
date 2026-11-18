@@ -4,7 +4,7 @@
 
   Contoh:
     .\deploy.cmd                      semua langkah (paling sering)
-    .\deploy.cmd -Pull                ambil kode terbaru dulu (git stash, pull, stash pop)
+    .\deploy.cmd -Pull                pindah ke master, ambil kode terbaru dulu (git stash, pull origin master, stash pop)
     .\deploy.cmd -SkipFirestore       lewati aturan Firestore
     .\deploy.cmd -OnlyHosting         hanya aplikasi
     .\deploy.cmd -Test                jalankan tes dulu
@@ -71,14 +71,29 @@ if ($doHosting -and ($cfg.apiUrl -like '*GANTI*' -or $cfg.firebase.apiKey -like 
 $apiUrl = ([string]$cfg.apiUrl).TrimEnd('/')
 $expected = (Get-Content (Join-Path $root 'worker\package.json') -Raw | ConvertFrom-Json).version
 
+# --- Peringatan bila bukan cabang master (kode yang dideploy = kode di folder ini)
+if (-not $Pull) {
+  $cur = (git rev-parse --abbrev-ref HEAD 2>$null)
+  if ($cur -and $cur.Trim() -ne 'master') { Write-Host "PERHATIAN: cabang aktif '$($cur.Trim())', bukan master. Gunakan  .\deploy.cmd -Pull  untuk pindah ke master dan mengambil kode terbaru." -ForegroundColor Yellow }
+}
+
 # --- Ambil kode terbaru (opsional)
 if ($Pull) {
-  Step 'Mengambil kode terbaru (git stash, pull, stash pop)'
+  Step 'Mengambil kode terbaru dari master (git stash, pull origin master, stash pop)'
   $before = @(git stash list).Count
   git stash
   if ($LASTEXITCODE -ne 0) { Fail 'git stash gagal.' }
   $after = @(git stash list).Count
-  git pull
+  $branch = (git rev-parse --abbrev-ref HEAD).Trim()
+  if ($branch -ne 'master') {
+    Write-Host "Anda berada di cabang '$branch'; berpindah ke master." -ForegroundColor Yellow
+    git checkout master
+    if ($LASTEXITCODE -ne 0) {
+      if ($after -gt $before) { Write-Host 'Perubahan lokal Anda masih aman di stash. Pulihkan dengan: git stash pop' -ForegroundColor Yellow }
+      Fail 'git checkout master gagal.'
+    }
+  }
+  git pull origin master
   if ($LASTEXITCODE -ne 0) {
     if ($after -gt $before) { Write-Host 'Perubahan lokal Anda masih aman di stash. Pulihkan dengan: git stash pop' -ForegroundColor Yellow }
     Fail 'git pull gagal.'
