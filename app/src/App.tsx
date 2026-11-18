@@ -7,6 +7,8 @@ import { useHashRoute } from './lib/useHashRoute'
 import { AccessDenied } from './pages/AccessDenied'
 import { LoginPage } from './pages/LoginPage'
 import { AuditPage } from './pages/AuditPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { BiometricPrompt } from './components/BiometricPrompt'
 import { CatalogPage } from './pages/CatalogPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { ProjectsPage } from './pages/ProjectsPage'
@@ -25,13 +27,14 @@ const PAGES: Record<string, (p: PageProps) => ReactElement> = {
   audit: AuditPage,
   catalog: CatalogPage,
   projects: ProjectsPage,
+  profil: ProfilePage,
 }
 
 // Galeri hanya ada di mode pengembangan; pada build produksi cabang ini dibuang.
 const Gallery = import.meta.env.DEV ? lazy(() => import('./pages/Gallery')) : null
 
 export default function App() {
-  const { state, logout, retry } = useAuth()
+  const { state, logout, retry, bioPrompt } = useAuth()
   const hash = useHashRoute()
 
   if (configMissing && !useEmulator) return <ConfigMissingScreen />
@@ -59,6 +62,7 @@ export default function App() {
   const allowed = canAccess(route, state.perms)
   return (
     <AppShell routes={routes} current={route.id} title={route.label}>
+      {bioPrompt && <BiometricPrompt />}
       {allowed ? (
         PAGES[route.id] ? (
           createElement(route.id === 'projects' && param ? ProjectDetailPage : PAGES[route.id], { param })

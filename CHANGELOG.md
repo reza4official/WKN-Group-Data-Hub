@@ -11,7 +11,10 @@ Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fit
 - **Penugasan proyek** saat membuat dan mengubah akun; kolom Proyek di daftar akun.
 - Validasi jumlah (tidak negatif, maksimal 3 desimal, bukan NaN) dan tanggal "tidak di masa depan" menurut WITA (bukan UTC).
 - `firestore.rules` dan indeks: daftar akun dan permintaan reset dibatasi lingkup proyek (butuh indeks komposit; deploy dengan `firebase deploy --only firestore`).
-- Tes: Worker 79, aplikasi 59, aturan Firestore 20, end-to-end Tahap 4 (29 skenario, aturan aktif).
+- **Login biometrik (WebAuthn/passkey)**: tombol ikon di samping tombol Masuk pada perangkat yang mendukung; ikon sidik jari atau Face ID menurut tebakan perangkat (disimpan dan konsisten). Pop-up ajakan mengaktifkan setelah login password/Google, dapat dilewati, muncul lagi di login berikutnya selama belum aktif (tidak muncul setelah login biometrik, muat ulang, atau di perangkat tanpa dukungan).
+- Verifikasi WebAuthn di Worker: tantangan bertanda sekali pakai, origin dan rpId tepat, UP+UV wajib, ES256/RS256, penghitung (0 diterima, mundur ditolak), jawaban kegagalan seragam, pembatas laju. Passkey dicabut otomatis saat reset password dan hapus akun; akun nonaktif ditolak.
+- **Profil Saya**: daftar perangkat biometrik, hapus, aktifkan di perangkat ini. Penyimpanan lokal per akun (satu perangkat bisa dipakai beberapa akun).
+- Tes: Worker 106, aplikasi 79, aturan Firestore 20; end-to-end: Tahap 3 (25), Tahap 4 (29), biometrik (29, autentikator virtual Chromium).
 
 ## v0.3.0 — Tahap 3: Role, akun bawahan, reset password, log audit
 

@@ -11,9 +11,29 @@ import {
 import { doc, getDoc } from 'firebase/firestore'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { config } from '../config'
+import { ApiError } from '../lib/api'
+import {
+  detectBiometricKind,
+  fetchLoginOptions,
+  forgetCredential,
+  hasLocalBiometric,
+  isBiometricSupported,
+  localBiometric,
+  postAssertion,
+  startAssertion,
+  webauthnErrorMessage,
+  type LoginOptions,
+} from '../lib/biometric'
 import { auth, db } from '../lib/firebase'
 import { syntheticEmail } from '../lib/identity'
-import { AuthContext, LoginError, type AuthApi, type AuthState, type Profile } from './context'
+import {
+  AuthContext,
+  LoginError,
+  type AuthApi,
+  type AuthState,
+  type BiometricInfo,
+  type Profile,
+} from './context'
 import { googleLinkMessage, loginErrorMessage } from './errors'
 
 const TRANSIENT = new Set([
@@ -28,6 +48,14 @@ const TRANSIENT = new Set([
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
   const linking = useRef(false)
+  const [biometric, setBiometric] = useState<BiometricInfo>({
+    supported: false,
+    kind: localBiometric().kind || detectBiometricKind(),
+    enabledHere: hasLocalBiometric(),
+  })
+  const [bioPrompt, setBioPrompt] = useState(false)
+  const supportedRef = useRef(false)
+  const loginPrep = useRef<{ opts: LoginOptions; at: number } | null>(null)
 
   const loadProfile = useCallback(async (user: User) => {
     try {
@@ -83,6 +111,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loadProfile],
   )
 
+  useEffect(() => {
+    let cancelled = false
+    void isBiometricSupported().then((ok) => {
+      if (cancelled) return
+      supportedRef.current = ok
+      setBiometric((b) => ({ ...b, supported: ok }))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const refreshBiometric = useCallback(() => {
+    const l = localBiometric()
+    setBiometric((b) => ({ ...b, enabledHere: l.ids.length > 0, kind: l.kind }))
+  }, [])
+
+  const prefetchLoginChallenge = useCallback(() => {
+    fetchLoginOptions()
+      .then((opts) => {
+        loginPrep.current = { opts, at: Date.now() }
+      })
+      .catch(() => {
+        loginPrep.current = null
+      })
+  }, [])
+
+  // Ajakan aktifkan biometrik: hanya setelah login password/Google pada perangkat yang mendukung dan belum aktif.
+  const offerBiometric = (uid: string) => {
+    if (supportedRef.current && !hasLocalBiometric(uid)) setBioPrompt(true)
+  }
+
   // Pesan penolakan dari percobaan sebelumnya dibersihkan saat percobaan baru dimulai.
   const clearNotice = () => setState((s) => (s.status === 'out' && s.message ? { status: 'out' } : s))
 
@@ -91,7 +151,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!username.trim()) throw new LoginError('Username wajib diisi.')
     if (password.length < 6) throw new LoginError('Password minimal 6 karakter.')
     try {
-      await signInWithEmailAndPassword(auth, await syntheticEmail(username), password)
+      const cred = await signInWithEmailAndPassword(auth, await syntheticEmail(username), password)
+      offerBiometric(cred.user.uid)
     } catch (e) {
       throw new LoginError(loginErrorMessage(e instanceof FirebaseError ? e.code : undefined))
     }
@@ -122,7 +183,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await signOut(auth).catch(() => {})
         throw new LoginError(googleLinkMessage(body.error, res.status, body.detail))
       }
-      await signInWithCustomToken(auth, body.customToken)
+      const signed = await signInWithCustomToken(auth, body.customToken)
+      offerBiometric(signed.user.uid)
     } catch (e) {
       if (e instanceof LoginError) throw e
       throw new LoginError(loginErrorMessage(e instanceof FirebaseError ? e.code : undefined))
@@ -133,8 +195,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [loadProfile])
 
+  /**
+   * Login biometrik. Pemanggilan WebAuthn dilakukan SINKRON dari ketukan (tantangan sudah diambil lebih
+   * dulu) agar diterima Safari/iOS. Login tidak bergantung pada penyimpanan lokal: bila id tidak ada,
+   * browser menawarkan passkey yang ditemukan.
+   */
+  const loginWithBiometric = useCallback(async () => {
+    clearNotice()
+    const prep = loginPrep.current
+    if (!prep || Date.now() - prep.at > 100_000) {
+      prefetchLoginChallenge()
+      throw new LoginError('Menyiapkan verifikasi biometrik. Ketuk sekali lagi.')
+    }
+    loginPrep.current = null
+    let pending
+    let usedId = ''
+    try {
+      pending = startAssertion(prep.opts, localBiometric().ids)
+    } catch (e) {
+      prefetchLoginChallenge()
+      throw new LoginError(webauthnErrorMessage(e))
+    }
+    try {
+      const a = await pending
+      usedId = a.credentialId
+      const { customToken } = await postAssertion(a)
+      await signInWithCustomToken(auth, customToken)
+    } catch (e) {
+      prefetchLoginChallenge()
+      if (e instanceof ApiError && e.code === 'biometric_failed') {
+        if (usedId) forgetCredential(usedId) // passkey ini kemungkinan sudah dicabut (mis. setelah reset password)
+        refreshBiometric()
+        throw new LoginError(
+          'Login biometrik tidak berlaku lagi di perangkat ini. Masuk dengan password, lalu aktifkan ulang.',
+        )
+      }
+      if (e instanceof ApiError) throw new LoginError(e.message)
+      if (e instanceof FirebaseError) throw new LoginError(loginErrorMessage(e.code))
+      throw new LoginError(webauthnErrorMessage(e))
+    }
+  }, [prefetchLoginChallenge, refreshBiometric])
+
   const logout = useCallback(async () => {
     await signOut(auth)
+    setBioPrompt(false)
     setState({ status: 'out' })
   }, [])
 
@@ -145,8 +249,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile])
 
   const api = useMemo<AuthApi>(
-    () => ({ state, loginWithPassword, loginWithGoogle, logout, retry }),
-    [state, loginWithPassword, loginWithGoogle, logout, retry],
+    () => ({
+      state,
+      loginWithPassword,
+      loginWithGoogle,
+      logout,
+      retry,
+      biometric,
+      bioPrompt,
+      dismissBioPrompt: () => setBioPrompt(false),
+      prefetchLoginChallenge,
+      loginWithBiometric,
+      refreshBiometric,
+    }),
+    [
+      state,
+      loginWithPassword,
+      loginWithGoogle,
+      logout,
+      retry,
+      biometric,
+      bioPrompt,
+      prefetchLoginChallenge,
+      loginWithBiometric,
+      refreshBiometric,
+    ],
   )
   return <AuthContext.Provider value={api}>{children}</AuthContext.Provider>
 }

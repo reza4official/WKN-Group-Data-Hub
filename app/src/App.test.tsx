@@ -4,6 +4,7 @@ import App from './App'
 import { AuthContext, LoginError, type AuthApi, type AuthState } from './auth/context'
 import { ROUTES, accessibleRoutes } from './layout/routes'
 import { footerText } from './lib/version'
+import { fakeAuth } from './test-utils'
 
 vi.mock('./config', () => ({
   configMissing: false,
@@ -25,14 +26,7 @@ const profile = {
 }
 
 function renderWith(state: AuthState, over: Partial<AuthApi> = {}) {
-  const api: AuthApi = {
-    state,
-    loginWithPassword: vi.fn().mockResolvedValue(undefined),
-    loginWithGoogle: vi.fn().mockResolvedValue(undefined),
-    logout: vi.fn().mockResolvedValue(undefined),
-    retry: vi.fn(),
-    ...over,
-  }
+  const api = fakeAuth({ state, ...over })
   render(
     <AuthContext.Provider value={api}>
       <App />

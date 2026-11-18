@@ -10,7 +10,8 @@
     "google-link": "node google-link.mjs",
     "google-popup": "node google-popup.mjs",
     "admin": "node admin.mjs",
-    "tahap4": "node tahap4.mjs"
+    "tahap4": "node tahap4.mjs",
+    "biometric": "node biometric.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",

@@ -2,6 +2,7 @@ import type { Env } from '../env'
 import { requirePerm, type Actor } from '../lib/actor'
 import { assertManagesUser } from '../lib/scope'
 import { auditWrite } from '../lib/audit'
+import { credentialDeletes } from '../lib/credentials'
 import { commit, CommitError, getDocument, queryDocuments } from '../lib/firestore'
 import { HttpError, password, str, type Body } from '../lib/http'
 import { usernameDigest } from '../lib/identity'
@@ -104,6 +105,7 @@ export async function executeReset(c: Ctx, body: Body): Promise<void> {
       serverTime: ['handledAt'],
     },
     auditWrite(c.actor, 'user.reset_password', { type: 'user', id: uid, label }, { via: 'permintaan', permintaan: id }),
+    ...(await credentialDeletes(c.env, c.sa, uid)),
   ]).catch((e) => {
     if (e instanceof CommitError && e.conflict) throw new HttpError(409, 'already_handled', 'Permintaan ini baru saja ditangani orang lain.')
     throw e

@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { LoginError, useAuth } from '../auth/context'
 import { Button } from '../components/Button'
 import { Logo } from '../components/Logo'
+import { Icon } from '../components/Icon'
 import { PasswordInput } from '../components/PasswordInput'
 import { Footer } from '../layout/Footer'
 import { Overlay } from '../components/Overlay'
@@ -10,14 +11,24 @@ import { turnstileSiteKey } from '../config'
 import { requestPasswordReset } from '../lib/api'
 
 export function LoginPage({ notice }: { notice?: string }) {
-  const { loginWithPassword, loginWithGoogle } = useAuth()
+  const { loginWithPassword, loginWithGoogle, loginWithBiometric, biometric, prefetchLoginChallenge } =
+    useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState<'' | 'password' | 'google'>('')
+  const [busy, setBusy] = useState<'' | 'password' | 'google' | 'bio'>('')
+  const [bioHint, setBioHint] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
 
-  const run = async (kind: 'password' | 'google', fn: () => Promise<void>) => {
+  // Tantangan biometrik diambil lebih dulu dan diperbarui berkala, agar ketukan tombol langsung memanggil WebAuthn.
+  useEffect(() => {
+    if (!biometric.supported) return
+    prefetchLoginChallenge()
+    const t = window.setInterval(prefetchLoginChallenge, 80_000)
+    return () => window.clearInterval(t)
+  }, [biometric.supported, prefetchLoginChallenge])
+
+  const run = async (kind: 'password' | 'google' | 'bio', fn: () => Promise<void>) => {
     setError('')
     setBusy(kind)
     try {
@@ -83,9 +94,40 @@ export function LoginPage({ notice }: { notice?: string }) {
                 {error}
               </div>
             )}
-            <Button type="submit" variant="primary" disabled={busy !== ''}>
-              {busy === 'password' ? 'Memeriksa…' : 'Masuk'}
-            </Button>
+            <div className="login-actions">
+              <Button type="submit" variant="primary" disabled={busy !== ''}>
+                {busy === 'password' ? 'Memeriksa…' : 'Masuk'}
+              </Button>
+              {biometric.supported && (
+                <Button
+                  className="bio-btn"
+                  iconOnly
+                  disabled={busy !== ''}
+                  aria-label={
+                    biometric.kind === 'face' ? 'Masuk dengan wajah (Face ID)' : 'Masuk dengan sidik jari'
+                  }
+                  title={biometric.kind === 'face' ? 'Masuk dengan wajah' : 'Masuk dengan sidik jari'}
+                  data-kind={biometric.kind}
+                  data-enabled={biometric.enabledHere ? '1' : '0'}
+                  onClick={() => {
+                    if (!biometric.enabledHere) {
+                      setBioHint(true)
+                      return
+                    }
+                    setBioHint(false)
+                    void run('bio', loginWithBiometric) // WebAuthn dipanggil sinkron di dalam loginWithBiometric
+                  }}
+                >
+                  <Icon name={biometric.kind} />
+                </Button>
+              )}
+            </div>
+            {bioHint && !biometric.enabledHere && (
+              <div className="hint" role="status">
+                Login biometrik belum diaktifkan di perangkat ini. Masuk dengan username dan password atau
+                Google, lalu aktifkan saat diminta.
+              </div>
+            )}
             <div className="sep">atau</div>
             <Button disabled={busy !== ''} onClick={() => void run('google', loginWithGoogle)}>
               <GoogleMark />

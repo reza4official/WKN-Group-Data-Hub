@@ -24,6 +24,9 @@ const PATHS = {
   check: '<path d="M5 12l5 5L20 7"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
   trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  fingerprint:
+    '<path d="M5 11a7 7 0 0114 0v1.5"/><path d="M8.5 11a3.5 3.5 0 017 0v3.5c0 2 .3 3.8 1 5.5"/><path d="M12 11.5v3.5c0 2-.4 4-1.3 6"/><path d="M8.5 14.5v.5c0 2.2-.4 4.2-1.4 6"/><path d="M5 14.5c0 2.6-.3 4.2-.8 5.5"/><path d="M19 15c0 1.8-.2 3.3-.5 4.5"/>',
+  face: '<path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><path d="M9 9.5V11M15 9.5V11M12 9.5v4.2h-1"/><path d="M9 16c.9.8 1.9 1.2 3 1.2s2.1-.4 3-1.2"/>',
   out: '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',
   alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.1"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',

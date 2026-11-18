@@ -136,3 +136,41 @@
     padding: 20px;
   }
 }
+.login-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.login-actions > .btn.pri {
+  flex: 1;
+}
+.bio-btn {
+  width: 46px;
+  min-height: 40px;
+  flex: none;
+  border-color: var(--wkn);
+  color: var(--wkn);
+}
+.bio-btn svg.i {
+  width: 22px;
+  height: 22px;
+}
+.bio-btn[data-enabled='0'] {
+  border-style: dashed;
+  color: var(--fg-3);
+  border-color: var(--line);
+}
+.bio-hero {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--wkn-soft);
+  color: var(--wkn);
+  align-self: center;
+}
+.bio-hero svg.i {
+  width: 36px;
+  height: 36px;
+}

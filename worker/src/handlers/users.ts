@@ -3,6 +3,7 @@ import { requirePerm, type Actor } from '../lib/actor'
 import { auditWrite } from '../lib/audit'
 import { commit, CommitError, getDocument, queryDocuments, type Doc, type Write } from '../lib/firestore'
 import { HttpError, optEmail, optStr, password, str, strArray, type Body } from '../lib/http'
+import { credentialDeletes } from '../lib/credentials'
 import { createAuthUser, deleteAuthUser, DuplicateAccountError, updateAuthUser } from '../lib/identityAdmin'
 import { syntheticEmail, usernameDigest } from '../lib/identity'
 import { isSubset } from '../lib/perms'
@@ -206,6 +207,7 @@ export async function deleteUser(c: Ctx, body: Body): Promise<void> {
     auditWrite(c.actor, 'user.delete', { type: 'user', id: uid, label: String(target.data.username) }, { role: String(target.data.roleId) }),
   ]
   if (key) writes.push({ path: `usernames/${key}`, delete: true })
+  writes.push(...(await credentialDeletes(c.env, c.sa, uid)))
   await commit(c.env, c.sa, writes).catch(conflictToHttp)
   await deleteAuthUser(c.env, c.sa, uid)
 }
@@ -236,6 +238,8 @@ export async function resetPassword(c: Ctx, body: Body): Promise<void> {
       serverTime: ['handledAt'],
     })
   }
+  // Reset password mencabut juga semua passkey akun itu (kemungkinan perangkat/akun terkompromi).
+  writes.push(...(await credentialDeletes(c.env, c.sa, uid)))
   await commit(c.env, c.sa, writes).catch(conflictToHttp)
   try {
     await updateAuthUser(c.env, c.sa, uid, { password: pw, revokeSessions: true })

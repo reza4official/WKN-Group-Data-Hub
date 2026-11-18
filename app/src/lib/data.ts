@@ -252,3 +252,29 @@ export async function listProjectItems(projectId: string): Promise<ProjectItem[]
     }
   })
 }
+
+// ---------- Passkey (login biometrik) ----------
+
+export interface MyCredential {
+  id: string
+  credentialId: string
+  label: string
+  kind: 'face' | 'fingerprint'
+  createdAt: unknown
+  lastUsedAt: unknown
+}
+
+export async function listMyCredentials(uid: string): Promise<MyCredential[]> {
+  const snap = await getDocs(query(collection(db, 'webauthnCredentials'), where('uid', '==', uid)))
+  return snap.docs.map((d) => {
+    const x = d.data()
+    return {
+      id: d.id,
+      credentialId: str(x.credentialId),
+      label: str(x.label) || 'Perangkat',
+      kind: x.kind === 'face' ? 'face' : 'fingerprint',
+      createdAt: x.createdAt,
+      lastUsedAt: x.lastUsedAt,
+    }
+  })
+}

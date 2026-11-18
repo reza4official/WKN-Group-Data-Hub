@@ -16,12 +16,31 @@ export type AuthState =
   | { status: 'error'; message: string }
   | { status: 'in'; profile: Profile; roleName: string; perms: ReadonlySet<string> }
 
+import type { BiometricKind } from '../lib/biometric'
+
+export interface BiometricInfo {
+  /** Ada autentikator platform dengan verifikasi pengguna (sidik jari/wajah/kunci layar). */
+  supported: boolean
+  /** Tebakan jenis ikon; konsisten dengan yang dipilih saat diaktifkan. */
+  kind: BiometricKind
+  /** Perangkat ini sudah memiliki passkey terdaftar. */
+  enabledHere: boolean
+}
+
 export interface AuthApi {
   state: AuthState
   loginWithPassword: (username: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   retry: () => void
+  biometric: BiometricInfo
+  /** Ajakan mengaktifkan biometrik setelah login awal (hanya login password/Google, bukan muat ulang). */
+  bioPrompt: boolean
+  dismissBioPrompt: () => void
+  /** Ambil tantangan lebih dulu agar ketukan tombol langsung memanggil WebAuthn (syarat Safari). */
+  prefetchLoginChallenge: () => void
+  loginWithBiometric: () => Promise<void>
+  refreshBiometric: () => void
 }
 
 export class LoginError extends Error {}

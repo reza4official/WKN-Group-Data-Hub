@@ -1,5 +1,6 @@
 import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
+import { loginOptions, loginWithAssertion, registerCredential, registerOptions, removeCredential } from './handlers/biometric'
 import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
 import { addProjectItem, setOpening, updateProjectItem } from './handlers/items'
 import { createCompany, createProject, updateCompany, updateProject } from './handlers/projects'
@@ -45,7 +46,10 @@ async function readBody(request: Request): Promise<Body> {
 type Ctx = { actor: Actor; env: Env; sa: ServiceAccount }
 
 /** Rute yang mengubah data: memerlukan pelaku yang masuk. Semuanya POST agar CORS sederhana. */
-const AUTHED: Record<string, (c: Ctx, body: Body) => Promise<unknown>> = {
+const AUTHED: Record<string, (c: Ctx, body: Body, req: Request) => Promise<unknown>> = {
+  '/auth/webauthn/register-options': registerOptions,
+  '/auth/webauthn/register': registerCredential,
+  '/auth/webauthn/remove': removeCredential,
   '/users/create': createUser,
   '/users/update': updateUser,
   '/users/set-disabled': setDisabled,
@@ -102,12 +106,20 @@ export default {
         return json(out, 200, origin)
       }
 
+      if (url.pathname === '/auth/webauthn/login-options') {
+        return json(await loginOptions(request, env, parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT)), 200, origin)
+      }
+      if (url.pathname === '/auth/webauthn/login') {
+        const body = await readBody(request)
+        return json(await loginWithAssertion(body, request, env, parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT)), 200, origin)
+      }
+
       const handler = AUTHED[url.pathname]
       if (!handler) return json({ error: 'not_found' }, 404, origin)
       const body = await readBody(request)
       const sa = parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT)
       const actor = await loadActor(request.headers.get('Authorization'), env, sa)
-      const result = await handler({ actor, env, sa }, body)
+      const result = await handler({ actor, env, sa }, body, request)
       return json({ ok: true, ...((result as object | undefined) ?? {}) }, 200, origin)
     } catch (e) {
       if (e instanceof HttpError) return json({ error: e.code, message: e.message }, e.status, origin)

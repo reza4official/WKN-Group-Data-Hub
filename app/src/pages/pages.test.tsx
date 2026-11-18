@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthApi } from '../auth/context'
 import { ToastProvider } from '../components/Toast'
+import { fakeAuth } from '../test-utils'
 import type { AuditRow, ResetRequest, Role, UserRow } from '../lib/data'
 import { AuditPage } from './AuditPage'
 import { ResetsPage } from './ResetsPage'
@@ -70,7 +71,7 @@ const USERS: UserRow[] = [
 ]
 
 function as(roleId: string, level: number, perms: string[]): AuthApi {
-  return {
+  return fakeAuth({
     state: {
       status: 'in',
       profile: {
@@ -85,11 +86,7 @@ function as(roleId: string, level: number, perms: string[]): AuthApi {
       roleName: roleId,
       perms: new Set(perms),
     },
-    loginWithPassword: vi.fn(),
-    loginWithGoogle: vi.fn(),
-    logout: vi.fn(),
-    retry: vi.fn(),
-  }
+  })
 }
 const wrap = (api: AuthApi, ui: ReactNode) =>
   render(

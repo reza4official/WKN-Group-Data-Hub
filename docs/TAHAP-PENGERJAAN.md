@@ -80,7 +80,9 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ---
 
-## Tahap 4 — v0.4.0 Perusahaan, proyek, katalog, saldo awal
+## Tahap 4 — v0.4.0 Perusahaan, proyek, katalog, saldo awal (+ login biometrik)
+
+**Status: kode selesai dan lulus uji emulator (aturan aktif). Penerapan: [`TAHAP-4-PENERAPAN.md`](TAHAP-4-PENERAPAN.md). Belum teruji: indeks komposit di Firestore asli (halaman Akun Pengguna milik Manajer Proyek) dan sensor biometrik perangkat nyata (pengujian memakai autentikator virtual).**
 
 - Koleksi `companies`, `projects`, `catalog`, `projects/{id}/items`.
 - Halaman Proyek & Perusahaan dan Katalog Barang (tambah, ubah, nonaktifkan). Nama barang unik di katalog.
