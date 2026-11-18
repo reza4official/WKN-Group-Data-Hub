@@ -36,7 +36,17 @@ interface AuthUser {
 }
 
 /** Backend palsu dalam memori: Firestore REST (get, query, commit atomik dengan prasyarat), Identity Toolkit admin, JWKS, OAuth, Turnstile. */
+/**
+ * Jalur tulis yang sah tanpa catatan audit:
+ * - webauthnCredentials/*: penghitung dan waktu pakai passkey saat login biometrik (bukan perubahan oleh pelaku; login bukan aksi data).
+ * - resetRequests/* dibuat dari halaman login publik (pelaku belum masuk); pencatatan audit 'reset.request' ditulis oleh handlernya sendiri
+ *   dalam commit yang sama, jadi tidak termasuk pengecualian di sini.
+ * - system/*: status cadangan dan pemakaian kuota yang ditulis cron (bukan aksi pengguna).
+ */
+export const AUDIT_EXEMPT: RegExp[] = [/^webauthnCredentials\//, /^system\//]
+
 export class FakeBackend {
+  static auditViolations: string[] = []
   docs = new Map<string, StoredDoc>()
   auth = new Map<string, AuthUser>()
   clock = 0
@@ -168,6 +178,12 @@ export class FakeBackend {
     }
     const writes = b.writes as W[]
     const pathOf = (n: string) => n.split('/documents/')[1]
+    // Invarian audit: setiap commit yang mengubah data harus memuat catatan audit di commit yang SAMA.
+    // Pengecualian (dengan alasan) ada di AUDIT_EXEMPT. Pelanggaran dicatat dan gagal di akhir pengujian.
+    const touched = writes.map((w) => pathOf(w.update?.name ?? (w.delete as string)))
+    if (!touched.some((p) => p.startsWith('auditLog/')) && !touched.every((p) => AUDIT_EXEMPT.some((re) => re.test(p)))) {
+      FakeBackend.auditViolations.push(touched.join(', '))
+    }
     for (const w of writes) {
       const path = pathOf(w.update?.name ?? (w.delete as string))
       const cur = this.docs.get(path)
