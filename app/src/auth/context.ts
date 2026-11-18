@@ -4,6 +4,7 @@ export interface Profile {
   uid: string
   username: string
   name: string
+  phone: string
   emailContact: string
   roleId: string
   level: number
@@ -41,6 +42,8 @@ export interface AuthApi {
   prefetchLoginChallenge: () => void
   loginWithBiometric: () => Promise<void>
   refreshBiometric: () => void
+  /** Memuat ulang profil dan izin dari server (mis. setelah mengubah data diri). */
+  refreshProfile: () => Promise<void>
 }
 
 export class LoginError extends Error {}

@@ -59,7 +59,7 @@ async function resolveProjects(c: Ctx, requested: string[], existing: string[]):
 }
 
 /** Email kontak harus unik (dipakai untuk Login Google); duplikat merusak login semua pemilik email itu. */
-async function assertEmailFree(c: Ctx, email: string, exceptUid?: string): Promise<void> {
+export async function assertEmailFree(c: Ctx, email: string, exceptUid?: string): Promise<void> {
   if (!email) return
   const found = await queryDocuments(c.env, c.sa, 'users', [{ field: 'emailContact', op: 'EQUAL', value: email }], 3)
   if (found.some((d) => d.id !== exceptUid)) throw new HttpError(409, 'email_taken', 'Email itu sudah dipakai akun lain.')

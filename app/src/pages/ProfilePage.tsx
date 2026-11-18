@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useAuth } from '../auth/context'
 import { BiometricEnable } from '../components/BiometricPrompt'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { EmptyState } from '../components/EmptyState'
 import { Icon } from '../components/Icon'
+import { PasswordInput } from '../components/PasswordInput'
 import { Pill } from '../components/Pill'
 import { useToast } from '../components/Toast'
 import {
@@ -15,12 +16,13 @@ import {
   removeCredentialOnServer,
 } from '../lib/biometric'
 import { listMyCredentials } from '../lib/data'
+import { changeMyPassword, saveProfile } from '../lib/profile'
 import { formatWita } from '../lib/time'
 import { useLoad } from '../lib/useLoad'
 
-/** Profil Saya. Saat ini memuat pengaturan login biometrik; ubah nama, HP, email, dan password hadir di v0.8.0. */
+/** Profil Saya: data diri (tersinkron ke Database Karyawan), ganti password, dan login biometrik. */
 export function ProfilePage() {
-  const { state, biometric, refreshBiometric } = useAuth()
+  const { state, biometric, refreshBiometric, refreshProfile } = useAuth()
   const { toast } = useToast()
   const uid = state.status === 'in' ? state.profile.uid : ''
   const creds = useLoad(() => listMyCredentials(uid), `creds:${uid}`)
@@ -44,8 +46,20 @@ export function ProfilePage() {
     }
   }
 
+  const me = state.status === 'in' ? state.profile : null
+  const roleName = state.status === 'in' ? state.roleName : ''
+
   return (
     <>
+      {me && (
+        <PersonalData
+          key={`${me.name}|${me.phone}|${me.emailContact}`}
+          me={me}
+          roleName={roleName}
+          onSaved={refreshProfile}
+        />
+      )}
+      {me && <PasswordCard username={me.username} />}
       <Card
         title="Login biometrik"
         subtitle="Masuk dengan sidik jari, wajah, atau kunci layar perangkat tanpa mengetik password."
@@ -117,5 +131,189 @@ export function ProfilePage() {
       </Card>
       {showEnable && <BiometricEnable onClose={() => setShowEnable(false)} onDone={() => creds.reload()} />}
     </>
+  )
+}
+
+function initials(name: string): string {
+  const p = name.trim().split(/\s+/).filter(Boolean)
+  return ((p[0]?.[0] ?? '?') + (p.length > 1 ? (p[p.length - 1][0] ?? '') : '')).toUpperCase()
+}
+
+function PersonalData({
+  me,
+  roleName,
+  onSaved,
+}: {
+  me: { username: string; name: string; phone: string; emailContact: string }
+  roleName: string
+  onSaved: () => Promise<void>
+}) {
+  const { toast } = useToast()
+  const [name, setName] = useState(me.name)
+  const [phone, setPhone] = useState(me.phone)
+  const [email, setEmail] = useState(me.emailContact)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const dirty =
+    name.trim() !== me.name || phone.trim() !== me.phone || email.trim().toLowerCase() !== me.emailContact
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (busy) return
+    if (!name.trim()) return setError('Nama wajib diisi.')
+    setBusy(true)
+    setError('')
+    try {
+      const changed = await saveProfile({ name, phone, emailContact: email }, me)
+      await onSaved()
+      toast(
+        changed.length ? 'Data diri disimpan dan sudah tampil di Database Karyawan.' : 'Tidak ada perubahan.',
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menyimpan.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card
+      title="Data diri"
+      subtitle={`@${me.username} · ${roleName}`}
+      actions={
+        <span className="av" aria-hidden="true">
+          {initials(me.name)}
+        </span>
+      }
+    >
+      <form className="stack" onSubmit={(e) => void submit(e)} noValidate>
+        <div className="grid2">
+          <div className="field">
+            <label htmlFor="pf-name">Nama</label>
+            <input
+              id="pf-name"
+              className="in"
+              value={name}
+              maxLength={120}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="pf-phone">No. HP</label>
+            <input
+              id="pf-phone"
+              className="in"
+              value={phone}
+              maxLength={40}
+              inputMode="tel"
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="tel"
+            />
+          </div>
+        </div>
+        <div className="field">
+          <label htmlFor="pf-email">Email</label>
+          <input
+            id="pf-email"
+            className="in"
+            type="email"
+            value={email}
+            maxLength={200}
+            inputMode="email"
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+          <div className="hint">
+            Email kontak ini juga dipakai untuk Login Google dan harus unik. Mengubahnya memindahkan hak masuk
+            Google ke email baru.
+          </div>
+        </div>
+        <div className="hint">
+          Username dan role tidak dapat diubah di sini; hubungi atasan Anda. Perubahan langsung tampil di
+          Database Karyawan beserta pengubah dan waktunya.
+        </div>
+        {error && (
+          <div className="form-error" role="alert">
+            {error}
+          </div>
+        )}
+        <div>
+          <Button type="submit" variant="primary" disabled={busy || !dirty}>
+            {busy ? 'Menyimpan…' : 'Simpan perubahan'}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  )
+}
+
+function PasswordCard({ username }: { username: string }) {
+  const { toast } = useToast()
+  const [cur, setCur] = useState('')
+  const [next, setNext] = useState('')
+  const [again, setAgain] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (busy) return
+    if (!cur) return setError('Masukkan password lama Anda.')
+    if (next.length < 6) return setError('Password baru minimal 6 karakter.')
+    if (next !== again) return setError('Konfirmasi password baru tidak sama.')
+    setBusy(true)
+    setError('')
+    try {
+      await changeMyPassword(username, cur, next)
+      setCur('')
+      setNext('')
+      setAgain('')
+      toast('Password diganti. Gunakan password baru saat masuk berikutnya.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal mengganti password.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card
+      title="Ganti password"
+      subtitle="Satu-satunya aturan: minimal 6 karakter. Perangkat dan sesi Anda tetap masuk."
+    >
+      <form className="stack" onSubmit={(e) => void submit(e)} noValidate>
+        <PasswordInput
+          label="Password lama"
+          value={cur}
+          onChange={(e) => setCur(e.target.value)}
+          autoComplete="current-password"
+        />
+        <div className="grid2">
+          <PasswordInput
+            label="Password baru"
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            autoComplete="new-password"
+          />
+          <PasswordInput
+            label="Ulangi password baru"
+            value={again}
+            onChange={(e) => setAgain(e.target.value)}
+            autoComplete="new-password"
+          />
+        </div>
+        {error && (
+          <div className="form-error" role="alert">
+            {error}
+          </div>
+        )}
+        <div>
+          <Button type="submit" variant="primary" disabled={busy}>
+            {busy ? 'Menyimpan…' : 'Ganti password'}
+          </Button>
+        </div>
+      </form>
+    </Card>
   )
 }

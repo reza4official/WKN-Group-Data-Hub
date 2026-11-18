@@ -38,6 +38,9 @@ service cloud.firestore {
       allow get, list: if can('users')
         && resource.data.level < myRole().level
         && (can('projects') || resource.data.projectIds.hasAny(me().projectIds));
+      // Database Karyawan: pemegang izin "employees" (Developer, Owner, Direktur) membaca semua akun, tanpa
+      // batas level atau proyek. Hanya kolom profil yang tampil di aplikasi; tidak ada rahasia di dokumen ini.
+      allow get, list: if can('employees');
       allow create, update, delete: if false;
     }
 

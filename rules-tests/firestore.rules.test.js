@@ -67,9 +67,21 @@ describe('akun terdaftar dan aktif', () => {
     await assertSucceeds(getDoc(doc(as('andi'), 'roles/dev')))
     await assertSucceeds(getDocs(collection(as('andi'), 'roles')))
   })
-  it('pemilik izin users tidak boleh membaca akun setara/di atasnya, tetapi boleh yang di bawahnya', async () => {
-    await assertFails(getDoc(doc(as('andi'), 'users/dev'))) // level 100 >= 90
+  it('Database Karyawan: pemegang izin employees membaca semua akun, termasuk atasan dan tanpa lingkup proyek', async () => {
+    await assertSucceeds(getDoc(doc(as('andi'), 'users/dev'))) // level 100, tetapi andi punya izin employees
     await assertSucceeds(getDoc(doc(as('andi'), 'users/pm1')))
+    await assertSucceeds(getDocs(collection(as('andi'), 'users')))
+    await assertSucceeds(getDocs(collection(as('dev'), 'users')))
+  })
+  it('izin users saja (tanpa employees) tidak cukup: Manajer Proyek dan Admin Logistik tidak bisa membuka database karyawan', async () => {
+    await assertFails(getDocs(collection(as('pm1'), 'users')))
+    await assertFails(getDoc(doc(as('pm1'), 'users/andi')))
+    await assertFails(getDocs(collection(as('log1'), 'users')))
+    await assertFails(getDoc(doc(as('off'), 'users/dev'))) // akun nonaktif
+  })
+  it('profil tetap tidak bisa ditulis klien (data diri hanya lewat Worker)', async () => {
+    await assertFails(updateDoc(doc(as('pm1'), 'users/pm1'), { name: 'Baru' }))
+    await assertFails(updateDoc(doc(as('andi'), 'users/pm1'), { phone: '1' }))
   })
   it('tidak boleh menulis apa pun, termasuk mengubah role atau menaikkan haknya sendiri', async () => {
     const db = as('andi')
@@ -111,10 +123,10 @@ describe('daftar akun menurut level dan lingkup proyek (kueri harus memuat batas
     await assertFails(getDoc(doc(db, 'users/pm2'))) // setara
     await assertFails(getDoc(doc(db, 'users/andi'))) // atasan
   })
-  it('pemegang izin projects (Owner) mendaftar tanpa batas proyek, hanya di bawah levelnya', async () => {
+  it('pemegang izin projects (Owner) mendaftar tanpa batas proyek', async () => {
     const db = as('andi')
     await assertSucceeds(getDocs(U(db, where('level', '<', 90))))
-    await assertFails(getDocs(U(db, where('level', '<', 101))))
+    // (Owner juga memegang izin employees, sehingga batas level tidak lagi menghalangi bacaan penuh; lihat uji Database Karyawan)
     await assertSucceeds(getDoc(doc(db, 'users/log3')))
   })
   it('Admin Logistik (tanpa izin users) tidak dapat mendaftar siapa pun', async () => {

@@ -10,6 +10,7 @@ import { AuditPage } from './pages/AuditPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { BiometricPrompt } from './components/BiometricPrompt'
 import { DashboardPage } from './pages/DashboardPage'
+import { EmployeesPage } from './pages/EmployeesPage'
 import { IOPage } from './pages/IOPage'
 import { InventoryPage } from './pages/InventoryPage'
 import { CatalogPage } from './pages/CatalogPage'
@@ -32,6 +33,7 @@ const PAGES: Record<string, (p: PageProps) => ReactElement> = {
   inventory: InventoryPage,
   dashboard: DashboardPage,
   io: IOPage,
+  employees: EmployeesPage,
   projects: ProjectsPage,
   profil: ProfilePage,
 }

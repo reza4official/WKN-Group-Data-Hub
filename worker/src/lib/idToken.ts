@@ -6,6 +6,8 @@ export interface VerifiedToken {
   email?: string
   emailVerified: boolean
   provider?: string
+  /** Waktu (detik epoch) autentikasi terakhir; diperbarui saat pengguna memasukkan ulang password. */
+  authTime?: number
 }
 
 interface Header {
@@ -105,5 +107,6 @@ export async function verifyIdToken(token: string, env: Env): Promise<VerifiedTo
     email: claims.email,
     emailVerified: claims.email_verified === true,
     provider: claims.firebase?.sign_in_provider,
+    authTime: typeof claims.auth_time === 'number' ? claims.auth_time : undefined,
   }
 }

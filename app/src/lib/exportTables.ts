@@ -1,3 +1,4 @@
+import type { Employee } from './data'
 import type { DashRow } from './dashboard'
 import { dayName, type LedgerRow } from './ledger'
 import { formatWita } from './time'
@@ -117,3 +118,39 @@ export const fileSlug = (...parts: string[]): string =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')}`
+
+/** Database Karyawan: kolom sama dengan layar, plus proyek dan waktu catat. */
+export function employeeTable(
+  rows: Employee[],
+  roleName: (id: string) => string,
+  projectName: (id: string) => string,
+): Table {
+  return {
+    title: 'Karyawan',
+    head: [
+      'Nama',
+      'Username',
+      'No. HP',
+      'Email',
+      'Role',
+      'Level',
+      'Status',
+      'Proyek',
+      'Diperbarui oleh',
+      'Waktu',
+    ],
+    numeric: [5],
+    rows: rows.map((e) => [
+      e.name,
+      e.username,
+      e.phone,
+      e.emailContact,
+      roleName(e.roleId),
+      e.level,
+      e.disabled ? 'Nonaktif' : 'Aktif',
+      e.projectIds.map(projectName).join(', '),
+      e.updatedByName || e.createdByName,
+      formatWita(e.updatedAt ?? e.createdAt),
+    ]),
+  }
+}

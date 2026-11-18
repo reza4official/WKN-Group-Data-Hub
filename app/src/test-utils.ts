@@ -15,6 +15,7 @@ export function fakeAuth(over: Partial<AuthApi> = {}): AuthApi {
     prefetchLoginChallenge: vi.fn(),
     loginWithBiometric: vi.fn().mockResolvedValue(undefined),
     refreshBiometric: vi.fn(),
+    refreshProfile: vi.fn().mockResolvedValue(undefined),
     ...over,
   }
 }

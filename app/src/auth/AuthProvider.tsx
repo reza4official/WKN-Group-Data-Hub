@@ -77,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         uid: user.uid,
         username: String(d.username ?? ''),
         name: String(d.name ?? ''),
+        phone: String(d.phone ?? ''),
         emailContact: String(d.emailContact ?? ''),
         roleId: String(d.roleId ?? ''),
         level: Number(d.level ?? 0),
@@ -242,6 +243,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ status: 'out' })
   }, [])
 
+  const refreshProfile = useCallback(async () => {
+    if (auth.currentUser) await loadProfile(auth.currentUser)
+  }, [loadProfile])
+
   const retry = useCallback(() => {
     setState({ status: 'loading' })
     if (auth.currentUser) void loadProfile(auth.currentUser)
@@ -261,6 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       prefetchLoginChallenge,
       loginWithBiometric,
       refreshBiometric,
+      refreshProfile,
     }),
     [
       state,
@@ -273,6 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       prefetchLoginChallenge,
       loginWithBiometric,
       refreshBiometric,
+      refreshProfile,
     ],
   )
   return <AuthContext.Provider value={api}>{children}</AuthContext.Provider>

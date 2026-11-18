@@ -19,6 +19,7 @@ const profile = {
   uid: 'u1',
   username: 'dev',
   name: 'Reza Dev',
+  phone: '',
   emailContact: 'r@x.com',
   roleId: 'dev',
   level: 100,

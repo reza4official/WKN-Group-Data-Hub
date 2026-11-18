@@ -2,6 +2,15 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.8.0 — Tahap 8: Profil dan Database Karyawan
+
+- **Profil Saya**: ubah nama, no. HP, email kontak, dan **ganti password** (meminta password lama; semua isian password memakai ikon mata; sesi tetap masuk). Email kontak terpisah dari email sintetis login username dan harus unik (dipakai Login Google).
+- Rute Worker `/profile/update` (hanya data diri sendiri; role, level, proyek, status, username tidak dapat diubah) dan `/profile/change-password` (bukti password lama = token login password yang baru, maks. 5 menit; audit ditulis lebih dulu, entri pembatalan bila gagal).
+- **Database Karyawan** (izin `employees`: Developer, Owner, Direktur): semua akun dengan nama, username, HP, email, role, status, dan pengubah beserta waktu terakhir (WITA). Cari, filter role/status/proyek, ekspor Excel dan PDF. Perubahan profil langsung tampil (satu sumber data). Manajer Proyek dan Admin Logistik tidak dapat membukanya (menu, alamat, dan aturan Firestore).
+- `firestore.rules`: pemegang `employees` boleh membaca semua akun; tulis tetap hanya Worker. Log Audit: *Ubah data diri*, *Ganti password sendiri*, *Impor transaksi*.
+- **Template impor** kini memuat lembar **Contoh Pengisian** (contoh benar dan salah memakai nama barang proyek; tidak ikut diimpor) dan catatan format pada judul kolom.
+- Tes: Worker 163, aplikasi 198, aturan Firestore 22; end-to-end Tahap 8 (35), Tahap 7 (24), Tahap 3 (25).
+
 ## v0.7.0 — Tahap 7: Ekspor dan impor
 
 - **Ekspor** (menu Impor / Ekspor): Excel (.xlsx) dan PDF berkop logo, memuat proyek, periode, pembuat (nama dan role), dan waktu cetak WITA. Isi: Transaksi (termasuk saldo awal, koreksi, pencatat, waktu catat) dan/atau Ringkasan per barang.

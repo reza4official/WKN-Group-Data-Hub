@@ -138,6 +138,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 8 — v0.8.0 Profil dan Database Karyawan
 
+**Status: kode selesai dan lulus uji (Worker 163, aplikasi 198, aturan 22, e2e 35). Penerapan: [`TAHAP-8-PENERAPAN.md`](TAHAP-8-PENERAPAN.md). Belum teruji: reautentikasi password di Firebase produksi dan aturan baru di Firestore produksi.**
+
 - Profil: ganti nama, no. HP, email, password.
 - Email di profil terpisah dari email sintetis login username.
 - Database Karyawan (Developer, Owner, Direktur): cari, filter, ekspor. Perubahan profil langsung tampil di sini, lengkap dengan pengubah dan waktu.

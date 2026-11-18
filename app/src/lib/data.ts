@@ -267,6 +267,48 @@ export async function listProjectItems(projectId: string): Promise<ProjectItem[]
   })
 }
 
+// ---------- Database Karyawan (Tahap 8) ----------
+
+export interface Employee {
+  id: string
+  username: string
+  name: string
+  phone: string
+  emailContact: string
+  roleId: string
+  level: number
+  disabled: boolean
+  projectIds: string[]
+  /** Pengubah dan waktu terakhir (profil, akun, atau status); bila belum pernah diubah, pembuat dan waktu dibuat. */
+  updatedByName: string
+  updatedAt: unknown
+  createdByName: string
+  createdAt: unknown
+}
+
+/** Semua akun (hanya untuk pemegang izin "employees"; Firestore Rules menegakkannya). */
+export async function listEmployees(): Promise<Employee[]> {
+  const snap = await getDocs(collection(db, 'users'))
+  return snap.docs.map((d) => {
+    const x = d.data()
+    return {
+      id: d.id,
+      username: str(x.username),
+      name: str(x.name),
+      phone: str(x.phone),
+      emailContact: str(x.emailContact),
+      roleId: str(x.roleId),
+      level: Number(x.level ?? 0),
+      disabled: x.disabled === true,
+      projectIds: Array.isArray(x.projectIds) ? (x.projectIds as string[]) : [],
+      updatedByName: str(x.updatedByName),
+      updatedAt: x.updatedAt,
+      createdByName: str(x.createdByName),
+      createdAt: x.createdAt,
+    }
+  })
+}
+
 // ---------- Buku stok (Tahap 5) ----------
 
 /** Transaksi satu bulan. Hanya kueri kesetaraan (tanpa indeks komposit); bila itemId kosong, semua barang proyek. */

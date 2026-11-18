@@ -1,6 +1,6 @@
 {
   "name": "wkn-data-hub-app",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "description": "WKN Group Data Hub: aplikasi inventory PT. Wiratama Karya Nugraha",

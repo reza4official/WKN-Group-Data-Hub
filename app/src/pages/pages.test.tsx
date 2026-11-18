@@ -78,6 +78,7 @@ function as(roleId: string, level: number, perms: string[]): AuthApi {
         uid: 'me',
         username: 'me',
         name: 'Saya',
+        phone: '',
         emailContact: '',
         roleId,
         level,
