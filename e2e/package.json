@@ -16,10 +16,14 @@
     "tahap7": "node tahap7.mjs",
     "tahap8": "node tahap8.mjs",
     "ledger-concurrency": "node ledger-concurrency.mjs",
-    "biometric": "node biometric.mjs"
+    "biometric": "node biometric.mjs",
+    "a11y": "node a11y.mjs",
+    "csp": "node csp.mjs",
+    "setup-import": "node setup-import.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",
-    "tsx": "4.23.15"
+    "tsx": "4.23.15",
+    "axe-core": "4.14.1"
   }
 }

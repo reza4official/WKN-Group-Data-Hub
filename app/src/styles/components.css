@@ -83,9 +83,12 @@
   padding: 8px 11px;
   min-height: 40px;
 }
-.in:focus {
+.in:focus-visible,
+.in:focus-within,
+.sel:focus-visible {
   border-color: var(--wkn);
-  outline: 2px solid var(--wkn-soft);
+  outline: 2px solid var(--wkn);
+  outline-offset: 1px;
 }
 .in[aria-invalid='true'] {
   border-color: var(--bad);

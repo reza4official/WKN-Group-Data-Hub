@@ -1,4 +1,4 @@
-import { beforeEach } from 'vitest'
+import { afterEach, beforeEach, expect } from 'vitest'
 import shared from '../../shared/permissions.json'
 import worker from '../src/index'
 import { resetJwksCache } from '../src/lib/idToken'
@@ -33,7 +33,14 @@ export function useWorld() {
     audits: () => w.be.list('auditLog').map((a) => a.data),
     lastAudit: (action: string) => w.be.list('auditLog').map((a) => a.data).filter((a) => a.action === action).pop(),
   }
+  // Invarian: setiap commit yang mengubah data memuat catatan audit (kecuali AUDIT_EXEMPT, lihat fakeBackend.ts).
+  afterEach(() => {
+    const v = FakeBackend.auditViolations
+    FakeBackend.auditViolations = []
+    expect(v, 'Commit tanpa catatan audit: ' + v.join(' | ')).toEqual([])
+  })
   beforeEach(async () => {
+    FakeBackend.auditViolations = []
     resetJwksCache()
     resetAccessTokenCache()
     w.be = new FakeBackend()
