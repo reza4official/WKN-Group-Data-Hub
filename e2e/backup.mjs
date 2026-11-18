@@ -21,6 +21,7 @@ class Sheet {
   getRange(r, c, nr, nc) {
     return {
       getValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => this.rows[r - 1 + i]?.[c - 1 + j] ?? '')),
+      setNumberFormats: () => {}, // Code.gs fixa format teks '@'; nilai disimpan apa adanya (penafsiran ulang diuji di unit test Apps Script)
       setValues: (vals) => vals.forEach((row, i) => { const t = (this.rows[r - 1 + i] ??= []); row.forEach((v, j) => (t[c - 1 + j] = v)) }),
     }
   }
