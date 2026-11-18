@@ -2,6 +2,10 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.8.1
+
+- Pratinjau impor: bila nama barang ada di katalog tetapi belum ditambahkan ke proyek, pesannya kini menjelaskan hal itu dan langkah perbaikannya (sebelumnya hanya "tidak ada di proyek ini").
+
 ## v0.8.0 — Tahap 8: Profil dan Database Karyawan
 
 - **Profil Saya**: ubah nama, no. HP, email kontak, dan **ganti password** (meminta password lama; semua isian password memakai ikon mata; sesi tetap masuk). Email kontak terpisah dari email sintetis login username dan harus unik (dipakai Login Google).

@@ -78,7 +78,12 @@ export function parseType(v: unknown): 'masuk' | 'keluar' | '' {
 }
 
 /** Memeriksa satu baris terhadap barang proyek. Nama dicocokkan tanpa membedakan huruf besar/kecil dan spasi ganda. */
-export function validateRow(r: RawRow, byName: Map<string, ImportItem>, today: string): PreviewRow {
+export function validateRow(
+  r: RawRow,
+  byName: Map<string, ImportItem>,
+  today: string,
+  catalogNames: Set<string> = new Set(),
+): PreviewRow {
   const name = String(r.name ?? '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -101,7 +106,11 @@ export function validateRow(r: RawRow, byName: Map<string, ImportItem>, today: s
   if (!date) return err('Tanggal kosong atau formatnya tidak dikenali (gunakan YYYY-MM-DD).')
   if (!name) return err('Nama barang kosong.')
   if (!item)
-    return err('Barang tidak ada di proyek ini (periksa ejaan, samakan dengan daftar di lembar "Barang").')
+    return err(
+      catalogNames.has(normName(name))
+        ? 'Barang ada di katalog tetapi belum ditambahkan ke proyek ini. Tambahkan di Proyek & Perusahaan → buka proyek → Tambah barang, lalu isi saldo awalnya.'
+        : 'Barang tidak ada di proyek ini (periksa ejaan, samakan dengan daftar di lembar "Barang").',
+    )
   if (!item.active) return err('Barang nonaktif di proyek ini.')
   if (item.openingQty === null || !item.openingDate) return err('Barang belum punya saldo awal.')
   if (!type) return err('Jenis harus "Masuk" atau "Keluar".')
@@ -115,9 +124,15 @@ export function validateRow(r: RawRow, byName: Map<string, ImportItem>, today: s
   return base
 }
 
-export function validateAll(raw: RawRow[], items: ImportItem[], today: string): PreviewRow[] {
+export function validateAll(
+  raw: RawRow[],
+  items: ImportItem[],
+  today: string,
+  catalogNames: string[] = [],
+): PreviewRow[] {
   const byName = new Map(items.map((i) => [normName(i.name), i]))
-  return raw.map((r) => validateRow(r, byName, today))
+  const cat = new Set(catalogNames.map(normName))
+  return raw.map((r) => validateRow(r, byName, today, cat))
 }
 
 /** Memecah baris valid menjadi permintaan dengan batas baris dan jumlah barang berbeda per permintaan. */

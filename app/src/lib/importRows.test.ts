@@ -95,6 +95,11 @@ describe('validateRow', () => {
   ])('menolak %j', (o, msg) => {
     expect(check(o as Partial<RawRow>).error).toContain(msg)
   })
+  it('barang ada di katalog tetapi belum di proyek: pesan menunjuk langkah perbaikannya', () => {
+    const r = validateAll([row({ name: 'Solar' })], items, '2026-11-18', ['Solar', 'Semen Portland'])[0]
+    expect(r.error).toContain('ada di katalog tetapi belum ditambahkan ke proyek ini')
+    expect(validateAll([row({ name: 'Solar' })], items, '2026-11-18', [])[0].error).toContain('periksa ejaan')
+  })
   it('hari ini boleh, tanggal saldo awal boleh', () => {
     expect(check({ date: '2026-11-18' }).error).toBe('')
     expect(check({ date: '2026-09-01' }).error).toBe('')

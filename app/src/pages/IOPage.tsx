@@ -187,7 +187,15 @@ export function IOPage() {
     setShowAll(false)
     try {
       const raw = await readImportFile(f)
-      setPreview(validateAll(raw, await importItems(), today))
+      const [items, catalog] = await Promise.all([importItems(), listCatalog()])
+      setPreview(
+        validateAll(
+          raw,
+          items,
+          today,
+          catalog.map((c) => c.name),
+        ),
+      )
       setFileName(f.name)
       runId.current = crypto.randomUUID()
     } catch (e) {
