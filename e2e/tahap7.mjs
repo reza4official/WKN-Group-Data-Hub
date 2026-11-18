@@ -115,7 +115,7 @@ await pg.waitForSelector('#io-project')
 const tpl = await saveDownload(() => pg.click('button:has-text("Unduh template Excel")'))
 const tplWb = await xlsx(tpl.path)
 ok('template Excel diunduh dengan nama yang rapi', tpl.name === 'wkn-template-impor-jalan-maros.xlsx', tpl.name)
-ok('template memuat lembar Transaksi, Barang, Petunjuk', JSON.stringify(tplWb.worksheets.map((w) => w.name)) === JSON.stringify(['Transaksi', 'Barang', 'Petunjuk']))
+ok('template memuat lembar Transaksi, Contoh Pengisian, Barang, Petunjuk', JSON.stringify(tplWb.worksheets.map((w) => w.name)) === JSON.stringify(['Transaksi', 'Contoh Pengisian', 'Barang', 'Petunjuk']))
 const names = []
 tplWb.getWorksheet('Barang').eachRow((r, n) => n > 1 && names.push(String(r.getCell(1).value)))
 ok('daftar Barang memuat barang proyek', names.includes('Semen Portland') && names.includes('Pasir Beton'), JSON.stringify(names))

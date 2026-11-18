@@ -31,7 +31,7 @@ describe('template dan impor Excel', () => {
         { name: '=HYPERLINK("x")', unit: 'm3' },
       ]),
     )
-    expect(wb.worksheets.map((w) => w.name)).toEqual(['Transaksi', 'Barang', 'Petunjuk'])
+    expect(wb.worksheets.map((w) => w.name)).toEqual(['Transaksi', 'Contoh Pengisian', 'Barang', 'Petunjuk'])
     expect(wb.getWorksheet('Transaksi')!.getRow(1).values).toEqual([
       undefined,
       'Tanggal',
@@ -41,6 +41,25 @@ describe('template dan impor Excel', () => {
       'Keterangan',
     ])
     expect(String(wb.getWorksheet('Barang')!.getCell('A3').value)).toBe('\'=HYPERLINK("x")') // tidak menjadi rumus
+  })
+
+  it('lembar contoh memakai nama barang proyek, memuat contoh benar dan salah, dan TIDAK ikut diimpor', async () => {
+    const blob = await buildTemplate('P', [
+      { name: 'Semen', unit: 'Sak' },
+      { name: 'Pasir', unit: 'm3' },
+    ])
+    const wb = await load(blob)
+    const cs = wb.getWorksheet('Contoh Pengisian')!
+    const text: string[] = []
+    cs.eachRow((r) => text.push(r.values ? (r.values as unknown[]).join('|') : ''))
+    const all = text.join('\n')
+    expect(all).toContain('Semen')
+    expect(all).toContain('Pasir')
+    expect(all).toContain('BENAR')
+    expect(all).toContain('SALAH')
+    expect(wb.getWorksheet('Transaksi')!.getCell('A1').note).toBeTruthy()
+    // lembar Transaksi tetap kosong -> tidak ada baris untuk diimpor
+    await expect(readImportFile(Object.assign(blob, { name: 'x.xlsx' }))).rejects.toThrow(/Tidak ada baris/)
   })
 
   it('isian pengguna terbaca: tanggal Excel, teks, angka, baris kosong dilewati, nomor baris asli', async () => {

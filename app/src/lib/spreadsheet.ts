@@ -44,7 +44,7 @@ export async function buildWorkbook(m: ExportMeta, tables: Table[]): Promise<Blo
 
 export const TEMPLATE_HEAD = ['Tanggal', 'Nama Barang', 'Jenis', 'Jumlah', 'Keterangan']
 
-/** Template impor: lembar Transaksi (kosong, dengan daftar pilihan Jenis), Barang (nama yang sah), dan Petunjuk. */
+/** Template impor: lembar Transaksi (kosong, dengan daftar pilihan Jenis dan catatan format), Contoh Pengisian (tidak diimpor), Barang (nama yang sah), dan Petunjuk. */
 export async function buildTemplate(
   projectName: string,
   items: { name: string; unit: string }[],
@@ -60,6 +60,82 @@ export async function buildTemplate(
     ws.getCell(`A${r}`).numFmt = 'yyyy-mm-dd'
     ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Masuk,Keluar"'] }
   }
+  // Catatan pada judul kolom: format yang diharapkan muncul saat sel diarahkan.
+  const hints = [
+    'Format YYYY-MM-DD, mis. 2026-11-17. Tidak sebelum saldo awal, tidak di masa depan.',
+    'Salin persis dari lembar "Barang".',
+    'Pilih Masuk atau Keluar.',
+    'Angka lebih dari 0, maksimal 3 desimal (1,5 atau 1.5).',
+    'Opsional, maksimal 200 karakter.',
+  ]
+  hints.forEach((t, i) => (head.getCell(i + 1).note = t))
+
+  // Lembar contoh (TIDAK ikut diimpor): memperlihatkan isian yang benar dan beberapa kesalahan umum.
+  const day = (back: number) =>
+    new Date(Date.now() + 8 * 3_600_000 - back * 86_400_000).toISOString().slice(0, 10)
+  const a1 = items[0]?.name ?? 'Semen Portland'
+  const a2 = items[1]?.name ?? items[0]?.name ?? 'Pasir Beton'
+  const cs = wb.addWorksheet('Contoh Pengisian')
+  cs.addRow([
+    'Contoh pengisian. Lembar ini TIDAK diimpor: salin pola yang benar ke lembar "Transaksi" mulai baris 2.',
+  ]).font = { bold: true }
+  const ch = cs.addRow([...TEMPLATE_HEAD, 'Penjelasan'])
+  ch.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+  ch.eachCell((c) => (c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7A7A7A' } }))
+  const examples: [string, string, string, string | number, string, string][] = [
+    [day(3), a1, 'Masuk', 40, 'Kiriman supplier', 'BENAR: barang masuk dengan keterangan.'],
+    [
+      day(2),
+      a1,
+      'Keluar',
+      15.5,
+      'Pekerjaan pondasi',
+      'BENAR: jumlah boleh desimal (maksimal 3 angka di belakang koma).',
+    ],
+    [
+      day(1),
+      a2,
+      'keluar',
+      '2,5',
+      '',
+      'BENAR: jenis tidak membedakan huruf besar/kecil; keterangan boleh kosong.',
+    ],
+    [
+      day(1),
+      a1.toUpperCase(),
+      'Masuk',
+      10,
+      'Pembelian lokal',
+      'BENAR: nama barang tidak membedakan huruf besar/kecil.',
+    ],
+    [
+      '31-02-2026',
+      a1,
+      'Masuk',
+      5,
+      '',
+      'SALAH: tanggal tidak ada di kalender (gunakan YYYY-MM-DD). Baris ini ditolak.',
+    ],
+    [
+      day(1),
+      'Paku 5 cm',
+      'Masuk',
+      20,
+      '',
+      'SALAH: nama barang tidak ada di lembar "Barang" (baris ini ditolak).',
+    ],
+    [day(1), a1, 'Pinjam', 5, '', 'SALAH: jenis hanya Masuk atau Keluar (baris ini ditolak).'],
+    [day(1), a1, 'Keluar', 99999, '', 'DITOLAK SERVER bila melebihi stok: stok tidak boleh negatif.'],
+  ]
+  for (const r of examples) {
+    const row = cs.addRow(r)
+    row.getCell(6).font = {
+      italic: true,
+      color: { argb: r[5].startsWith('BENAR') ? 'FF17803D' : 'FFB42318' },
+    }
+  }
+  cs.columns = [{ width: 14 }, { width: 34 }, { width: 10 }, { width: 12 }, { width: 28 }, { width: 80 }]
+
   const bs = wb.addWorksheet('Barang')
   bs.addRow(['Nama Barang (salin persis)', 'Satuan']).font = { bold: true }
   for (const i of items) bs.addRow([safeCell(i.name), safeCell(i.unit)])
@@ -68,7 +144,7 @@ export async function buildTemplate(
   ;[
     `Template impor transaksi stok untuk proyek: ${projectName}`,
     '',
-    'Isi lembar "Transaksi" mulai baris 2. Jangan mengubah judul kolom di baris 1.',
+    'Isi lembar "Transaksi" mulai baris 2. Jangan mengubah judul kolom di baris 1. Lihat lembar "Contoh Pengisian" untuk pola yang benar dan kesalahan umum (lembar contoh tidak diimpor).',
     'Tanggal: YYYY-MM-DD (mis. 2026-11-17). Tidak boleh sebelum tanggal saldo awal barang dan tidak boleh di masa depan.',
     'Nama Barang: salin persis dari lembar "Barang". Barang harus sudah punya saldo awal.',
     'Jenis: Masuk atau Keluar.',
