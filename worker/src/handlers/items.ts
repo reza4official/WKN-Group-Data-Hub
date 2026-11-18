@@ -17,7 +17,7 @@ interface Ctx {
  * Penyiapan barang proyek (termasuk saldo awal): pemegang izin "projects", atau pemegang izin
  * "inventory.write" yang ditugaskan pada proyek itu.
  */
-function assertCanSetupItems(a: Actor, projectId: string): void {
+export function assertCanSetupItems(a: Actor, projectId: string): void {
   if (seesAllProjects(a)) return
   if (a.perms.has('inventory.write') && canAccessProject(a, projectId)) return
   throw new HttpError(403, 'forbidden', 'Anda tidak berwenang menyiapkan barang pada proyek ini.')

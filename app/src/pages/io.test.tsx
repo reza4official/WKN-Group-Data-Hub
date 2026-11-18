@@ -264,3 +264,122 @@ describe('Impor', () => {
     expect(b.disabled).toBe(true)
   })
 })
+
+describe('Impor penyiapan: katalog barang dan saldo awal', () => {
+  const perms = ['export', 'import', 'catalog', 'inventory.write', 'inventory.read']
+  const catFile = (rows: unknown[][]) =>
+    xlsxSheet('Katalog', ['Nama Barang', 'Satuan', 'Kategori', 'Batas Minimum'], rows)
+  const openFile = (rows: unknown[][]) =>
+    xlsxSheet('Saldo Awal', ['Nama Barang', 'Saldo Awal', 'Tanggal Saldo Awal', 'Batas Minimum'], rows)
+  async function xlsxSheet(sheet: string, head: string[], rows: unknown[][]) {
+    const wb = new ExcelJS.Workbook()
+    const ws = wb.addWorksheet(sheet)
+    ws.addRow(head)
+    rows.forEach((r) => ws.addRow(r))
+    return new File([(await wb.xlsx.writeBuffer()) as BlobPart], 'penyiapan.xlsx')
+  }
+  const pick = (v: string) => fireEvent.change(screen.getByLabelText('Jenis impor'), { target: { value: v } })
+
+  it('pilihan jenis impor hanya memuat yang diizinkan', async () => {
+    wrap(as(perms), <IOPage />)
+    const sel = (await screen.findByLabelText('Jenis impor')) as HTMLSelectElement
+    expect([...sel.options].map((o) => o.textContent)).toEqual([
+      'Transaksi stok',
+      'Katalog barang',
+      'Saldo awal proyek',
+    ])
+  })
+
+  it('hanya izin import tanpa katalog/inventory.write: tidak ada jenis yang bisa dipakai', async () => {
+    wrap(as(['import']), <IOPage />)
+    await screen.findByText(/belum diberi izin impor/)
+    expect(screen.queryByLabelText('Jenis impor')).toBeNull()
+  })
+
+  it('katalog: template, pratinjau menolak nama yang sudah ada, kirim tanpa proyek', async () => {
+    wrap(as(perms), <IOPage />)
+    await screen.findByLabelText('Jenis impor')
+    pick('catalog')
+    fireEvent.click(screen.getByRole('button', { name: 'Unduh template Excel' }))
+    await waitFor(() => expect(mocks.download).toHaveBeenCalled())
+    expect(mocks.download.mock.calls[0][1]).toBe('wkn-template-katalog-barang.xlsx')
+    upload(
+      await catFile([
+        ['Solar', 'Liter', 'BBM', '5,5'],
+        [' semen ', 'Sak', '', ''],
+        ['Besi', '', '', ''],
+      ]),
+    )
+    await screen.findByText(/1 baris valid, 2 baris perlu diperbaiki/)
+    expect(screen.getByText('Nama barang sudah ada di katalog.')).toBeTruthy()
+    expect(screen.getByText('Satuan kosong.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Impor 1 baris valid' }))
+    await screen.findByText('Hasil impor')
+    const [path, body] = mocks.api.mock.calls[0]
+    expect(path).toBe('/catalog/import')
+    expect(body.projectId).toBeUndefined()
+    expect(body.rows).toEqual([{ name: 'Solar', unit: 'Liter', category: 'BBM', minStock: 5.5 }])
+    const res = within(screen.getByText('Hasil impor').closest('section') as HTMLElement)
+    expect(res.getByRole('status').textContent).toContain('1 barang diimpor')
+    expect(res.getByRole('link', { name: 'Lihat di Katalog Barang' }).getAttribute('href')).toBe('#catalog')
+  })
+
+  it('saldo awal: template terisi barang katalog; baris kosong dilewati; kirim dengan proyek', async () => {
+    mocks.listProjectItems.mockResolvedValue([IT('i1')]) // Pasir (i2) belum di proyek
+    wrap(as(perms), <IOPage />)
+    await screen.findByLabelText('Jenis impor')
+    pick('opening')
+    fireEvent.click(screen.getByRole('button', { name: 'Unduh template Excel' }))
+    await waitFor(() => expect(mocks.download).toHaveBeenCalled())
+    expect(mocks.download.mock.calls[0][1]).toBe('wkn-template-saldo-awal-jalan-maros.xlsx')
+    upload(
+      await openFile([
+        ['Pasir', 50, '2026-09-01', ''],
+        ['Semen', '', '', ''],
+        ['Barang Asing', 5, '2026-09-01', ''],
+      ]),
+    )
+    await screen.findByText(/1 baris valid, 1 baris perlu diperbaiki/)
+    expect(screen.getByText(/1 baris tanpa isian dilewati/)).toBeTruthy()
+    expect(screen.getByText(/tidak ada di katalog/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Impor 1 baris valid' }))
+    await screen.findByText('Hasil impor')
+    const [path, body] = mocks.api.mock.calls[0]
+    expect(path).toBe('/items/import')
+    expect(body.projectId).toBe('p1')
+    expect(body.rows).toEqual([{ catalogId: 'i2', openingQty: 50, openingDate: '2026-09-01' }])
+    const res = within(screen.getByText('Hasil impor').closest('section') as HTMLElement)
+    expect(res.getByRole('link', { name: 'Lihat barang proyek' }).getAttribute('href')).toBe('#projects/p1')
+  })
+
+  it('barang yang sudah ada di proyek ditandai di pratinjau, dan penolakan server tampil dengan nomor baris', async () => {
+    mocks.listProjectItems.mockResolvedValue([IT('i1')])
+    mocks.api.mockResolvedValue({
+      results: [
+        { index: 1, status: 'error', code: 'item_exists', message: 'Barang ini sudah ada di proyek.' },
+      ],
+    })
+    wrap(as(perms), <IOPage />)
+    await screen.findByLabelText('Jenis impor')
+    pick('opening')
+    upload(
+      await openFile([
+        ['Semen', 5, '2026-09-01', ''],
+        ['Pasir', 7, '2026-09-01', ''],
+      ]),
+    )
+    await screen.findByText(/1 baris valid, 1 baris perlu diperbaiki/)
+    expect(screen.getByText(/sudah ada di proyek ini/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Impor 1 baris valid' }))
+    const t = await screen.findByRole('region', { name: 'Baris ditolak server' })
+    expect(within(t).getByText('3')).toBeTruthy()
+  })
+
+  it('"Pilih berkas" adalah tombol yang dapat difokus dengan keyboard', async () => {
+    wrap(as(perms), <IOPage />)
+    const b = await screen.findByRole('button', { name: 'Pilih berkas' })
+    b.focus()
+    expect(document.activeElement).toBe(b)
+    expect((document.getElementById('io-file') as HTMLInputElement).tabIndex).toBe(-1)
+  })
+})

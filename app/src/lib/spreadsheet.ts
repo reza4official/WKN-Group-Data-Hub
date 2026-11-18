@@ -4,7 +4,7 @@ import { MAX_FILE_BYTES, MAX_ROWS, safeCell, type RawRow } from './importRows'
 
 const NUM_FMT = '#,##0.###'
 
-async function excel() {
+export async function excel() {
   const mod = await import('exceljs')
   return (mod as unknown as { default?: typeof import('exceljs') }).default ?? mod
 }
@@ -185,8 +185,22 @@ const readBuffer = (f: Blob): Promise<ArrayBuffer> =>
 
 export class ImportFileError extends Error {}
 
-/** Membaca lembar "Transaksi" (atau lembar pertama). Mencari baris judul di 5 baris pertama; baris kosong dilewati. */
-export async function readImportFile(file: Blob & { name?: string }): Promise<RawRow[]> {
+export interface ColSpec {
+  label: string
+  /** Wajib ada di baris judul agar lembar dikenali sebagai lembar data. */
+  required: boolean
+}
+
+/**
+ * Membaca lembar data (nama lembar dicari dulu, bila tidak ada dipakai lembar pertama). Mencari baris judul di 5 baris
+ * pertama (huruf dan spasi ganda diabaikan); baris kosong dilewati; nomor baris asli dipertahankan.
+ */
+export async function readSheet<K extends string>(
+  file: Blob & { name?: string },
+  sheet: string,
+  cols: Record<K, ColSpec>,
+  maxRows: number = MAX_ROWS,
+): Promise<({ rowNo: number } & Record<K, unknown>)[]> {
   if (file.size > MAX_FILE_BYTES)
     throw new ImportFileError(`Berkas terlalu besar (maksimal ${MAX_FILE_BYTES / 1024 / 1024} MB).`)
   if (file.name && !/\.xlsx$/i.test(file.name))
@@ -202,59 +216,59 @@ export async function readImportFile(file: Blob & { name?: string }): Promise<Ra
       'Berkas tidak dapat dibaca. Pastikan berkas .xlsx yang valid dan tidak diberi kata sandi.',
     )
   }
-  const ws = wb.getWorksheet('Transaksi') ?? wb.worksheets[0]
+  const ws = wb.getWorksheet(sheet) ?? wb.worksheets[0]
   if (!ws) throw new ImportFileError('Berkas tidak memuat lembar kerja.')
   const norm = (v: unknown) =>
     String(cellValue(v) ?? '')
       .trim()
       .toLowerCase()
       .replace(/\s+/g, ' ')
-  const want = {
-    date: 'tanggal',
-    name: 'nama barang',
-    type: 'jenis',
-    qty: 'jumlah',
-    note: 'keterangan',
-  } as const
+  const keys = Object.keys(cols) as K[]
   let headRow = 0
-  const col: Partial<Record<keyof typeof want, number>> = {}
+  const col = {} as Record<K, number | undefined>
   for (let r = 1; r <= Math.min(5, ws.rowCount) && !headRow; r++) {
-    const found: typeof col = {}
+    const found = {} as Record<K, number | undefined>
     ws.getRow(r).eachCell((c, n) => {
-      for (const [k, label] of Object.entries(want))
-        if (norm(c.value) === label) found[k as keyof typeof want] = n
+      for (const k of keys) if (norm(c.value) === cols[k].label.toLowerCase()) found[k] = n
     })
-    if (found.date && found.name && found.type && found.qty) {
+    if (keys.every((k) => !cols[k].required || found[k])) {
       headRow = r
       Object.assign(col, found)
     }
   }
-  if (!headRow)
-    throw new ImportFileError(
-      'Judul kolom tidak ditemukan. Gunakan template: Tanggal, Nama Barang, Jenis, Jumlah, Keterangan.',
-    )
-  const out: RawRow[] = []
+  if (!headRow) {
+    const need = keys.map((k) => cols[k].label).join(', ')
+    throw new ImportFileError(`Judul kolom tidak ditemukan. Gunakan template: ${need}.`)
+  }
+  const out: ({ rowNo: number } & Record<K, unknown>)[] = []
   for (let r = headRow + 1; r <= ws.rowCount; r++) {
     const row = ws.getRow(r)
-    const get = (k: keyof typeof want) => (col[k] ? cellValue(row.getCell(col[k] as number).value) : '')
-    const rec = {
-      rowNo: r,
-      date: get('date'),
-      name: get('name'),
-      type: get('type'),
-      qty: get('qty'),
-      note: get('note'),
-    }
-    if (
-      Object.values(rec)
-        .slice(1)
-        .every((v) => v === '' || v === null)
-    )
-      continue
-    out.push(rec)
-    if (out.length > MAX_ROWS)
-      throw new ImportFileError(`Berkas memuat lebih dari ${MAX_ROWS} baris. Bagi menjadi beberapa berkas.`)
+    const cells: Record<string, unknown> = {}
+    for (const k of keys) cells[k] = col[k] ? cellValue(row.getCell(col[k] as number).value) : ''
+    if (keys.every((k) => cells[k] === '' || cells[k] === null)) continue
+    out.push({ rowNo: r, ...cells } as { rowNo: number } & Record<K, unknown>)
+    if (out.length > maxRows)
+      throw new ImportFileError(`Berkas memuat lebih dari ${maxRows} baris. Bagi menjadi beberapa berkas.`)
   }
   if (out.length === 0) throw new ImportFileError('Tidak ada baris data pada berkas.')
   return out
+}
+
+/** Membaca lembar "Transaksi" (atau lembar pertama). */
+export async function readImportFile(file: Blob & { name?: string }): Promise<RawRow[]> {
+  const rows = await readSheet(file, 'Transaksi', {
+    date: { label: 'Tanggal', required: true },
+    name: { label: 'Nama Barang', required: true },
+    type: { label: 'Jenis', required: true },
+    qty: { label: 'Jumlah', required: true },
+    note: { label: 'Keterangan', required: false },
+  })
+  return rows.map((r) => ({
+    rowNo: r.rowNo,
+    date: r.date,
+    name: r.name,
+    type: r.type,
+    qty: r.qty,
+    note: r.note,
+  }))
 }

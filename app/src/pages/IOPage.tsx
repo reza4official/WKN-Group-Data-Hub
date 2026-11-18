@@ -15,12 +15,20 @@ import { download, imageDataUrl } from '../lib/download'
 import { fileSlug, meta, summaryTable, transactionTable, type Table } from '../lib/exportTables'
 import {
   chunkRows,
+  CHUNK_ITEMS,
+  CHUNK_ROWS,
   estimateWrites,
   MAX_ROWS,
   validateAll,
   type ImportItem,
-  type PreviewRow,
 } from '../lib/importRows'
+import { splitUnfilled, validateCatalog, validateOpening } from '../lib/setupImport'
+import {
+  buildCatalogTemplate,
+  buildOpeningTemplate,
+  readCatalogFile,
+  readOpeningFile,
+} from '../lib/setupSheets'
 import { buildRows, type LedgerItemInfo } from '../lib/ledger'
 import { buildPdf } from '../lib/pdf'
 import { buildTemplate, buildWorkbook, ImportFileError, readImportFile } from '../lib/spreadsheet'
@@ -73,9 +81,6 @@ export function IOPage() {
   const activePid = pid || list[0]?.id || ''
   const project = list.find((p) => p.id === activePid)
   const canExport = perms.has('export')
-  const canImport =
-    perms.has('import') && perms.has('inventory.write') && (seeAll || mine.includes(activePid))
-
   // ---------- Ekspor ----------
   const [ym, setYm] = useState(today.slice(0, 7))
   const [what, setWhat] = useState<{ tx: boolean; sum: boolean }>({ tx: true, sum: true })
@@ -140,8 +145,55 @@ export function IOPage() {
   }
 
   // ---------- Impor ----------
+  type Kind = 'tx' | 'catalog' | 'opening'
+  interface GRow {
+    rowNo: number
+    cells: string[]
+    error: string
+    payload: Record<string, unknown>
+    itemId: string
+    date: string
+    label: string
+  }
+  const num = (n: number | null) =>
+    n === null ? '—' : n.toLocaleString('id-ID', { maximumFractionDigits: 3 })
+  const inProjectScope = seeAll || mine.includes(activePid)
+  const allowed: Record<Kind, boolean> = {
+    tx: perms.has('import') && perms.has('inventory.write') && inProjectScope,
+    catalog: perms.has('import') && perms.has('catalog'),
+    opening: perms.has('import') && (seeAll || (perms.has('inventory.write') && mine.includes(activePid))),
+  }
+  const kinds = (['tx', 'catalog', 'opening'] as Kind[]).filter((k) => allowed[k])
+  const [kindPick, setKindPick] = useState<Kind>('tx')
+  const kind: Kind | null = kinds.includes(kindPick) ? kindPick : (kinds[0] ?? null)
+  const LABEL: Record<Kind, string> = {
+    tx: 'Transaksi stok',
+    catalog: 'Katalog barang',
+    opening: 'Saldo awal proyek',
+  }
+  const HEAD: Record<Kind, string[]> = {
+    tx: ['Tanggal', 'Nama Barang', 'Jenis', 'Jumlah', 'Keterangan'],
+    catalog: ['Nama Barang', 'Satuan', 'Kategori', 'Batas Minimum'],
+    opening: ['Nama Barang', 'Saldo Awal', 'Tanggal Saldo Awal', 'Batas Minimum'],
+  }
+  const RIGHT: Record<Kind, number[]> = { tx: [3], catalog: [3], opening: [1, 3] }
+  const UNIT: Record<Kind, string> = { tx: 'transaksi', catalog: 'barang', opening: 'barang' }
+  const NOTE: Record<Kind, string> = {
+    tx: 'Stok diperiksa ulang oleh server: barang masuk diproses lebih dulu, lalu keluar menurut tanggal.',
+    catalog:
+      'Nama harus unik di seluruh katalog; baris dengan nama yang sudah ada ditolak dan baris lain tetap masuk.',
+    opening:
+      'Barang yang sudah ada di proyek tidak ditimpa. Baris yang saldo dan tanggalnya kosong dilewati.',
+  }
+  const AFTER: Record<Kind, { href: string; label: string }> = {
+    tx: { href: '#inventory', label: 'Lihat di Transaksi Stok' },
+    catalog: { href: '#catalog', label: 'Lihat di Katalog Barang' },
+    opening: { href: `#projects/${activePid}`, label: 'Lihat barang proyek' },
+  }
+
   const [fileName, setFileName] = useState('')
-  const [preview, setPreview] = useState<PreviewRow[] | null>(null)
+  const [preview, setPreview] = useState<GRow[] | null>(null)
+  const [skipped, setSkipped] = useState(0)
   const [importError, setImportError] = useState('')
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [outcome, setOutcome] = useState<Outcome | null>(null)
@@ -149,53 +201,128 @@ export function IOPage() {
   const runId = useRef('')
   const fileInput = useRef<HTMLInputElement>(null)
   const [showAll, setShowAll] = useState(false)
+  const resetImport = () => {
+    setPreview(null)
+    setOutcome(null)
+    setImportError('')
+    setSkipped(0)
+  }
 
-  const importItems = async (): Promise<ImportItem[]> => {
+  const projectItems = async () => {
     const [raw, catalog] = await Promise.all([listProjectItems(activePid), listCatalog()])
-    return raw.map((it) => ({
+    const items: ImportItem[] = raw.map((it) => ({
       id: it.id,
       name: catalog.find((c) => c.id === it.id)?.name ?? it.id,
       active: it.active,
       openingQty: it.openingQty,
       openingDate: it.openingDate,
     }))
+    return { items, catalog, inProject: new Set(raw.map((r) => r.id)) }
   }
 
   async function onTemplate() {
-    if (!project) return
+    if (!kind) return
     setImportError('')
     try {
-      const items = (await importItems()).filter((i) => i.active && i.openingQty !== null)
-      const catalog = await listCatalog()
-      download(
-        await buildTemplate(
-          project.name,
-          items.map((i) => ({ name: i.name, unit: catalog.find((c) => c.id === i.id)?.unit ?? '' })),
-        ),
-        `${fileSlug('template-impor', project.name)}.xlsx`,
-      )
+      if (kind === 'tx' && project) {
+        const { items, catalog } = await projectItems()
+        const ready = items.filter((i) => i.active && i.openingQty !== null)
+        download(
+          await buildTemplate(
+            project.name,
+            ready.map((i) => ({ name: i.name, unit: catalog.find((c) => c.id === i.id)?.unit ?? '' })),
+          ),
+          `${fileSlug('template-impor', project.name)}.xlsx`,
+        )
+      } else if (kind === 'catalog') {
+        const catalog = await listCatalog()
+        download(await buildCatalogTemplate(catalog), `${fileSlug('template-katalog-barang')}.xlsx`)
+      } else if (kind === 'opening' && project) {
+        const { catalog, inProject } = await projectItems()
+        download(
+          await buildOpeningTemplate(project.name, catalog, inProject),
+          `${fileSlug('template-saldo-awal', project.name)}.xlsx`,
+        )
+      }
     } catch (e) {
       setImportError(e instanceof Error ? e.message : 'Template gagal dibuat.')
     }
   }
 
+  async function parse(f: File): Promise<{ rows: GRow[]; skipped: number }> {
+    if (kind === 'catalog') {
+      const [raw, catalog] = await Promise.all([readCatalogFile(f), listCatalog()])
+      const rows = validateCatalog(
+        raw,
+        catalog.map((c) => c.name),
+      ).map<GRow>((r) => ({
+        rowNo: r.rowNo,
+        cells: [r.name || '—', r.unit || '—', r.category || '—', num(r.minStock)],
+        error: r.error,
+        payload: { name: r.name, unit: r.unit, category: r.category || undefined, minStock: r.minStock },
+        itemId: '',
+        date: '',
+        label: r.name,
+      }))
+      return { rows, skipped: 0 }
+    }
+    if (kind === 'opening') {
+      const [raw, { catalog, inProject }] = await Promise.all([readOpeningFile(f), projectItems()])
+      const split = splitUnfilled(raw)
+      const rows = validateOpening(split.rows, catalog, inProject, today).map<GRow>((r) => ({
+        rowNo: r.rowNo,
+        cells: [
+          r.itemName || '—',
+          r.date || r.qty ? num(r.qty) : '—',
+          r.date ? fmtDate(r.date) : '—',
+          num(r.minStock),
+        ],
+        error: r.error,
+        payload: {
+          catalogId: r.catalogId,
+          openingQty: r.qty,
+          openingDate: r.date,
+          minStock: r.minStock ?? undefined,
+        },
+        itemId: '',
+        date: r.date,
+        label: r.itemName,
+      }))
+      return { rows, skipped: split.skipped }
+    }
+    const raw = await readImportFile(f)
+    const [{ items }, catalog] = await Promise.all([projectItems(), listCatalog()])
+    const rows = validateAll(
+      raw,
+      items,
+      today,
+      catalog.map((c) => c.name),
+    ).map<GRow>((r) => ({
+      rowNo: r.rowNo,
+      cells: [
+        r.date ? fmtDate(r.date) : '—',
+        r.itemName || '—',
+        r.type || '—',
+        r.qty ? String(r.qty) : '—',
+        r.note,
+      ],
+      error: r.error,
+      payload: { itemId: r.itemId, type: r.type, qty: r.qty, date: r.date, note: r.note || undefined },
+      itemId: r.itemId,
+      date: r.date,
+      label: r.itemName,
+    }))
+    return { rows, skipped: 0 }
+  }
+
   async function onFile(f: File | undefined) {
-    if (!f) return
-    setImportError('')
-    setOutcome(null)
-    setPreview(null)
+    if (!f || !kind) return
+    resetImport()
     setShowAll(false)
     try {
-      const raw = await readImportFile(f)
-      const [items, catalog] = await Promise.all([importItems(), listCatalog()])
-      setPreview(
-        validateAll(
-          raw,
-          items,
-          today,
-          catalog.map((c) => c.name),
-        ),
-      )
+      const res = await parse(f)
+      setPreview(res.rows)
+      setSkipped(res.skipped)
       setFileName(f.name)
       runId.current = crypto.randomUUID()
     } catch (e) {
@@ -210,8 +337,10 @@ export function IOPage() {
   const bad = (preview ?? []).filter((r) => r.error)
 
   async function runImport() {
-    if (!preview || good.length === 0) return
-    const chunks = chunkRows(good)
+    if (!preview || good.length === 0 || !kind) return
+    const chunks = chunkRows(good, CHUNK_ROWS, kind === 'tx' ? CHUNK_ITEMS : CHUNK_ROWS)
+    const endpoint =
+      kind === 'tx' ? '/ledger/import' : kind === 'catalog' ? '/catalog/import' : '/items/import'
     setProgress({ done: 0, total: chunks.length })
     setImportError('')
     const rejected: Outcome['rejected'] = []
@@ -221,28 +350,18 @@ export function IOPage() {
     for (let c = 0; c < chunks.length; c++) {
       const rows = chunks[c]
       try {
-        const res = await api<{ results: ServerRow[] }>('/ledger/import', {
-          projectId: activePid,
+        const res = await api<{ results: ServerRow[] }>(endpoint, {
+          ...(kind === 'catalog' ? {} : { projectId: activePid }),
           importId: `${runId.current}-${c + 1}`,
           fileName,
-          rows: rows.map((r) => ({
-            itemId: r.itemId,
-            type: r.type,
-            qty: r.qty,
-            date: r.date,
-            note: r.note || undefined,
-          })),
+          rows: rows.map((r) => r.payload),
         })
         for (const s of res.results) {
           const src = rows[s.index - 1]
           if (s.status === 'ok') accepted++
           else if (s.status === 'duplicate') duplicates++
           else
-            rejected.push({
-              rowNo: src.rowNo,
-              itemName: src.itemName,
-              message: s.message ?? 'Ditolak server.',
-            })
+            rejected.push({ rowNo: src.rowNo, itemName: src.label, message: s.message ?? 'Ditolak server.' })
         }
       } catch (e) {
         failedChunks++
@@ -254,7 +373,7 @@ export function IOPage() {
     setOutcome({ accepted, duplicates, rejected, failedChunks })
     // Bila ada kelompok gagal, pratinjau dipertahankan: menekan Impor lagi memakai sesi yang sama, jadi baris yang sudah masuk dilewati.
     if (failedChunks === 0) setPreview(null)
-    if (accepted > 0) toast(`${accepted} transaksi diimpor atas nama Anda.`)
+    if (accepted > 0) toast(`${accepted} ${UNIT[kind]} diimpor atas nama Anda.`)
   }
 
   const onDrop = (e: DragEvent) => {
@@ -281,13 +400,16 @@ export function IOPage() {
   const shownRows = showAll
     ? (preview ?? [])
     : (preview ?? []).filter((r) => r.error).concat(good.slice(0, 20))
-  const est = estimateWrites(good)
+  const est =
+    kind === 'tx'
+      ? estimateWrites(good.map((r) => ({ itemId: r.itemId, date: r.date })))
+      : good.length * 2 + chunkRows(good, CHUNK_ROWS, CHUNK_ROWS).length
 
   return (
     <>
       <Card
         title="Impor / Ekspor"
-        subtitle="Berkas dibaca dan dibuat di perangkat Anda; hanya data transaksi yang valid yang dikirim saat impor."
+        subtitle="Berkas dibaca dan dibuat di perangkat Anda; hanya baris yang valid yang dikirim saat impor."
         actions={
           <div className="tools">
             <select
@@ -295,7 +417,7 @@ export function IOPage() {
               className="sel"
               aria-label="Proyek"
               value={activePid}
-              onChange={(e) => (setPid(e.target.value), setPreview(null), setOutcome(null))}
+              onChange={(e) => (setPid(e.target.value), resetImport())}
             >
               {list.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -370,12 +492,29 @@ export function IOPage() {
           title="Impor dari Excel"
           subtitle="Unduh template, isi, unggah, periksa pratinjau, lalu konfirmasi."
         >
-          {!canImport ? (
+          {!kind ? (
             <div className="sm muted">
               Role Anda belum diberi izin impor, atau Anda tidak ditugaskan ke proyek ini.
             </div>
           ) : (
             <div className="stack">
+              {kinds.length > 1 && (
+                <div className="field">
+                  <label htmlFor="io-kind">Jenis impor</label>
+                  <select
+                    id="io-kind"
+                    className="in"
+                    value={kind}
+                    onChange={(e) => (setKindPick(e.target.value as Kind), resetImport())}
+                  >
+                    {kinds.map((k) => (
+                      <option key={k} value={k}>
+                        {LABEL[k]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div
                 className={`drop${drag ? ' on' : ''}`}
                 onDragOver={(e) => (e.preventDefault(), setDrag(true))}
@@ -385,22 +524,29 @@ export function IOPage() {
                 <div style={{ fontWeight: 600 }}>Tarik berkas .xlsx ke sini</div>
                 <div className="sm muted">atau pilih dari perangkat (maksimal 2 MB, {MAX_ROWS} baris)</div>
                 <div className="tools" style={{ justifyContent: 'center', marginTop: 12 }}>
-                  <label className="btn" style={{ cursor: 'pointer' }}>
-                    Pilih berkas
-                    <input
-                      ref={fileInput}
-                      id="io-file"
-                      type="file"
-                      accept=".xlsx"
-                      hidden
-                      onChange={(e) => void onFile(e.target.files?.[0])}
-                    />
-                  </label>
+                  <Button onClick={() => fileInput.current?.click()}>Pilih berkas</Button>
+                  <input
+                    ref={fileInput}
+                    id="io-file"
+                    type="file"
+                    accept=".xlsx"
+                    hidden
+                    tabIndex={-1}
+                    aria-label="Berkas Excel"
+                    onChange={(e) => void onFile(e.target.files?.[0])}
+                  />
                 </div>
               </div>
               <Button size="sm" onClick={() => void onTemplate()} style={{ alignSelf: 'flex-start' }}>
                 Unduh template Excel
               </Button>
+              {kind !== 'tx' && (
+                <div className="sm muted">
+                  {kind === 'catalog'
+                    ? 'Urutan penyiapan: 1) impor Katalog barang, 2) impor Saldo awal proyek, 3) impor Transaksi stok.'
+                    : `Saldo awal diimpor untuk proyek ${project?.name ?? ''}. Template terisi barang katalog yang belum ada di proyek; isi saldo dan tanggalnya.`}
+                </div>
+              )}
               {importError && (
                 <div className="form-error" role="alert">
                   {importError}
@@ -414,7 +560,7 @@ export function IOPage() {
       {preview && (
         <Card
           title={`Pratinjau · ${fileName}`}
-          subtitle={`${good.length} baris valid, ${bad.length} baris perlu diperbaiki. Baris bermasalah tidak diimpor. Stok diperiksa ulang oleh server: barang masuk diproses lebih dulu, lalu keluar menurut tanggal.`}
+          subtitle={`${good.length} baris valid, ${bad.length} baris perlu diperbaiki. Baris bermasalah tidak diimpor. ${kind ? NOTE[kind] : ''}${skipped ? ` ${skipped} baris tanpa isian dilewati.` : ''}`}
           actions={
             <div className="tools">
               <Button onClick={() => (setPreview(null), setOutcome(null))}>Batal</Button>
@@ -441,11 +587,12 @@ export function IOPage() {
               <thead>
                 <tr>
                   <th>Baris</th>
-                  <th>Tanggal</th>
-                  <th>Nama Barang</th>
-                  <th>Jenis</th>
-                  <th className="r">Jumlah</th>
-                  <th>Keterangan</th>
+                  {kind &&
+                    HEAD[kind].map((h, i) => (
+                      <th key={h} className={RIGHT[kind].includes(i) ? 'r' : undefined}>
+                        {h}
+                      </th>
+                    ))}
                   <th>Status</th>
                 </tr>
               </thead>
@@ -453,11 +600,11 @@ export function IOPage() {
                 {shownRows.map((r) => (
                   <tr key={r.rowNo}>
                     <td className="num">{r.rowNo}</td>
-                    <td>{r.date ? fmtDate(r.date) : '—'}</td>
-                    <td>{r.itemName || '—'}</td>
-                    <td>{r.type || '—'}</td>
-                    <td className="r num">{r.qty || '—'}</td>
-                    <td>{r.note}</td>
+                    {r.cells.map((c, i) => (
+                      <td key={i} className={kind && RIGHT[kind].includes(i) ? 'r num' : undefined}>
+                        {c}
+                      </td>
+                    ))}
                     <td className="wrap">
                       {r.error ? <Pill tone="bad">{r.error}</Pill> : <Pill tone="ok">Valid</Pill>}
                     </td>
@@ -480,7 +627,7 @@ export function IOPage() {
         <Card title="Hasil impor" subtitle={fileName}>
           <div className="stack">
             <div role="status">
-              <b>{outcome.accepted}</b> transaksi diimpor
+              <b>{outcome.accepted}</b> {kind ? UNIT[kind] : 'baris'} diimpor
               {outcome.duplicates ? `, ${outcome.duplicates} dilewati karena sudah pernah diimpor` : ''}
               {outcome.rejected.length ? `, ${outcome.rejected.length} ditolak server` : ''}
               {outcome.failedChunks ? `, ${outcome.failedChunks} kelompok gagal dikirim` : ''}.
@@ -513,9 +660,11 @@ export function IOPage() {
                 </table>
               </ScrollTable>
             )}
-            <a className="btn" href="#inventory" style={{ alignSelf: 'flex-start' }}>
-              Lihat di Transaksi Stok
-            </a>
+            {kind && (
+              <a className="btn" href={AFTER[kind].href} style={{ alignSelf: 'flex-start' }}>
+                {AFTER[kind].label}
+              </a>
+            )}
           </div>
         </Card>
       )}

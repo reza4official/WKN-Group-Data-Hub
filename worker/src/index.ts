@@ -2,6 +2,7 @@ import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
 import { loginOptions, loginWithAssertion, registerCredential, registerOptions, removeCredential } from './handlers/biometric'
 import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
+import { importCatalog, importOpening } from './handlers/importSetup'
 import { changePassword, updateProfile } from './handlers/profile'
 import { addEntry, correctEntry, importEntries } from './handlers/ledger'
 import { addProjectItem, setOpening, updateProjectItem } from './handlers/items'
@@ -73,6 +74,8 @@ const AUTHED: Record<string, (c: Ctx, body: Body, req: Request) => Promise<unkno
   '/ledger/add': addEntry,
   '/ledger/correct': correctEntry,
   '/ledger/import': importEntries,
+  '/catalog/import': importCatalog,
+  '/items/import': importOpening,
   '/profile/update': updateProfile,
   '/profile/change-password': changePassword,
 }
