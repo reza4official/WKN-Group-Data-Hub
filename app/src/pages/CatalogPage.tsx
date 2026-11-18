@@ -21,6 +21,9 @@ export function CatalogPage() {
   const cat = useLoad(listCatalog, 'catalog')
   const [q, setQ] = useState('')
   const [modal, setModal] = useState<{ item?: CatalogItem } | null>(null)
+  const [removing, setRemoving] = useState<CatalogItem | null>(null)
+  const [removeError, setRemoveError] = useState('')
+  const [removeBusy, setRemoveBusy] = useState(false)
   const rows = (cat.data ?? []).filter((i) =>
     `${i.name} ${i.category}`.toLowerCase().includes(q.trim().toLowerCase()),
   )
@@ -89,9 +92,21 @@ export function CatalogPage() {
                     <td>{i.active ? <Pill tone="ok">Aktif</Pill> : <Pill tone="mute">Nonaktif</Pill>}</td>
                     {canManage && (
                       <td className="r">
-                        <Button size="sm" onClick={() => setModal({ item: i })}>
-                          Ubah
-                        </Button>
+                        <div className="acts">
+                          <Button size="sm" onClick={() => setModal({ item: i })}>
+                            Ubah
+                          </Button>
+                          {i.projectCount === 0 && (
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              aria-label={`Hapus ${i.name}`}
+                              onClick={() => (setRemoveError(''), setRemoving(i))}
+                            >
+                              <Icon name="trash" />
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     )}
                   </tr>
@@ -101,6 +116,49 @@ export function CatalogPage() {
           </ScrollTable>
         )}
       </Card>
+      {removing && (
+        <Overlay
+          title="Hapus barang dari katalog"
+          onClose={removeBusy ? () => {} : () => setRemoving(null)}
+          footer={
+            <>
+              <Button onClick={() => setRemoving(null)} disabled={removeBusy}>
+                Batal
+              </Button>
+              <Button
+                variant="danger"
+                disabled={removeBusy}
+                onClick={async () => {
+                  setRemoveBusy(true)
+                  setRemoveError('')
+                  try {
+                    await api('/catalog/delete', { id: removing.id })
+                    toast(`"${removing.name}" dihapus dari katalog.`)
+                    setRemoving(null)
+                    cat.reload()
+                  } catch (e) {
+                    setRemoveError(e instanceof Error ? e.message : 'Gagal menghapus.')
+                  } finally {
+                    setRemoveBusy(false)
+                  }
+                }}
+              >
+                {removeBusy ? 'Menghapus…' : 'Hapus permanen'}
+              </Button>
+            </>
+          }
+        >
+          <p style={{ margin: 0 }}>
+            Hapus <b>{removing.name}</b> dari katalog secara permanen? Hanya barang yang tidak dipakai proyek
+            mana pun yang dapat dihapus. Namanya dapat dipakai lagi setelahnya.
+          </p>
+          {removeError && (
+            <div className="form-error" role="alert" style={{ marginTop: 10 }}>
+              {removeError}
+            </div>
+          )}
+        </Overlay>
+      )}
       {modal && (
         <ItemModal
           item={modal.item}

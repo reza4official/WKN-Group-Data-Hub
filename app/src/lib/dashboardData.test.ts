@@ -13,6 +13,7 @@ const P = (id: string): Project => ({
   status: 'berjalan' as const,
   startDate: null,
   active: true,
+  deleting: false,
 })
 
 beforeEach(() => {

@@ -5,6 +5,8 @@ import { Card } from '../components/Card'
 import { EmptyState } from '../components/EmptyState'
 import { Icon } from '../components/Icon'
 import { Overlay } from '../components/Overlay'
+import { PurgeModal } from '../components/PurgeModal'
+import { clearDashboardCache } from '../lib/dashboardData'
 import { Pill, type PillTone } from '../components/Pill'
 import { useToast } from '../components/Toast'
 import { api } from '../lib/api'
@@ -19,7 +21,10 @@ const STATUS: Record<Project['status'], { label: string; tone: PillTone }> = {
 }
 
 type Modal =
-  { kind: 'company'; company?: Company } | { kind: 'project'; project?: Project; companyId?: string } | null
+  | { kind: 'company'; company?: Company }
+  | { kind: 'project'; project?: Project; companyId?: string }
+  | { kind: 'purge'; target: 'project' | 'company'; id: string; name: string }
+  | null
 
 export function ProjectsPage() {
   const { state } = useAuth()
@@ -29,10 +34,13 @@ export function ProjectsPage() {
   const companies = useLoad(listCompanies, 'companies')
   const projects = useLoad(() => listProjects(seeAll, mine), `projects:${seeAll}:${mine.join(',')}`)
   const [modal, setModal] = useState<Modal>(null)
+  // Hapus permanen: hanya Owner dan Developer (level >= 90) dengan izin projects; server menegakkan hal yang sama.
+  const canDelete = seeAll && state.status === 'in' && state.profile.level >= 90
 
   const done = (msg: string) => {
     setModal(null)
     toast(msg)
+    clearDashboardCache()
     companies.reload()
     projects.reload()
   }
@@ -100,6 +108,16 @@ export function ProjectsPage() {
                       Ubah
                     </Button>
                   )}
+                  {canDelete && (
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => setModal({ kind: 'purge', target: 'company', id: c.id, name: c.name })}
+                    >
+                      <Icon name="trash" />
+                      {c.deleting ? 'Lanjutkan hapus' : 'Hapus'}
+                    </Button>
+                  )}
                   {seeAll && c.active && (
                     <Button size="sm" onClick={() => setModal({ kind: 'project', companyId: c.id })}>
                       <Icon name="plus" />
@@ -121,11 +139,25 @@ export function ProjectsPage() {
                         {p.location || '—'} · mulai {fmtDate(p.startDate)}
                       </div>
                     </div>
-                    {!p.active && <Pill tone="mute">Nonaktif</Pill>}
+                    {p.deleting ? (
+                      <Pill tone="bad">Sedang dihapus</Pill>
+                    ) : (
+                      !p.active && <Pill tone="mute">Nonaktif</Pill>
+                    )}
                     <Pill tone={STATUS[p.status].tone}>{STATUS[p.status].label}</Pill>
-                    {seeAll && (
+                    {seeAll && !p.deleting && (
                       <Button size="sm" onClick={() => setModal({ kind: 'project', project: p })}>
                         Ubah
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => setModal({ kind: 'purge', target: 'project', id: p.id, name: p.name })}
+                      >
+                        <Icon name="trash" />
+                        {p.deleting ? 'Lanjutkan hapus' : 'Hapus'}
                       </Button>
                     )}
                     <a className="btn sm" href={`#projects/${p.id}`}>
@@ -139,6 +171,15 @@ export function ProjectsPage() {
         })
       )}
 
+      {modal?.kind === 'purge' && (
+        <PurgeModal
+          kind={modal.target}
+          id={modal.id}
+          name={modal.name}
+          onClose={() => setModal(null)}
+          onDone={done}
+        />
+      )}
       {modal?.kind === 'company' && (
         <CompanyModal company={modal.company} onClose={() => setModal(null)} onDone={done} />
       )}

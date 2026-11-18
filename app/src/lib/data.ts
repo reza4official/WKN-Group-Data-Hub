@@ -180,6 +180,8 @@ export interface Company {
   name: string
   type: 'induk' | 'anak'
   active: boolean
+  /** Penghapusan permanen sedang berjalan (belum selesai). */
+  deleting: boolean
 }
 export interface Project {
   id: string
@@ -189,6 +191,7 @@ export interface Project {
   status: 'berjalan' | 'ditunda' | 'selesai'
   startDate: string | null
   active: boolean
+  deleting: boolean
 }
 export interface CatalogItem {
   id: string
@@ -222,6 +225,7 @@ export async function listCompanies(): Promise<Company[]> {
         name: str(x.name),
         type: (x.type === 'anak' ? 'anak' : 'induk') as Company['type'],
         active: x.active !== false,
+        deleting: x.deleting === true,
       }
     })
     .sort((a, b) => Number(b.type === 'induk') - Number(a.type === 'induk') || a.name.localeCompare(b.name))
@@ -235,6 +239,7 @@ const toProject = (id: string, x: Record<string, unknown>): Project => ({
   status: x.status === 'selesai' ? 'selesai' : x.status === 'ditunda' ? 'ditunda' : 'berjalan',
   startDate: typeof x.startDate === 'string' ? x.startDate : null,
   active: x.active !== false,
+  deleting: x.deleting === true,
 })
 
 /** Pemegang izin "projects" membaca semua; akun lain hanya proyek yang ditugaskan (per dokumen, sesuai Rules). */
