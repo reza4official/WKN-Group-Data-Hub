@@ -333,3 +333,17 @@ describe('lowestBalanceFrom', () => {
     expect(lowestBalanceFrom(15000, days, '2026-09-01')).toBe(10000)
   })
 })
+
+describe('lastTxDate (untuk dashboard)', () => {
+  it('mengikuti tanggal pergerakan terkini; tanggal mundur tidak memundurkannya; koreksi tidak mengubahnya', async () => {
+    await add({ type: 'masuk', qty: 5, date: '2026-09-10' })
+    expect(item().lastTxDate).toBe('2026-09-10')
+    await add({ type: 'masuk', qty: 5, date: '2026-09-20' })
+    await add({ type: 'masuk', qty: 5, date: '2026-09-15' })
+    expect(item().lastTxDate).toBe('2026-09-20')
+    const a = await add({ type: 'masuk', qty: 1, date: '2026-09-25' })
+    expect(item().lastTxDate).toBe('2026-09-25')
+    await w.post('/ledger/correct', { projectId: 'p1', entryId: a.body.id, reason: 'Salah' }, 'u-pm1')
+    expect(item().lastTxDate).toBe('2026-09-25')
+  })
+})

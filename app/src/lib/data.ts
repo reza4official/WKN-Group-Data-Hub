@@ -183,6 +183,7 @@ export interface ProjectItem {
   currentStock: number | null
   minStock: number
   txCount: number
+  lastTxDate: string | null
   active: boolean
 }
 
@@ -260,6 +261,7 @@ export async function listProjectItems(projectId: string): Promise<ProjectItem[]
       currentStock: num(x.currentStock),
       minStock: Number(x.minStock ?? 0),
       txCount: Number(x.txCount ?? 0),
+      lastTxDate: typeof x.lastTxDate === 'string' ? x.lastTxDate : null,
       active: x.active !== false,
     }
   })
@@ -313,8 +315,26 @@ export async function listMonths(projectId: string, itemId: string, fromYm: stri
       out: Number(x.out ?? 0),
       corrIn: Number(x.corrIn ?? 0),
       corrOut: Number(x.corrOut ?? 0),
+      count: Number(x.count ?? 0),
     }
   })
+}
+
+/** Total harian satu barang mulai tanggal `fromDate` (YYYY-MM-DD); satu dokumen per hari yang ada transaksinya. */
+export interface DayTotals {
+  date: string
+  in: number
+  out: number
+}
+export async function listDays(projectId: string, itemId: string, fromDate: string): Promise<DayTotals[]> {
+  const snap = await getDocs(
+    query(
+      collection(db, 'projects', projectId, 'items', itemId, 'days'),
+      orderBy(documentId()),
+      startAt(fromDate),
+    ),
+  )
+  return snap.docs.map((d) => ({ date: d.id, in: Number(d.data().in ?? 0), out: Number(d.data().out ?? 0) }))
 }
 
 // ---------- Passkey (login biometrik) ----------

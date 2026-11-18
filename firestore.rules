@@ -83,7 +83,11 @@ service cloud.firestore {
         allow get, list: if can('projects') || (can('inventory.read') && (pid in me().projectIds));
         allow write: if false;
 
-        // Total bulanan per barang (tulis hanya Worker). Total harian (days) hanya untuk Worker.
+        // Total bulanan dan harian per barang (tulis hanya Worker); dibaca dashboard, bukan transaksi mentah.
+        match /days/{d} {
+          allow get, list: if can('projects') || (can('inventory.read') && (pid in me().projectIds));
+          allow write: if false;
+        }
         match /months/{m} {
           allow get, list: if can('projects') || (can('inventory.read') && (pid in me().projectIds));
           allow write: if false;

@@ -2,6 +2,15 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.6.0 — Tahap 6: Dashboard
+
+- **Dashboard**: KPI (jenis barang, transaksi bulan, stok kritis, tidak bergerak), tabel ringkasan per barang (awal, masuk, keluar, sisa), perbandingan laju pemakaian harian dengan bulan lalu, persentase pemakaian, estimasi hari stok, status (Aman, Menipis, Kritis, Tidak bergerak), pencarian dan pengurutan.
+- Filter proyek (satu atau **Semua proyek**, barang sama dijumlahkan) dan bulan. **Perbandingan antar proyek**, daftar **Perlu perhatian**, dan **Pemakaian tertinggi**.
+- **Rincian barang**: grafik sisa stok 30 hari dengan garis batas minimum, dan masuk/keluar 6 bulan.
+- Angka dari dokumen total bulanan (bukan transaksi mentah), koreksi sudah diperhitungkan (masuk efektif = masuk − pembalik masuk; keluar efektif = keluar − pembalik keluar). Awal bulan dihitung mundur dari stok saat ini.
+- Worker mencatat `lastTxDate` pada barang untuk status "tidak bergerak". Aturan Firestore: total harian dapat dibaca (lingkup sama dengan barang proyek).
+- Tes: Worker 139, aplikasi 134 (termasuk uji acak yang mencocokkan dashboard dengan hitungan manual dari buku), aturan Firestore 20; end-to-end Tahap 6 (22), Tahap 5 (26).
+
 ## v0.5.0 — Tahap 5: Transaksi stok (ledger)
 
 - **Transaksi Stok**: catat barang masuk dan keluar per proyek (tanggal, jumlah, keterangan). Tabel Hari/Tanggal, Nama Barang, Satuan, Masuk, Keluar, Tersisa, Keterangan, Dicatat oleh beserta waktu WITA. Filter proyek, bulan, dan barang; total bulan di kaki tabel. Kolom Tersisa dihitung saat tampil, mundur dari stok saat ini dan total bulan yang dilihat dan sesudahnya (riwayat lama tidak dibaca, hemat kuota). Total di kaki tabel adalah setelah koreksi.

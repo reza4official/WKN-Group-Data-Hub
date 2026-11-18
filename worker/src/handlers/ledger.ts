@@ -91,10 +91,18 @@ function buildWrites(p: {
   const dIn = toMilli(num(day?.data.in)) + inM
   const dOut = toMilli(num(day?.data.out)) + outM
   const m = month?.data ?? {}
+  const prevLast = typeof item.data.lastTxDate === 'string' ? item.data.lastTxDate : ''
+  const lastTx = correction ? null : date > prevLast ? date : null
   return [
     { path: `projects/${pid}/ledger/${p.entryId}`, data: entry, precondition: { exists: false }, serverTime: ['createdAt'] },
     // Setiap perubahan stok melewati dokumen barang dengan prasyarat updateTime: penulis bersamaan saling bertabrakan.
-    { path: itemPath(pid, iid), data: { currentStock: fromMilli(newStock), txCount: num(item.data.txCount) + 1 }, mask: ['currentStock', 'txCount'], precondition: pre(item) },
+    {
+      path: itemPath(pid, iid),
+      // lastTxDate = tanggal pergerakan terakhir (masuk/keluar, bukan koreksi); dipakai dashboard untuk "tidak bergerak".
+      data: { currentStock: fromMilli(newStock), txCount: num(item.data.txCount) + 1, ...(lastTx ? { lastTxDate: lastTx } : {}) },
+      mask: ['currentStock', 'txCount', ...(lastTx ? ['lastTxDate'] : [])],
+      precondition: pre(item),
+    },
     { path: `${itemPath(pid, iid)}/days/${date}`, data: { date, in: fromMilli(dIn), out: fromMilli(dOut) }, precondition: pre(day) },
     {
       path: `${itemPath(pid, iid)}/months/${ym}`,

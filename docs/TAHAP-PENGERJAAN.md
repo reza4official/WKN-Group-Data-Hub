@@ -111,6 +111,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 6 — v0.6.0 Dashboard
 
+**Status: kode selesai dan lulus uji (Worker 139, aplikasi 134, aturan 20, e2e 22). Penerapan: [`TAHAP-6-PENERAPAN.md`](TAHAP-6-PENERAPAN.md). Penyimpangan dari rencana: grafik aktivitas 30 hari diganti grafik per barang (sisa stok 30 hari, masuk/keluar 6 bulan) demi kuota baca. Belum teruji di Firestore produksi.**
+
 - Pembacaan hanya dari dokumen ringkasan bulanan (hemat kuota baca).
 - Kartu KPI, tabel ringkasan per barang (awal, masuk, keluar, sisa), perbandingan bulan lalu berbasis laju per hari, persentase pemakaian, estimasi hari stok, status (Aman, Menipis, Kritis, Tidak bergerak).
 - Grafik: pemakaian tertinggi, aktivitas 30 hari, tren sisa stok per barang.

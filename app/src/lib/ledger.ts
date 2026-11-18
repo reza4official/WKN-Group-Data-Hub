@@ -21,6 +21,8 @@ export interface MonthTotals {
   out: number
   corrIn: number
   corrOut: number
+  /** Jumlah transaksi masuk/keluar bulan itu (tanpa koreksi). */
+  count?: number
 }
 export interface LedgerItemInfo {
   id: string
