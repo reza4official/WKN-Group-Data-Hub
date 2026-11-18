@@ -2,6 +2,7 @@ import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
 import { loginOptions, loginWithAssertion, registerCredential, registerOptions, removeCredential } from './handlers/biometric'
 import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
+import { companyDeletePreview, deleteCatalogItem, deleteCompany, deleteProject, projectDeletePreview } from './handlers/purge'
 import { importCatalog, importOpening } from './handlers/importSetup'
 import { runBackupNow } from './handlers/backup'
 import { refreshUsageNow, runScheduled } from './handlers/scheduled'
@@ -16,7 +17,7 @@ import { loadActor, type Actor } from './lib/actor'
 import { HttpError, type Body } from './lib/http'
 import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.9.0'
+export const VERSION = '1.0.0-rc.1'
 
 const MAX_BODY = 20_000
 
@@ -77,6 +78,11 @@ const AUTHED: Record<string, (c: Ctx, body: Body, req: Request) => Promise<unkno
   '/ledger/correct': correctEntry,
   '/ledger/import': importEntries,
   '/catalog/import': importCatalog,
+  '/catalog/delete': async (c, b) => void (await deleteCatalogItem(c, b)),
+  '/projects/delete-preview': async (c, b) => ({ preview: await projectDeletePreview(c, b) }),
+  '/projects/delete': async (c, b) => ({ purge: await deleteProject(c, b) }),
+  '/companies/delete-preview': async (c, b) => ({ preview: await companyDeletePreview(c, b) }),
+  '/companies/delete': async (c, b) => ({ purge: await deleteCompany(c, b) }),
   '/items/import': importOpening,
   '/backup/run': async (c) => ({ backup: await runBackupNow(c) }),
   '/usage/refresh': refreshUsageNow,

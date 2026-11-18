@@ -37,6 +37,7 @@ export async function updateCompany(c: Ctx, body: Body): Promise<void> {
   const id = str(body, 'id')
   const co = await getDocument(c.env, c.sa, `companies/${id}`)
   if (!co) throw new HttpError(404, 'not_found', 'Perusahaan tidak ditemukan.')
+  if (co.data.deleting === true) throw new HttpError(409, 'deleting', 'Perusahaan ini sedang dihapus dan tidak dapat diubah.')
   const data: Record<string, unknown> = {}
   const detail: Record<string, unknown> = {}
   if (body.name !== undefined) {
@@ -99,6 +100,7 @@ export async function updateProject(c: Ctx, body: Body): Promise<void> {
   const id = str(body, 'id')
   const p = await getDocument(c.env, c.sa, `projects/${id}`)
   if (!p) throw new HttpError(404, 'not_found', 'Proyek tidak ditemukan.')
+  if (p.data.deleting === true) throw new HttpError(409, 'deleting', 'Proyek ini sedang dihapus dan tidak dapat diubah.')
   const data: Record<string, unknown> = {}
   const before: Record<string, unknown> = {}
   const track = (k: string, v: unknown) => {

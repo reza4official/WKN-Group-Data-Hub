@@ -82,7 +82,7 @@ export async function batchGetDocuments(env: Env, sa: ServiceAccount, paths: str
 
 export interface Filter {
   field: string
-  op: 'EQUAL' | 'LESS_THAN' | 'GREATER_THAN_OR_EQUAL'
+  op: 'EQUAL' | 'LESS_THAN' | 'GREATER_THAN_OR_EQUAL' | 'ARRAY_CONTAINS'
   value: unknown
   /** Nilai berupa string ISO yang harus dibandingkan sebagai waktu (timestamp), bukan teks. */
   timestamp?: boolean

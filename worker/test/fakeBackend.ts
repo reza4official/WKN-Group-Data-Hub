@@ -54,6 +54,11 @@ export class FakeBackend {
   /** Hook untuk mensimulasikan kegagalan atau balapan. */
   failAuthUpdate = false
   beforeCommit?: () => void
+  /** Dipanggil pada SETIAP commit dengan nomor urutnya (1, 2, ...); boleh melempar galat untuk mensimulasikan putus. */
+  onCommit?: (n: number) => void
+  commitCount = 0
+  /** Bila diisi, setiap commit dijawab dengan status HTTP ini (mis. 429 untuk kuota habis). */
+  commitStatus?: number
   turnstile: { success: boolean; hostname: string } = { success: true, hostname: 'wkngroup-datahub.web.app' }
   calls: string[] = []
   /** Layanan luar palsu (mis. Apps Script, Cloud Monitoring): awalan URL -> penangan. */
@@ -161,6 +166,7 @@ export class FakeBackend {
           const want = decodeValue(f.value as never)
           const have = r.data[f.field.fieldPath]
           if (f.op === 'EQUAL') return have === want
+          if (f.op === 'ARRAY_CONTAINS') return Array.isArray(have) && have.includes(want)
           if (f.op === 'GREATER_THAN_OR_EQUAL') return typeof have === 'string' ? have >= String(want) : Number(have) >= Number(want)
           return Number(have) < Number(want)
         }),
@@ -180,6 +186,8 @@ export class FakeBackend {
   private commit(b: Raw): Response {
     this.beforeCommit?.()
     this.beforeCommit = undefined
+    this.onCommit?.(++this.commitCount)
+    if (this.commitStatus) return new Response('{"error":{"status":"RESOURCE_EXHAUSTED"}}', { status: this.commitStatus })
     type W = {
       update?: { name: string; fields: Raw }
       delete?: string
