@@ -79,7 +79,7 @@ export function ProjectsPage() {
           >
             {seeAll
               ? 'Mulai dengan menambahkan perusahaan induk (mis. PT. Wiratama Karya Nugraha), lalu anak perusahaan dan proyeknya.'
-              : 'Hubungi atasan Anda untuk ditugaskan pada sebuah proyek.'}
+              : 'Owner atau Direktur menugaskan Anda ke proyek lewat Akun Pengguna → Ubah → Proyek. Proyek dan perusahaan dibuat oleh pemegang izin "projects".'}
           </EmptyState>
         </Card>
       ) : (

@@ -60,7 +60,11 @@ export function UsersPage() {
     <>
       <Card
         title="Akun pengguna"
-        subtitle={`Anda dapat mengelola akun dengan level di bawah ${level}.`}
+        subtitle={
+          seeAll
+            ? `Anda dapat mengelola akun dengan level di bawah ${level}.`
+            : `Anda dapat mengelola akun berlevel di bawah ${level} yang berbagi proyek dengan Anda.`
+        }
         flush
         actions={
           <div className="tools">
@@ -90,9 +94,23 @@ export function UsersPage() {
         ) : rows.length === 0 ? (
           <EmptyState
             icon="users"
-            title={q ? 'Tidak ada akun yang cocok' : 'Belum ada akun di bawah level Anda'}
+            title={
+              q
+                ? 'Tidak ada akun yang cocok'
+                : !seeAll && myProjects.length === 0
+                  ? 'Anda belum ditugaskan ke proyek mana pun'
+                  : seeAll
+                    ? 'Belum ada akun di bawah level Anda'
+                    : 'Belum ada akun di proyek Anda'
+            }
           >
-            {q ? 'Ubah kata kunci pencarian.' : 'Gunakan tombol Tambah akun untuk membuat akun baru.'}
+            {q
+              ? 'Ubah kata kunci pencarian.'
+              : !seeAll && myProjects.length === 0
+                ? 'Akun dan proyek hanya tampil bagi yang ditugaskan. Minta Owner atau Direktur menugaskan Anda ke sebuah proyek (Akun Pengguna → Ubah → Proyek).'
+                : seeAll
+                  ? 'Gunakan tombol Tambah akun untuk membuat akun baru.'
+                  : 'Akun yang berbagi proyek dengan Anda akan tampil di sini. Akun lama yang belum ditugaskan ke proyek perlu ditugaskan oleh Owner atau Direktur.'}
           </EmptyState>
         ) : (
           <ScrollTable label="Daftar akun">

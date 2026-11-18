@@ -88,3 +88,9 @@ cd ..\rules-tests; npm install; cd ..
 firebase emulators:exec --only firestore --project demo-wkn "npm --prefix rules-tests test"
 ```
 End-to-end dengan emulator (aturan aktif): `e2e/` (`admin.mjs`, `tahap4.mjs`, `biometric.mjs`). Uji biometrik memakai autentikator virtual Chromium dan membuka `http://localhost:4173` (rpId WebAuthn tidak boleh berupa alamat IP).
+
+## Akun lama (dibuat sebelum Tahap 4)
+Akun yang sudah ada belum memiliki proyek. Akibatnya Manajer Proyek dan Admin Logistik lama melihat **daftar akun dan daftar proyek kosong** sampai ditugaskan. Langkahnya, sebagai Developer, Owner, atau Direktur:
+1. Buat perusahaan dan proyek (bagian 3b).
+2. **Akun Pengguna → Ubah** pada tiap Manajer Proyek dan Admin Logistik → centang proyeknya → Simpan.
+3. Manajer Proyek baru dapat melihat dan mengelola akun yang **berbagi proyek dengannya**, jadi tugaskan juga Admin Logistik-nya ke proyek yang sama.

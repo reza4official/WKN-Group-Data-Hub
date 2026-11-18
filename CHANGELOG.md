@@ -2,6 +2,11 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.4.1
+
+- Pesan keadaan kosong untuk akun berlingkup proyek kini menjelaskan penyebabnya (belum ditugaskan ke proyek) dan cara mengatasinya, bukan "Belum ada akun di bawah level Anda".
+- Panduan: akun yang dibuat sebelum Tahap 4 belum punya proyek dan perlu ditugaskan oleh Owner/Direktur.
+
 ## v0.4.0 — Tahap 4: Perusahaan, proyek, katalog, saldo awal, lingkup proyek (+ login biometrik)
 
 - **Perusahaan & Proyek**: tambah dan ubah perusahaan (induk/anak) dan proyek (status, lokasi, tanggal mulai); nonaktifkan, bukan hapus.

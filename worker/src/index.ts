@@ -11,7 +11,7 @@ import { loadActor, type Actor } from './lib/actor'
 import { HttpError, type Body } from './lib/http'
 import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.4.0'
+export const VERSION = '0.4.1'
 
 const MAX_BODY = 20_000
 
