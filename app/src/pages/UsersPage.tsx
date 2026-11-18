@@ -78,7 +78,12 @@ export function UsersPage() {
                 aria-label="Cari akun"
               />
             </div>
-            <Button variant="primary" onClick={() => setModal({ kind: 'create' })} disabled={roles.loading}>
+            <Button
+              data-guide="users-add"
+              variant="primary"
+              onClick={() => setModal({ kind: 'create' })}
+              disabled={roles.loading}
+            >
               <Icon name="plus" />
               Tambah akun
             </Button>

@@ -1,10 +1,17 @@
 import type { ReactNode } from 'react'
 
-type Props = { title?: string; subtitle?: string; actions?: ReactNode; children?: ReactNode; flush?: boolean }
+type Props = {
+  title?: string
+  subtitle?: string
+  actions?: ReactNode
+  children?: ReactNode
+  flush?: boolean
+  id?: string
+}
 
-export function Card({ title, subtitle, actions, children, flush }: Props) {
+export function Card({ title, subtitle, actions, children, flush, id }: Props) {
   return (
-    <section className="card">
+    <section className="card" id={id}>
       {(title || actions) && (
         <div className="hd">
           <div>

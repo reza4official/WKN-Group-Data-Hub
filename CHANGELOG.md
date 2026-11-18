@@ -2,7 +2,11 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
-## v0.10.0 — Tahap 10: calon rilis
+## v1.0.0 — Tahap 10: rilis
+
+### Ditambahkan (sesi terakhir)
+- **Menu Panduan** untuk semua akun: isi menyesuaikan role dan izin akun (dibaca ulang dari server saat dibuka), tabel "Izin Anda", bagian yang belum tersedia beserta siapa yang dapat memberi akses, pencarian, cetak, dan tombol **Tunjukkan** yang menandai elemen yang dimaksud di aplikasi.
+- **Edit level role**: level dapat diubah (harus di bawah level pelaku dan unik); level akun pemegang role ikut disesuaikan dalam commit yang sama dan tercatat di Log Audit.
 
 - **Hapus permanen proyek dan perusahaan** (Owner/Developer, level ≥ 90 dengan izin proyek) untuk membersihkan data uji, dan **hapus barang katalog** yang tidak terpakai. Pratinjau akibat, konfirmasi dengan mengetik nama (dicek juga di server), penghapusan bertahap dan dapat dilanjutkan di bawah batas Workers gratis (50 sub-permintaan, 500 penulisan per commit), dokumen induk dihapus terakhir secara atomik bersama pembersihan penugasan akun dan audit akhir; penghitung pemakaian katalog dikurangi dalam commit yang sama dengan penghapusan barang. Proyek yang sedang dihapus tidak dapat diaktifkan, diubah, atau diisi (tampil "Sedang dihapus", tombol "Lanjutkan hapus"). Kuota hapus harian habis (429) menghasilkan pesan jelas. Setiap commit penghapusan membawa catatan audit; Log Audit dan cadangan Sheets tidak ikut terhapus.
 - **Cadangan Sheets**: `Code.gs` memberi format teks biasa pada sel teks sebelum menulis, sehingga nomor HP tidak kehilangan nol di depan dan tanggal tidak ditafsirkan ulang oleh Google Sheets (perlu memperbarui penerapan Apps Script; lihat panduan Tahap 10).

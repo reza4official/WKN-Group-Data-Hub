@@ -263,9 +263,19 @@ describe('role', () => {
     expect((await post('/roles/update', { id: 'log', perms: logPerms.filter((p) => p !== 'export') }, 'u-adm')).status).toBe(403)
   })
 
-  it('level role tidak bisa diubah (level akun terdenormalisasi tetap sinkron)', async () => {
-    await post('/roles/update', { id: 'pm', level: 70 }, 'u-dir')
+  it('mengubah level role: akun pemegang ikut sinkron, level wajib di bawah pelaku dan unik, tercatat di audit', async () => {
+    const other = Number(be.getData('roles/dir')?.level ?? -1)
+    expect((await post('/roles/update', { id: 'pm', level: 50 }, 'u-dir')).status).toBe(200) // tanpa perubahan
+    if (other > 0 && other < 90) expect((await post('/roles/update', { id: 'pm', level: other }, 'u-own')).status).toBe(409)
+    expect((await post('/roles/update', { id: 'pm', level: 0 }, 'u-dir')).status).toBe(400)
+    expect((await post('/roles/update', { id: 'pm', level: 90 }, 'u-dir')).status).toBe(403)
     expect(be.getData('roles/pm')!.level).toBe(50)
+    const r = await post('/roles/update', { id: 'pm', level: 45 }, 'u-dir')
+    expect(r.status).toBe(200)
+    expect(be.getData('roles/pm')!.level).toBe(45)
+    expect(be.getData('users/u-pm1')!.level).toBe(45)
+    expect(be.getData('users/u-pm2')!.level).toBe(45)
+    expect(lastAudit('role.update')).toBeTruthy()
   })
 
   it('menghapus role: ditolak bila masih dipakai atau role sistem; berhasil bila kosong', async () => {

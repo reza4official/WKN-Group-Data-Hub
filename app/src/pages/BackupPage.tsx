@@ -52,6 +52,7 @@ export function BackupPage() {
         subtitle="Salinan satu arah (bukan sumber kebenaran). Berjalan otomatis tiap hari pukul 03:00 WITA."
         actions={
           <Button
+            data-guide="backup-run"
             variant="primary"
             onClick={() => void run('backup')}
             disabled={!!busy || b?.lastStatus === 'unconfigured'}

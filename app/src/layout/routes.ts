@@ -114,6 +114,14 @@ export const ROUTES: RouteDef[] = [
     description: 'Catatan permanen siapa melakukan apa, tanggal, dan jam.',
   },
   {
+    id: 'panduan',
+    label: 'Panduan',
+    icon: 'tag',
+    group: 'Akun',
+    arrives: 'v1.0.0',
+    description: 'Panduan lengkap bergambar yang menyesuaikan diri dengan role dan izin akun Anda.',
+  },
+  {
     id: 'profil',
     label: 'Profil Saya',
     icon: 'user',

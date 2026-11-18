@@ -134,7 +134,12 @@ export function InventoryPage() {
         }
         actions={
           canWrite && project?.active ? (
-            <Button variant="primary" onClick={() => setModal({ kind: 'add' })} disabled={ready.length === 0}>
+            <Button
+              variant="primary"
+              data-guide="inv-catat"
+              onClick={() => setModal({ kind: 'add' })}
+              disabled={ready.length === 0}
+            >
               <Icon name="plus" />
               Catat transaksi
             </Button>
@@ -265,7 +270,11 @@ export function InventoryPage() {
                     {canCorrect && (
                       <td className="r">
                         {r.entry && r.kind !== 'koreksi' && !r.corrected && (
-                          <Button size="sm" onClick={() => setModal({ kind: 'correct', row: r })}>
+                          <Button
+                            size="sm"
+                            data-guide="inv-koreksi"
+                            onClick={() => setModal({ kind: 'correct', row: r })}
+                          >
                             Koreksi
                           </Button>
                         )}

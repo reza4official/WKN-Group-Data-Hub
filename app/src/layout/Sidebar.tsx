@@ -43,7 +43,12 @@ export function Sidebar({ routes, current, open, id }: Props) {
           <div key={g.name} style={{ display: 'contents' }}>
             <h4>{g.name}</h4>
             {g.items.map((r) => (
-              <a key={r.id} href={`#${r.id}`} aria-current={r.id === current ? 'page' : undefined}>
+              <a
+                key={r.id}
+                href={`#${r.id}`}
+                data-guide={`nav-${r.id}`}
+                aria-current={r.id === current ? 'page' : undefined}
+              >
                 <Icon name={r.icon} />
                 <span>{r.label}</span>
               </a>

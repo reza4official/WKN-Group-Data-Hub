@@ -54,11 +54,12 @@ export function ProjectsPage() {
     <>
       {seeAll && (
         <div className="tools" style={{ justifyContent: 'flex-end' }}>
-          <Button onClick={() => setModal({ kind: 'company' })}>
+          <Button data-guide="projects-add-company" onClick={() => setModal({ kind: 'company' })}>
             <Icon name="plus" />
             Tambah perusahaan
           </Button>
           <Button
+            data-guide="projects-add-project"
             variant="primary"
             onClick={() => setModal({ kind: 'project' })}
             disabled={cos.filter((c) => c.active).length === 0}
@@ -152,6 +153,7 @@ export function ProjectsPage() {
                     )}
                     {canDelete && (
                       <Button
+                        data-guide="projects-delete"
                         size="sm"
                         variant="danger"
                         onClick={() => setModal({ kind: 'purge', target: 'project', id: p.id, name: p.name })}

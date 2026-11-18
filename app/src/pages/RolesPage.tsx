@@ -11,7 +11,7 @@ import { listRoles, type Role } from '../lib/data'
 import { PERMISSION_KEYS, PERMISSION_LABELS } from '../lib/permissions'
 import { useLoad } from '../lib/useLoad'
 
-type Draft = { name?: string; perms?: string[] }
+type Draft = { name?: string; perms?: string[]; level?: string }
 
 export function RolesPage() {
   const { state } = useAuth()
@@ -31,9 +31,11 @@ export function RolesPage() {
   const draft = (sel && drafts[sel.id]) || {}
   const perms = draft.perms ?? sel?.perms ?? []
   const name = draft.name ?? sel?.name ?? ''
+  const lvlText = draft.level ?? String(sel?.level ?? '')
   const dirty =
     !!sel &&
-    ((draft.perms && draft.perms.slice().sort().join() !== sel.perms.slice().sort().join()) ||
+    ((draft.level !== undefined && draft.level !== String(sel.level)) ||
+      (draft.perms && draft.perms.slice().sort().join() !== sel.perms.slice().sort().join()) ||
       (draft.name !== undefined && draft.name !== sel.name))
 
   const patch = (d: Draft) => sel && setDrafts((s) => ({ ...s, [sel.id]: { ...s[sel.id], ...d } }))
@@ -45,7 +47,12 @@ export function RolesPage() {
     setBusy(true)
     setError('')
     try {
-      await api('/roles/update', { id: sel.id, name, perms })
+      await api('/roles/update', {
+        id: sel.id,
+        name,
+        perms,
+        ...(draft.level !== undefined ? { level: Number(draft.level) } : {}),
+      })
       setDrafts((s) => {
         const { [sel.id]: _omit, ...rest } = s
         void _omit
@@ -68,7 +75,7 @@ export function RolesPage() {
           subtitle="Makin besar level, makin tinggi."
           actions={
             myPerms.has('roles') && (
-              <Button size="sm" variant="primary" onClick={() => setModal('new')}>
+              <Button data-guide="roles-new" size="sm" variant="primary" onClick={() => setModal('new')}>
                 <Icon name="plus" />
                 Role baru
               </Button>
@@ -134,6 +141,24 @@ export function RolesPage() {
                     value={name}
                     onChange={(e) => patch({ name: e.target.value })}
                   />
+                </div>
+              )}
+              {canEdit && (
+                <div className="field">
+                  <label htmlFor="role-level">Level (1–{level - 1})</label>
+                  <input
+                    id="role-level"
+                    className="in"
+                    type="number"
+                    min={1}
+                    max={level - 1}
+                    value={lvlText}
+                    onChange={(e) => patch({ level: e.target.value })}
+                  />
+                  <div className="hint">
+                    Level baru harus di bawah level Anda dan belum dipakai. Akun yang memakai role ini ikut
+                    berubah levelnya.
+                  </div>
                 </div>
               )}
               {error && (

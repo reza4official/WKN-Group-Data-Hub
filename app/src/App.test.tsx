@@ -77,7 +77,7 @@ describe('kerangka aplikasi (sudah masuk)', () => {
     const lowPerms = new Set(['dashboard', 'inventory.read'])
     renderWith(signedIn(lowPerms, 'Admin Logistik / Gudang'))
     const labels = accessibleRoutes(lowPerms).map((r) => r.label)
-    expect(labels).toEqual(['Dashboard', 'Transaksi Stok', 'Proyek & Perusahaan', 'Profil Saya'])
+    expect(labels).toEqual(['Dashboard', 'Transaksi Stok', 'Proyek & Perusahaan', 'Panduan', 'Profil Saya'])
     expect(screen.queryByRole('link', { name: 'Akun Pengguna' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Log Audit' })).toBeNull()
   })

@@ -1,6 +1,6 @@
-# Tahap 10 (v0.10.0): Rilis — Hapus Data Uji, Panduan, Runbook, dan Checklist Rilis
+# Tahap 10 (v1.0.0): Rilis — Hapus Data Uji, Panduan, Runbook, dan Checklist Rilis
 
-Versi ini adalah **calon rilis (release candidate) v0.10.0**. Rilis resmi **v1.0.0** diberi tag setelah Anda menyelesaikan migrasi data nyata, pelatihan, dan **periode pembekuan fitur** (bagian "Checklist rilis"). Hal-hal itu adalah tindakan pemilik dan tidak dapat dilakukan dari lingkungan pengembangan.
+Versi ini bernomor **v1.0.0**. Beri tag git (perintah di bagian akhir) setelah Anda menyelesaikan migrasi data nyata, pelatihan, dan **periode pembekuan fitur** (bagian "Checklist rilis"). Hal-hal itu adalah tindakan pemilik dan tidak dapat dilakukan dari lingkungan pengembangan.
 Untuk Windows PowerShell di folder repo. Prasyarat: v0.9.0 sudah tayang.
 
 ## Yang baru
@@ -38,7 +38,7 @@ npm run build
 cd ..
 firebase deploy --only hosting
 ```
-Cek `/health` → `version: 0.10.0`. Aturan Firestore tidak berubah di tahap ini (deploy tetap aman).
+Cek `/health` → `version: 1.0.0`. Aturan Firestore tidak berubah di tahap ini (deploy tetap aman).
 
 ## 4. Uji hapus data uji (di data uji, bukan data nyata)
 1. Buat satu perusahaan uji dengan dua proyek, beberapa barang, dan beberapa transaksi (atau pakai data uji yang sudah ada).
@@ -77,7 +77,7 @@ Cek `/health` → `version: 0.10.0`. Aturan Firestore tidak berubah di tahap ini
 git tag -a v1.0.0 -m "WKN Group Data Hub v1.0.0"
 git push origin v1.0.0
 ```
-(Tag `v0.10.0` dapat dibuat dengan cara yang sama pada commit rilis ini bila Anda ingin menandainya; saya tidak membuat atau mendorong tag apa pun atas nama Anda.)
+(Tag `v1.0.0` dapat dibuat dengan cara yang sama pada commit rilis ini bila Anda ingin menandainya; saya tidak membuat atau mendorong tag apa pun atas nama Anda.)
 Naikkan versi di `app/package.json` dan `worker/package.json` ke `1.0.0` (dan `VERSION` di `worker/src/index.ts`) pada commit rilis akhir, lalu deploy; footer aplikasi otomatis menampilkan `v1.0.0`.
 
 ## Pengujian lokal

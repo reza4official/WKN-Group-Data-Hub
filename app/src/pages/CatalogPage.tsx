@@ -47,7 +47,7 @@ export function CatalogPage() {
               />
             </div>
             {canManage && (
-              <Button variant="primary" onClick={() => setModal({})}>
+              <Button data-guide="catalog-add" variant="primary" onClick={() => setModal({})}>
                 <Icon name="plus" />
                 Tambah barang
               </Button>

@@ -66,7 +66,7 @@ export function ProfilePage() {
         actions={
           biometric.supported &&
           !biometric.enabledHere && (
-            <Button variant="primary" size="sm" onClick={() => setShowEnable(true)}>
+            <Button data-guide="pf-bio" variant="primary" size="sm" onClick={() => setShowEnable(true)}>
               <Icon name={biometric.kind} />
               Aktifkan di perangkat ini
             </Button>
@@ -239,7 +239,7 @@ function PersonalData({
           </div>
         )}
         <div>
-          <Button type="submit" variant="primary" disabled={busy || !dirty}>
+          <Button data-guide="pf-save" type="submit" variant="primary" disabled={busy || !dirty}>
             {busy ? 'Menyimpan…' : 'Simpan perubahan'}
           </Button>
         </div>
@@ -309,7 +309,7 @@ function PasswordCard({ username }: { username: string }) {
           </div>
         )}
         <div>
-          <Button type="submit" variant="primary" disabled={busy}>
+          <Button data-guide="pf-password" type="submit" variant="primary" disabled={busy}>
             {busy ? 'Menyimpan…' : 'Ganti password'}
           </Button>
         </div>

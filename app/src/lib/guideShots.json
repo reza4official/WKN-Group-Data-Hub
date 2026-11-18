@@ -1,0 +1,144 @@
+{
+  "_catatan": "Spesifikasi tangkapan layar panduan. Dipakai e2e/guide-shots.mjs (membuat gambar bernomor di assets/panduan) dan halaman Panduan (legenda). Selector memakai id, aria-label, atau data-guide yang ada di aplikasi; tes memastikan semuanya masih ada.",
+  "login": {
+    "route": "",
+    "caption": "Halaman masuk",
+    "marks": [
+      { "n": 1, "selector": "#login-username", "label": "Username" },
+      {
+        "n": 2,
+        "selector": "input[autocomplete=current-password]",
+        "label": "Password (ikon mata menampilkan/menyembunyikan)"
+      },
+      { "n": 3, "selector": "button[type=submit]", "label": "Masuk" }
+    ]
+  },
+  "mulai": {
+    "route": "dashboard",
+    "caption": "Menu samping dan identitas akun",
+    "marks": [
+      { "n": 1, "selector": ".nav", "label": "Menu samping: hanya menu yang boleh Anda buka" },
+      { "n": 2, "selector": ".me", "label": "Nama dan role Anda; tombol Keluar di sebelahnya" }
+    ]
+  },
+  "profil": {
+    "route": "profil",
+    "caption": "Profil Saya",
+    "marks": [
+      { "n": 1, "selector": "#pf-name", "label": "Nama, no. HP, dan email" },
+      { "n": 2, "selector": "[data-guide=pf-save]", "label": "Simpan perubahan" },
+      { "n": 3, "selector": "[data-guide=pf-password]", "label": "Ganti password (butuh password lama)" }
+    ]
+  },
+  "inventory": {
+    "route": "inventory",
+    "caption": "Transaksi Stok",
+    "marks": [
+      { "n": 1, "selector": "#inv-project", "label": "Pilih proyek" },
+      { "n": 2, "selector": "#inv-month", "label": "Pilih bulan" },
+      { "n": 3, "selector": "[data-guide=inv-catat]", "label": "Catat transaksi" },
+      {
+        "n": 4,
+        "selector": "[aria-label=\"Transaksi stok\"]",
+        "label": "Tabel: Masuk, Keluar, dan Tersisa berjalan"
+      },
+      { "n": 5, "selector": "[data-guide=inv-koreksi]", "label": "Koreksi (hanya bagi yang berizin)" }
+    ]
+  },
+  "inventory-catat": {
+    "route": "inventory",
+    "before": "[data-guide=inv-catat]",
+    "caption": "Formulir Catat transaksi",
+    "marks": [
+      { "n": 1, "selector": "#tx-item", "label": "Barang (hanya yang sudah punya saldo awal)" },
+      { "n": 2, "selector": "[role=radiogroup]", "label": "Barang masuk atau keluar" },
+      { "n": 3, "selector": "#tx-qty", "label": "Jumlah" },
+      { "n": 4, "selector": "#tx-date", "label": "Tanggal (tidak sebelum saldo awal, tidak di masa depan)" }
+    ]
+  },
+  "dashboard": {
+    "route": "dashboard",
+    "caption": "Dashboard",
+    "marks": [
+      { "n": 1, "selector": "#dash-scope", "label": "Satu proyek atau semua proyek" },
+      { "n": 2, "selector": "#dash-month", "label": "Bulan" },
+      { "n": 3, "selector": "[data-guide=dash-refresh]", "label": "Segarkan (data disimpan 5 menit)" },
+      { "n": 4, "selector": ".kpis", "label": "Ringkasan: barang, transaksi, stok kritis, tidak bergerak" },
+      {
+        "n": 5,
+        "selector": "[aria-label=\"Ringkasan per barang\"]",
+        "label": "Tabel per barang; klik nama barang untuk grafik"
+      }
+    ]
+  },
+  "io": {
+    "route": "io",
+    "caption": "Impor / Ekspor",
+    "marks": [
+      { "n": 1, "selector": "#io-project", "label": "Proyek" },
+      { "n": 2, "selector": "[data-guide=io-xlsx]", "label": "Ekspor Excel" },
+      { "n": 3, "selector": "[data-guide=io-pdf]", "label": "Ekspor PDF" },
+      { "n": 4, "selector": "#io-kind", "label": "Jenis impor" },
+      { "n": 5, "selector": "[data-guide=io-template]", "label": "Unduh template Excel" }
+    ]
+  },
+  "catalog": {
+    "route": "catalog",
+    "caption": "Katalog Barang",
+    "marks": [
+      { "n": 1, "selector": "[aria-label=\"Cari barang\"]", "label": "Cari barang" },
+      { "n": 2, "selector": "[data-guide=catalog-add]", "label": "Tambah barang" }
+    ]
+  },
+  "projects": {
+    "route": "projects",
+    "caption": "Proyek & Perusahaan",
+    "marks": [
+      { "n": 1, "selector": "[data-guide=projects-add-company]", "label": "Tambah perusahaan" },
+      { "n": 2, "selector": "[data-guide=projects-add-project]", "label": "Tambah proyek" },
+      { "n": 3, "selector": ".li a.btn", "label": "Barang & saldo awal proyek" },
+      { "n": 4, "selector": "[data-guide=projects-delete]", "label": "Hapus permanen (Owner/Developer)" }
+    ]
+  },
+  "users": {
+    "route": "users",
+    "caption": "Akun Pengguna",
+    "marks": [
+      { "n": 1, "selector": "[aria-label=\"Cari akun\"]", "label": "Cari akun" },
+      { "n": 2, "selector": "[data-guide=users-add]", "label": "Tambah akun" }
+    ]
+  },
+  "roles": {
+    "route": "roles",
+    "caption": "Role & Akses",
+    "marks": [
+      { "n": 1, "selector": ".rolerow", "label": "Hirarki role (pilih untuk melihat izinnya)" },
+      { "n": 2, "selector": "[data-guide=roles-new]", "label": "Role baru" }
+    ]
+  },
+  "employees": {
+    "route": "employees",
+    "caption": "Database Karyawan",
+    "marks": [
+      { "n": 1, "selector": "[aria-label=\"Cari karyawan\"]", "label": "Cari nama, username, HP, email" },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Database karyawan\"]",
+        "label": "Data karyawan beserta pengubah terakhir"
+      }
+    ]
+  },
+  "audit": {
+    "route": "audit",
+    "caption": "Log Audit",
+    "marks": [
+      { "n": 1, "selector": "[aria-label=\"Cari log\"]", "label": "Cari pelaku atau aksi" },
+      { "n": 2, "selector": "[aria-label=\"Log audit\"]", "label": "Siapa, apa, dan kapan (WITA)" }
+    ]
+  },
+  "backup": {
+    "route": "backup",
+    "caption": "Cadangan & Kuota",
+    "marks": [{ "n": 1, "selector": "[data-guide=backup-run]", "label": "Cadangkan sekarang" }]
+  }
+}

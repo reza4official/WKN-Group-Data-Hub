@@ -469,6 +469,7 @@ export function IOPage() {
             ) : (
               <div className="tools">
                 <Button
+                  data-guide="io-xlsx"
                   variant="primary"
                   onClick={() => void doExport('xlsx')}
                   disabled={!!busy || (!what.tx && !what.sum)}
@@ -476,7 +477,11 @@ export function IOPage() {
                   <Icon name="xls" />
                   {busy === 'xlsx' ? 'Menyiapkan…' : 'Excel (.xlsx)'}
                 </Button>
-                <Button onClick={() => void doExport('pdf')} disabled={!!busy || (!what.tx && !what.sum)}>
+                <Button
+                  data-guide="io-pdf"
+                  onClick={() => void doExport('pdf')}
+                  disabled={!!busy || (!what.tx && !what.sum)}
+                >
                   {busy === 'pdf' ? 'Menyiapkan…' : 'PDF'}
                 </Button>
               </div>
@@ -538,7 +543,12 @@ export function IOPage() {
                   />
                 </div>
               </div>
-              <Button size="sm" onClick={() => void onTemplate()} style={{ alignSelf: 'flex-start' }}>
+              <Button
+                data-guide="io-template"
+                size="sm"
+                onClick={() => void onTemplate()}
+                style={{ alignSelf: 'flex-start' }}
+              >
                 Unduh template Excel
               </Button>
               {kind !== 'tx' && (

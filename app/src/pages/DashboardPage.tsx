@@ -180,6 +180,7 @@ export function DashboardPage() {
               style={{ width: 'auto' }}
             />
             <Button
+              data-guide="dash-refresh"
               size="sm"
               title="Data dashboard disimpan 5 menit untuk menghemat kuota baca; tekan untuk memuat ulang sekarang"
               onClick={() => {
