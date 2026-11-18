@@ -20,12 +20,16 @@ const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/
 /** Dilempar saat penulisan bertabrakan dengan penulis lain; seluruh percobaan dibaca ulang dan divalidasi ulang. */
 class Retry extends Error {}
 
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
 async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       return await fn()
     } catch (e) {
       if (!(e instanceof Retry)) throw e
+      // Jeda acak yang membesar agar penulis yang bertabrakan tidak mengulang serempak (lihat uji beban).
+      if (i < MAX_RETRIES - 1) await sleep(10 * 2 ** i + Math.random() * 40)
     }
   }
   throw new HttpError(409, 'busy', 'Barang ini sedang dicatat oleh pengguna lain. Coba lagi sebentar lagi.')
@@ -159,28 +163,29 @@ export async function addEntry(c: Ctx, body: Body): Promise<Applied> {
     }
     if (date < openingDate) throw new HttpError(400, 'bad_request', `Tanggal tidak boleh sebelum saldo awal (${openingDate}).`)
 
+    // Semua bacaan yang dibutuhkan diambil serempak: jendela antara membaca dan menulis (tempat tabrakan terjadi) menjadi pendek.
+    const qM = toMilli(qty)
+    const inM = type === 'masuk' ? qM : 0
+    const outM = type === 'keluar' ? qM : 0
+    const [prior, days, day, month] = await Promise.all([
+      getDocument(c.env, c.sa, `projects/${pid}/ledger/${requestId}`),
+      type === 'keluar' ? suffixDays(c, pid, iid, date) : Promise.resolve(null),
+      getDocument(c.env, c.sa, `${itemPath(pid, iid)}/days/${date}`),
+      getDocument(c.env, c.sa, `${itemPath(pid, iid)}/months/${date.slice(0, 7)}`),
+    ])
     // Idempotensi: permintaan yang diulang (jaringan tidak stabil) tidak mencatat dua kali.
-    const prior = await getDocument(c.env, c.sa, `projects/${pid}/ledger/${requestId}`)
     if (prior) {
       const same = prior.data.createdBy === c.actor.uid && prior.data.itemId === iid && prior.data.date === date && prior.data.type === type && toMilli(num(prior.data[type === 'masuk' ? 'in' : 'out'])) === toMilli(qty)
       if (!same) throw new HttpError(409, 'duplicate_request', 'ID permintaan ini sudah dipakai untuk transaksi lain.')
       return { id: requestId, currentStock: num(item.data.currentStock), duplicate: true }
     }
-
-    const qM = toMilli(qty)
-    const inM = type === 'masuk' ? qM : 0
-    const outM = type === 'keluar' ? qM : 0
-    let day: Doc | null
-    if (type === 'keluar') {
+    if (days) {
       // Stok tidak boleh negatif pada titik waktu mana pun sejak tanggal transaksi.
-      const days = await suffixDays(c, pid, iid, date)
       const low = lowestBalanceFrom(toMilli(num(item.data.currentStock)), days, date)
       if (low - qM < 0) {
         throw new HttpError(409, 'insufficient', `Stok tidak cukup. Jumlah keluar maksimal pada tanggal itu: ${fromMilli(Math.max(low, 0))} ${String(cat?.data.unit ?? '')}.`.trim())
       }
     }
-    day = await getDocument(c.env, c.sa, `${itemPath(pid, iid)}/days/${date}`)
-    const month = await getDocument(c.env, c.sa, `${itemPath(pid, iid)}/months/${date.slice(0, 7)}`)
 
     const writes = buildWrites({
       c, pid, iid, entryId: requestId, inM, outM, item, day, month, correction: false,

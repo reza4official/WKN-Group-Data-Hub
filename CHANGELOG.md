@@ -2,6 +2,16 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.9.0 — Tahap 9: Cadangan, kuota, impor penyiapan, pengerasan
+
+- **Cadangan ke Google Sheets**: cron Worker harian (03:00 WITA) + tombol *Cadangkan sekarang* mengirim pengguna (tanpa password), role, perusahaan, proyek, katalog, barang proyek, transaksi (semua kolom), dan audit ke Apps Script (`apps-script/Code.gs`). Inkremental dengan kursor, dedupe di Sheet, kursor hanya maju setelah konfirmasi, dipecah di bawah 50 sub-permintaan Workers gratis, galat dibersihkan dari URL/rahasia, gagal tertutup bila rahasia tak diatur.
+- **Pemantau kuota Firestore** (Cloud Monitoring, tiap jam): halaman **Cadangan & Kuota** dan peringatan di bilah atas (80% kuning, 95% merah) bagi pemegang izin audit; hari kuota mengikuti tengah malam Pasifik.
+- **Impor penyiapan**: jenis impor **Katalog barang** dan **Saldo awal proyek** (template terisi nama barang katalog; lembar Contoh Pengisian); Worker `/catalog/import` dan `/items/import` (atomik, idempoten, audit tunggal). "Pilih berkas" kini tombol yang dapat difokus keyboard. Pesan pratinjau transaksi membedakan barang yang belum masuk proyek.
+- **Aksesibilitas**: kontras teks sekunder dan status diperbaiki (≥ 4,5:1), indikator fokus biru di semua kontrol, axe-core nol pelanggaran WCAG A/AA di 19 keadaan × 2 tema × 360/1440 px; tanpa scroll samping 360–1440 px.
+- **Pengerasan**: invarian "setiap tulis ada audit" di seluruh tes Worker; uji CSP dengan header produksi (nol pelanggaran); tinjauan keamanan dengan bukti ([`docs/KEAMANAN-TAHAP-9.md`](docs/KEAMANAN-TAHAP-9.md)); aturan `system/*` (hanya izin audit).
+- **Beban**: cache dashboard 5 menit + tombol Segarkan (hemat kuota baca); pembacaan pencatatan stok diserempakkan dan percobaan ulang berjeda acak; penghitung bacaan (hanya emulator) dan `e2e/load.mjs` (27.000 transaksi; hasil di panduan Tahap 9).
+- Tes: Worker 207, aplikasi 252, aturan Firestore 23; e2e: cadangan (17), CSP (8), axe/responsif/fokus (3 kelompok), penyiapan (19), beban, Tahap 6 dan 8.
+
 ## v0.8.1
 
 - Pratinjau impor: bila nama barang ada di katalog tetapi belum ditambahkan ke proyek, pesannya kini menjelaskan hal itu dan langkah perbaikannya (sebelumnya hanya "tidak ada di proyek ini").

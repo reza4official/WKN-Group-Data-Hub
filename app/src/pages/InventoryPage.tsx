@@ -18,6 +18,7 @@ import {
   type CatalogItem,
   type ProjectItem,
 } from '../lib/data'
+import { clearDashboardCache } from '../lib/dashboardData'
 import { fmtDate } from '../lib/dates'
 import { buildRows, dayName, summarize, type LedgerItemInfo, type LedgerRow } from '../lib/ledger'
 import { formatWita } from '../lib/time'
@@ -91,6 +92,7 @@ export function InventoryPage() {
     setModal(null)
     toast(m)
     // Muat ulang barang saja: perubahan txCount/stok otomatis memicu muat ulang tabel (hemat pembacaan).
+    clearDashboardCache()
     items.reload()
   }
 

@@ -150,6 +150,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 9 — v0.9.0 Cadangan, Sheets, dan pengerasan
 
+**Status: kode selesai dan lulus uji (Worker 207, aplikasi 252, aturan 23, e2e cadangan/CSP/axe/beban). Penerapan: [`TAHAP-9-PENERAPAN.md`](TAHAP-9-PENERAPAN.md); temuan: [`KEAMANAN-TAHAP-9.md`](KEAMANAN-TAHAP-9.md). Belum teruji: pertukaran nyata dengan Apps Script, metrik Cloud Monitoring nyata, batas CPU cron Workers, ponsel nyata. PWA (opsional) dilewati. Skala uji beban adalah asumsi yang perlu dikonfirmasi.**
+
 - Apps Script web app + Worker cron: salin data ke Google Sheets satu arah (cadangan, bukan sumber kebenaran).
 - Pemantau kuota Firestore dan Worker dengan peringatan di aplikasi.
 - Tinjauan keamanan: Rules lengkap diuji di emulator, header, batas laju, pencegahan eskalasi hak, pencatatan audit pada semua jalur tulis.

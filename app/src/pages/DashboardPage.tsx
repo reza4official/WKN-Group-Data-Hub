@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useAuth } from '../auth/context'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
@@ -21,7 +21,7 @@ import {
   type DashRow,
   type SortKey,
 } from '../lib/dashboard'
-import { loadDashboard, type DashboardData } from '../lib/dashboardData'
+import { loadDashboardCached, type DashboardData } from '../lib/dashboardData'
 import { todayWita } from '../lib/time'
 import { useLoad } from '../lib/useLoad'
 
@@ -72,13 +72,18 @@ export function DashboardPage() {
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'status', dir: 1 })
   const [open, setOpen] = useState<DashRow | null>(null)
+  const forceNext = useRef(false)
 
   const list = (projects.data ?? []).filter((p) => p.active)
   const choice = scope || (list.length > 1 ? 'all' : (list[0]?.id ?? ''))
   const scoped: Project[] = choice === 'all' ? list : list.filter((p) => p.id === choice)
 
   const data = useLoad<Loaded>(
-    () => loadDashboard(scoped, ym, today),
+    () => {
+      const force = forceNext.current
+      forceNext.current = false
+      return loadDashboardCached(scoped, ym, today, force)
+    },
     `dash:${scoped.map((p) => p.id).join(',')}:${ym}`,
   )
 
@@ -174,6 +179,16 @@ export function DashboardPage() {
               }
               style={{ width: 'auto' }}
             />
+            <Button
+              size="sm"
+              title="Data dashboard disimpan 5 menit untuk menghemat kuota baca; tekan untuk memuat ulang sekarang"
+              onClick={() => {
+                forceNext.current = true
+                data.reload()
+              }}
+            >
+              Segarkan
+            </Button>
           </div>
         }
       />

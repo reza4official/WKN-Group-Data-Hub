@@ -49,3 +49,35 @@ export async function loadDashboard(scoped: Project[], ym: string, today: string
   }
   return { rows: mergeByItem([...perProject.values()].flat()), perProject, items }
 }
+
+/**
+ * Cache dalam memori untuk pemuatan dashboard: satu muat membaca ratusan dokumen (katalog + barang + total bulanan per proyek),
+ * sedangkan kuota baca gratis hanya 50.000 per hari untuk SEMUA pengguna (lihat uji beban di docs/TAHAP-9-PENERAPAN.md).
+ * Berlaku per tab, 5 menit, dan dikosongkan saat pengguna sendiri mencatat transaksi atau menekan "Segarkan".
+ */
+export const DASHBOARD_TTL_MS = 5 * 60 * 1000
+const cache = new Map<string, { at: number; data: Promise<DashboardData> }>()
+
+export function clearDashboardCache(): void {
+  cache.clear()
+}
+
+export function loadDashboardCached(
+  scoped: Project[],
+  ym: string,
+  today: string,
+  force = false,
+  now: number = Date.now(),
+): Promise<DashboardData> {
+  const key = `${scoped
+    .map((p) => p.id)
+    .sort()
+    .join(',')}|${ym}|${today}`
+  const hit = cache.get(key)
+  if (!force && hit && now - hit.at < DASHBOARD_TTL_MS) return hit.data
+  const data = loadDashboard(scoped, ym, today)
+  cache.set(key, { at: now, data })
+  // Muat yang gagal tidak boleh tersimpan.
+  data.catch(() => cache.get(key)?.data === data && cache.delete(key))
+  return data
+}

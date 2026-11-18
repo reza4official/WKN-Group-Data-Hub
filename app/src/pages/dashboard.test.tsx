@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthApi } from '../auth/context'
+import { clearDashboardCache } from '../lib/dashboardData'
 import { DashboardPage } from './DashboardPage'
 
 const mocks = vi.hoisted(() => ({
@@ -77,6 +78,7 @@ const wrap = (a: AuthApi, ui: ReactNode) =>
   render(<AuthContext.Provider value={a}>{ui}</AuthContext.Provider>)
 
 beforeEach(() => {
+  clearDashboardCache()
   vi.clearAllMocks()
   mocks.listCatalog.mockResolvedValue(CAT)
   mocks.listProjects.mockResolvedValue([P('p1', 'Jalan Maros')])
@@ -193,5 +195,17 @@ describe('Dashboard', () => {
     mocks.listProjects.mockResolvedValue([])
     wrap(as(['dashboard', 'inventory.read'], []), <DashboardPage />)
     await screen.findByText('Belum ada proyek aktif')
+  })
+
+  it('cache: kembali ke halaman yang sama tidak membaca ulang; Segarkan memaksa baca ulang', async () => {
+    const a = wrap(as(['dashboard', 'inventory.read']), <DashboardPage />)
+    await screen.findByRole('button', { name: 'Semen' })
+    const reads = mocks.listProjectItems.mock.calls.length
+    a.unmount()
+    wrap(as(['dashboard', 'inventory.read']), <DashboardPage />)
+    await screen.findByRole('button', { name: 'Semen' })
+    expect(mocks.listProjectItems.mock.calls.length).toBe(reads)
+    fireEvent.click(screen.getByRole('button', { name: 'Segarkan' }))
+    await waitFor(() => expect(mocks.listProjectItems.mock.calls.length).toBe(reads + 1))
   })
 })

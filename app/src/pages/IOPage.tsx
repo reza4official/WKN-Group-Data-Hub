@@ -10,7 +10,7 @@ import { ScrollTable } from '../components/ScrollTable'
 import { useToast } from '../components/Toast'
 import { api } from '../lib/api'
 import { listCatalog, listLedger, listMonths, listProjectItems, listProjects } from '../lib/data'
-import { loadDashboard } from '../lib/dashboardData'
+import { clearDashboardCache, loadDashboard } from '../lib/dashboardData'
 import { download, imageDataUrl } from '../lib/download'
 import { fileSlug, meta, summaryTable, transactionTable, type Table } from '../lib/exportTables'
 import {
@@ -373,6 +373,7 @@ export function IOPage() {
     setOutcome({ accepted, duplicates, rejected, failedChunks })
     // Bila ada kelompok gagal, pratinjau dipertahankan: menekan Impor lagi memakai sesi yang sama, jadi baris yang sudah masuk dilewati.
     if (failedChunks === 0) setPreview(null)
+    if (accepted > 0) clearDashboardCache()
     if (accepted > 0) toast(`${accepted} ${UNIT[kind]} diimpor atas nama Anda.`)
   }
 

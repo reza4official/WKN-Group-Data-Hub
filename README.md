@@ -11,6 +11,8 @@ Pusat data PT. Wiratama Karya Nugraha (WKN) dan anak perusahaan. Tahap awal: man
 - Menerapkan Tahap 6 (dashboard): [`docs/TAHAP-6-PENERAPAN.md`](docs/TAHAP-6-PENERAPAN.md)
 - Menerapkan Tahap 7 (ekspor/impor): [`docs/TAHAP-7-PENERAPAN.md`](docs/TAHAP-7-PENERAPAN.md)
 - Menerapkan Tahap 8 (profil, database karyawan): [`docs/TAHAP-8-PENERAPAN.md`](docs/TAHAP-8-PENERAPAN.md)
+- Menerapkan Tahap 9 (cadangan Sheets, kuota, impor penyiapan): [`docs/TAHAP-9-PENERAPAN.md`](docs/TAHAP-9-PENERAPAN.md)
+- Tinjauan keamanan dan aksesibilitas: [`docs/KEAMANAN-TAHAP-9.md`](docs/KEAMANAN-TAHAP-9.md)
 - Mockup interaktif: [`mockup/index.html`](mockup/index.html)
 - Riwayat perubahan: [`CHANGELOG.md`](CHANGELOG.md)
 

@@ -100,6 +100,7 @@ const states = [
   ['resets', async () => go('resets')],
   ['employees', async () => go('employees')],
   ['audit', async () => go('audit')],
+  ['backup', async () => { await go('backup'); await pg.waitForSelector('text=Cadangan ke Google Sheets') }],
   ['profil', async () => go('profil')],
 ]
 const overflow = []

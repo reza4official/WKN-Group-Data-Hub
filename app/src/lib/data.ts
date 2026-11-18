@@ -2,16 +2,39 @@ import {
   collection,
   doc,
   documentId,
-  getDoc,
-  getDocs,
+  getDoc as rawGetDoc,
+  getDocs as rawGetDocs,
   limit,
   orderBy,
   query,
   startAt,
   where,
+  type DocumentReference,
+  type Query,
 } from 'firebase/firestore'
+import { useEmulator } from '../config'
 import { db } from './firebase'
 import type { LedgerEntry, MonthTotals } from './ledger'
+
+/**
+ * Penghitung dokumen yang dibaca (hanya mode emulator/uji beban): window.__wknReads. Dipakai uji beban untuk mengukur
+ * jumlah bacaan per halaman terhadap kuota 50.000 per hari; tidak aktif di produksi.
+ */
+const track = (n: number) => {
+  if (!useEmulator) return
+  const w = window as unknown as { __wknReads?: number }
+  w.__wknReads = (w.__wknReads ?? 0) + n
+}
+async function getDocs<T>(q: Query<T>) {
+  const snap = await rawGetDocs(q)
+  track(snap.size)
+  return snap
+}
+async function getDoc<T>(ref: DocumentReference<T>) {
+  const snap = await rawGetDoc(ref)
+  track(1)
+  return snap
+}
 
 export interface Role {
   id: string
