@@ -206,3 +206,21 @@ tr.click {
     font-size: 23px;
   }
 }
+.quota-banner {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  border: 1px solid var(--warn);
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.quota-banner.bad {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.quota-banner a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}

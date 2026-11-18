@@ -267,6 +267,79 @@ export async function listProjectItems(projectId: string): Promise<ProjectItem[]
   })
 }
 
+// ---------- Cadangan dan kuota (Tahap 9) ----------
+
+export interface BackupStatus {
+  lastStatus: 'ok' | 'partial' | 'error' | 'unconfigured' | 'never'
+  lastRunAt: unknown
+  lastOkAt: unknown
+  lastError: string
+  lastTrigger: string
+  counts: Record<string, number>
+}
+export interface UsageStatus {
+  status: 'ok' | 'unavailable' | 'never'
+  at: unknown
+  windowStart: unknown
+  reads: number
+  writes: number
+  deletes: number
+  limits: { reads: number; writes: number; deletes: number }
+  reason: string
+}
+
+/** Hanya pemegang izin "audit" (Firestore Rules). Dokumen belum ada = cadangan belum pernah berjalan. */
+export async function getBackupStatus(): Promise<BackupStatus> {
+  const snap = await getDoc(doc(db, 'system', 'backup'))
+  if (!snap.exists())
+    return {
+      lastStatus: 'never',
+      lastRunAt: null,
+      lastOkAt: null,
+      lastError: '',
+      lastTrigger: '',
+      counts: {},
+    }
+  const x = snap.data()
+  const st = str(x.lastStatus)
+  return {
+    lastStatus: st === 'ok' || st === 'partial' || st === 'error' || st === 'unconfigured' ? st : 'never',
+    lastRunAt: x.lastRunAt || null,
+    lastOkAt: x.lastOkAt || null,
+    lastError: str(x.lastError),
+    lastTrigger: str(x.lastTrigger),
+    counts: (x.counts && typeof x.counts === 'object' ? x.counts : {}) as Record<string, number>,
+  }
+}
+
+export async function getUsage(): Promise<UsageStatus> {
+  const snap = await getDoc(doc(db, 'system', 'usage'))
+  const empty = {
+    reads: 0,
+    writes: 0,
+    deletes: 0,
+    limits: { reads: 50000, writes: 20000, deletes: 20000 },
+    reason: '',
+  }
+  if (!snap.exists()) return { status: 'never', at: null, windowStart: null, ...empty }
+  const x = snap.data()
+  const l = (x.limits ?? {}) as Record<string, number>
+  return {
+    status: x.status === 'ok' ? 'ok' : 'unavailable',
+    at: x.at,
+    windowStart: x.windowStart,
+    reads: Number(x.reads ?? 0),
+    writes: Number(x.writes ?? 0),
+    deletes: Number(x.deletes ?? 0),
+    limits: {
+      reads: Number(l.reads ?? 50000),
+      writes: Number(l.writes ?? 20000),
+      deletes: Number(l.deletes ?? 20000),
+    },
+    reason: str(x.reason),
+  }
+}
+
 // ---------- Database Karyawan (Tahap 8) ----------
 
 export interface Employee {

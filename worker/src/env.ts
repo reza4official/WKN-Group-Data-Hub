@@ -19,6 +19,10 @@ export interface Env {
   TURNSTILE_SECRET?: string
   /** Namespace KV untuk pembatas laju (opsional; gangguan KV tidak boleh menggagalkan permintaan). */
   RATE?: KvLike
+  /** URL web app Google Apps Script untuk cermin cadangan ke Google Sheets (secret; opsional). */
+  BACKUP_WEBHOOK_URL?: string
+  /** Rahasia bersama dengan Apps Script (secret; opsional). Tanpa keduanya, cadangan berstatus belum dikonfigurasi. */
+  BACKUP_SECRET?: string
   USE_EMULATOR?: string
   FIRESTORE_EMULATOR_HOST?: string
   AUTH_EMULATOR_HOST?: string

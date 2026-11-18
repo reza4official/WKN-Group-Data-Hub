@@ -7,6 +7,8 @@ const env = {
   FIREBASE_PROJECT_ID: 'demo-wkn',
   USE_EMULATOR: 'true',
   ALLOWED_ORIGINS: 'http://127.0.0.1:4173,http://localhost:4173',
+  // Cadangan Sheets (hanya bila disediakan oleh skrip uji): URL dan rahasia server Apps Script palsu.
+  ...(process.env.BACKUP_WEBHOOK_URL ? { BACKUP_WEBHOOK_URL: process.env.BACKUP_WEBHOOK_URL, BACKUP_SECRET: process.env.BACKUP_SECRET } : {}),
   FIREBASE_SERVICE_ACCOUNT: JSON.stringify({ client_email: 'wkn-worker@demo-wkn.iam.gserviceaccount.com', private_key: privateKey.export({ type: 'pkcs8', format: 'pem' }) }),
 }
 createServer(async (req, res) => {

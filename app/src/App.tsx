@@ -13,6 +13,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { EmployeesPage } from './pages/EmployeesPage'
 import { IOPage } from './pages/IOPage'
 import { InventoryPage } from './pages/InventoryPage'
+import { BackupPage } from './pages/BackupPage'
 import { CatalogPage } from './pages/CatalogPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { ProjectsPage } from './pages/ProjectsPage'
@@ -33,6 +34,7 @@ const PAGES: Record<string, (p: PageProps) => ReactElement> = {
   inventory: InventoryPage,
   dashboard: DashboardPage,
   io: IOPage,
+  backup: BackupPage,
   employees: EmployeesPage,
   projects: ProjectsPage,
   profil: ProfilePage,

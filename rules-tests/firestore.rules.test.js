@@ -79,6 +79,20 @@ describe('akun terdaftar dan aktif', () => {
     await assertFails(getDocs(collection(as('log1'), 'users')))
     await assertFails(getDoc(doc(as('off'), 'users/dev'))) // akun nonaktif
   })
+  it('system/*: status cadangan dan kuota hanya terbaca oleh pemegang izin audit, tidak bisa ditulis', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'system/backup'), { lastStatus: 'ok' })
+      await setDoc(doc(ctx.firestore(), 'system/usage'), { reads: 1 })
+    })
+    await assertSucceeds(getDoc(doc(as('andi'), 'system/backup')))
+    await assertSucceeds(getDoc(doc(as('dev'), 'system/usage')))
+    await assertFails(getDoc(doc(as('pm1'), 'system/backup')))
+    await assertFails(getDoc(doc(as('log1'), 'system/usage')))
+    await assertFails(getDoc(doc(anon(), 'system/backup')))
+    await assertFails(setDoc(doc(as('andi'), 'system/backup'), { lastStatus: 'ok' }))
+    await assertFails(updateDoc(doc(as('dev'), 'system/usage'), { reads: 0 }))
+    await assertFails(getDocs(collection(as('andi'), 'system'))) // hanya get per dokumen
+  })
   it('profil tetap tidak bisa ditulis klien (data diri hanya lewat Worker)', async () => {
     await assertFails(updateDoc(doc(as('pm1'), 'users/pm1'), { name: 'Baru' }))
     await assertFails(updateDoc(doc(as('andi'), 'users/pm1'), { phone: '1' }))

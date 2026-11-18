@@ -96,6 +96,15 @@ export const ROUTES: RouteDef[] = [
     description: 'Data karyawan yang terhubung dengan profil pengguna.',
   },
   {
+    id: 'backup',
+    label: 'Cadangan & Kuota',
+    icon: 'shield',
+    group: 'Administrasi',
+    perm: ['audit'],
+    arrives: 'v0.9.0',
+    description: 'Status cadangan ke Google Sheets dan pemakaian kuota harian Firestore.',
+  },
+  {
     id: 'audit',
     label: 'Log Audit',
     icon: 'log',

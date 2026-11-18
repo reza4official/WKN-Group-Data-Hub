@@ -3,6 +3,8 @@ import { googleLink } from './handlers/googleLink'
 import { loginOptions, loginWithAssertion, registerCredential, registerOptions, removeCredential } from './handlers/biometric'
 import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
 import { importCatalog, importOpening } from './handlers/importSetup'
+import { runBackupNow } from './handlers/backup'
+import { refreshUsageNow, runScheduled } from './handlers/scheduled'
 import { changePassword, updateProfile } from './handlers/profile'
 import { addEntry, correctEntry, importEntries } from './handlers/ledger'
 import { addProjectItem, setOpening, updateProjectItem } from './handlers/items'
@@ -14,7 +16,7 @@ import { loadActor, type Actor } from './lib/actor'
 import { HttpError, type Body } from './lib/http'
 import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.8.0'
+export const VERSION = '0.9.0'
 
 const MAX_BODY = 20_000
 
@@ -76,11 +78,17 @@ const AUTHED: Record<string, (c: Ctx, body: Body, req: Request) => Promise<unkno
   '/ledger/import': importEntries,
   '/catalog/import': importCatalog,
   '/items/import': importOpening,
+  '/backup/run': async (c) => ({ backup: await runBackupNow(c) }),
+  '/usage/refresh': refreshUsageNow,
   '/profile/update': updateProfile,
   '/profile/change-password': changePassword,
 }
 
 export default {
+  /** Cron Trigger (wrangler.toml): pemantau kuota tiap jam dan cadangan harian. */
+  async scheduled(event: { scheduledTime: number }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> {
+    ctx.waitUntil(runScheduled(env, new Date(event.scheduledTime)))
+  },
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
     const origin = allowedOrigin(request, env)

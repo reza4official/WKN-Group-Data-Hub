@@ -64,6 +64,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Status cadangan dan pemakaian kuota (ditulis cron Worker): hanya untuk pemegang izin "audit".
+    match /system/{doc} {
+      allow get: if can('audit');
+      allow write: if false;
+    }
+
     // Perusahaan dan katalog barang: terbuka bagi akun aktif (bukan rahasia); penulisan hanya lewat Worker.
     match /companies/{id} {
       allow get, list: if active();

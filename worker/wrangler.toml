@@ -11,6 +11,13 @@ FIREBASE_PROJECT_ID = "wkngroup-datahub"
 ALLOWED_ORIGINS = "https://wkngroup-datahub.web.app,https://wkngroup-datahub.firebaseapp.com,http://localhost:5173"
 # USE_EMULATOR sengaja tidak diisi di sini. Hanya untuk pengujian lokal dengan proyek berawalan "demo-".
 
+# Cron Trigger (paket gratis): tiap jam menyegarkan pemakaian kuota; pukul 19:00 UTC (03:00 WITA) juga menjalankan
+# cadangan ke Google Sheets. Rahasia cadangan dipasang terpisah (lihat docs/TAHAP-9-PENERAPAN.md):
+#   npx wrangler secret put BACKUP_WEBHOOK_URL     (URL web app Apps Script)
+#   npx wrangler secret put BACKUP_SECRET          (rahasia bersama dengan Script Properties SECRET)
+[triggers]
+crons = ["0 * * * *"]
+
 # Pembatas laju untuk permintaan reset password (opsional tetapi disarankan). Buat namespace KV
 # "wkn-ratelimit" di dashboard Cloudflare, lalu hapus tanda # dan isi ID-nya:
 # [[kv_namespaces]]

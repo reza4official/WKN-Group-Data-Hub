@@ -56,6 +56,8 @@ export class FakeBackend {
   beforeCommit?: () => void
   turnstile: { success: boolean; hostname: string } = { success: true, hostname: 'wkngroup-datahub.web.app' }
   calls: string[] = []
+  /** Layanan luar palsu (mis. Apps Script, Cloud Monitoring): awalan URL -> penangan. */
+  externals = new Map<string, (url: string, init?: RequestInit) => Response | Promise<Response>>()
   private uidSeq = 0
 
   seedDoc(path: string, data: Raw): void {
@@ -110,6 +112,8 @@ export class FakeBackend {
     this.calls.push(`${init?.method ?? 'GET'} ${url}`)
     const body = init?.body && typeof init.body === 'string' && init.body.startsWith('{') ? (JSON.parse(init.body) as Raw) : undefined
 
+    for (const [prefix, fn] of this.externals) if (url.startsWith(prefix)) return fn(url, init)
+
     if (url.includes('securetoken@system.gserviceaccount.com')) {
       return this.ok({ keys: [{ ...this.google.jwk, kid: 'k1', alg: 'RS256', use: 'sig' }] }, { 'Cache-Control': 'public, max-age=3600' })
     }
@@ -161,6 +165,13 @@ export class FakeBackend {
           return Number(have) < Number(want)
         }),
       )
+      .sort((x, y) => {
+        // Firestore mengurutkan menurut kolom ketidaksamaan lebih dulu, lalu nama dokumen.
+        const f = filters.find(({ fieldFilter }) => fieldFilter.op === 'GREATER_THAN_OR_EQUAL')?.fieldFilter.field.fieldPath
+        const vx = f ? String(x.data[f] ?? '') : ''
+        const vy = f ? String(y.data[f] ?? '') : ''
+        return vx < vy ? -1 : vx > vy ? 1 : x.id < y.id ? -1 : x.id > y.id ? 1 : 0
+      })
       .slice(0, sq.limit ?? 100)
     return this.ok(rows.length ? rows.map((r) => ({ document: this.raw(`${base}/${r.id}`, this.docs.get(`${base}/${r.id}`) as StoredDoc) })) : [{ readTime: 'x' }])
   }

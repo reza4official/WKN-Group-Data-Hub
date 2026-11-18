@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { QuotaBanner } from '../components/QuotaBanner'
 import { COMPANY } from '../lib/version'
 import { Footer } from './Footer'
 import { Sidebar } from './Sidebar'
@@ -36,6 +37,7 @@ export function AppShell({ routes, current, title, children }: Props) {
           onMenu={() => setOpen((v) => !v)}
         />
         <main className="content" id="konten" tabIndex={-1}>
+          <QuotaBanner />
           {children}
         </main>
         <Footer />
