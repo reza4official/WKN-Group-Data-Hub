@@ -1,5 +1,6 @@
 import type { Env } from '../env'
-import { assertLower, requirePerm, type Actor } from '../lib/actor'
+import { requirePerm, type Actor } from '../lib/actor'
+import { assertManagesUser } from '../lib/scope'
 import { auditWrite } from '../lib/audit'
 import { commit, CommitError, getDocument, queryDocuments } from '../lib/firestore'
 import { HttpError, password, str, type Body } from '../lib/http'
@@ -51,6 +52,7 @@ export async function requestReset(body: Body, ip: string | null, env: Env, sa: 
     roleName: String(user.data.roleId ?? ''),
     level,
     perms: new Set(),
+    projectIds: [],
   }
   await commit(env, sa, [
     {
@@ -61,6 +63,7 @@ export async function requestReset(body: Body, ip: string | null, env: Env, sa: 
         targetName: String(user.data.name ?? ''),
         targetRoleId: String(user.data.roleId ?? ''),
         requesterLevel: level,
+        targetProjectIds: Array.isArray(user.data.projectIds) ? (user.data.projectIds as string[]) : [],
         status: 'pending',
         handledBy: null,
         handledByName: null,
@@ -89,7 +92,7 @@ export async function executeReset(c: Ctx, body: Body): Promise<void> {
   const uid = String(req.data.targetUid)
   const target = await getDocument(c.env, c.sa, `users/${uid}`)
   if (!target) throw new HttpError(404, 'not_found', 'Akun pemohon sudah tidak ada.')
-  assertLower(c.actor, Number(target.data.level ?? 0))
+  assertManagesUser(c.actor, { level: Number(target.data.level ?? 0), projectIds: Array.isArray(target.data.projectIds) ? (target.data.projectIds as string[]) : [] })
   const label = String(target.data.username)
 
   await commit(c.env, c.sa, [

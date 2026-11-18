@@ -1,11 +1,12 @@
 import type { Env } from '../env'
-import { assertLower, requirePerm, type Actor } from '../lib/actor'
+import { requirePerm, type Actor } from '../lib/actor'
 import { auditWrite } from '../lib/audit'
 import { commit, CommitError, getDocument, queryDocuments, type Doc, type Write } from '../lib/firestore'
-import { HttpError, optEmail, optStr, password, str, type Body } from '../lib/http'
+import { HttpError, optEmail, optStr, password, str, strArray, type Body } from '../lib/http'
 import { createAuthUser, deleteAuthUser, DuplicateAccountError, updateAuthUser } from '../lib/identityAdmin'
 import { syntheticEmail, usernameDigest } from '../lib/identity'
 import { isSubset } from '../lib/perms'
+import { assertManagesUser, seesAllProjects } from '../lib/scope'
 import type { ServiceAccount } from '../lib/serviceAccount'
 
 interface Ctx {
@@ -34,8 +35,26 @@ function assertAssignable(actor: Actor, role: Doc): void {
 async function loadTarget(c: Ctx, uid: string): Promise<Doc> {
   const target = await getDocument(c.env, c.sa, `users/${uid}`)
   if (!target) throw new HttpError(404, 'not_found', 'Akun tidak ditemukan.')
-  assertLower(c.actor, Number(target.data.level ?? 0))
+  assertManagesUser(c.actor, { level: Number(target.data.level ?? 0), projectIds: asArray(target.data.projectIds) })
   return target
+}
+
+const asArray = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : [])
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x))
+
+/**
+ * Menentukan daftar proyek akhir sebuah akun. Pelaku yang tidak melihat semua proyek hanya boleh
+ * menugaskan proyeknya sendiri, dan proyek target yang berada di luar lingkup pelaku TIDAK ikut hilang.
+ */
+async function resolveProjects(c: Ctx, requested: string[], existing: string[]): Promise<string[]> {
+  const scope = seesAllProjects(c.actor) ? null : new Set(c.actor.projectIds)
+  for (const id of requested) {
+    if (scope && !scope.has(id)) throw new HttpError(403, 'forbidden', 'Anda hanya dapat menugaskan akun ke proyek Anda sendiri.')
+    const p = await getDocument(c.env, c.sa, `projects/${id}`)
+    if (!p || p.data.active === false) throw new HttpError(400, 'unknown_project', 'Proyek tidak ditemukan atau sudah nonaktif.')
+  }
+  const keep = scope ? existing.filter((p) => !scope.has(p)) : []
+  return [...new Set([...keep, ...requested])]
 }
 
 /** Email kontak harus unik (dipakai untuk Login Google); duplikat merusak login semua pemilik email itu. */
@@ -53,10 +72,14 @@ export async function createUser(c: Ctx, body: Body): Promise<{ uid: string }> {
   const email = optEmail(body, 'emailContact') ?? ''
   const roleId = str(body, 'roleId', { label: 'Role' })
   const pw = password(body)
+  const requestedProjects = strArray(body, 'projectIds', 30, 'Proyek') ?? []
 
   const role = await getRole(c, roleId)
   assertAssignable(c.actor, role)
   await assertEmailFree(c, email)
+  const projectIds = await resolveProjects(c, requestedProjects, [])
+  // Tanpa proyek, pelaku berlingkup proyek tidak akan bisa mengelola akun yang baru dibuatnya.
+  if (!seesAllProjects(c.actor) && projectIds.length === 0) throw new HttpError(400, 'bad_request', 'Pilih minimal satu proyek Anda untuk akun ini.')
 
   const digest = await usernameDigest(username)
   let uid: string
@@ -79,7 +102,7 @@ export async function createUser(c: Ctx, body: Body): Promise<{ uid: string }> {
         roleId: role.id,
         level: Number(role.data.level),
         companyIds: [],
-        projectIds: [],
+        projectIds,
         disabled: false,
         createdBy: c.actor.uid,
         createdByName: c.actor.name,
@@ -88,7 +111,7 @@ export async function createUser(c: Ctx, body: Body): Promise<{ uid: string }> {
       serverTime: ['createdAt'],
     },
     { path: `usernames/${digest}`, data: { uid }, precondition: { exists: false } },
-    auditWrite(c.actor, 'user.create', { type: 'user', id: uid, label: username }, { role: String(role.data.name), level: Number(role.data.level) }),
+    auditWrite(c.actor, 'user.create', { type: 'user', id: uid, label: username }, { role: String(role.data.name), level: Number(role.data.level), projectIds }),
   ]
   try {
     await commit(c.env, c.sa, writes)
@@ -129,6 +152,15 @@ export async function updateUser(c: Ctx, body: Body): Promise<void> {
     data.level = Number(role.data.level)
     before.roleId = target.data.roleId
     after.roleId = role.id
+  }
+  const reqProjects = strArray(body, 'projectIds', 30, 'Proyek')
+  if (reqProjects !== undefined) {
+    const next = await resolveProjects(c, reqProjects, asArray(target.data.projectIds))
+    if (!sameSet(next, asArray(target.data.projectIds))) {
+      data.projectIds = next
+      before.projectIds = asArray(target.data.projectIds)
+      after.projectIds = next
+    }
   }
   if (Object.keys(data).length === 0) return
 

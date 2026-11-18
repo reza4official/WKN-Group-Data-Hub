@@ -16,6 +16,10 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false;
     }
 
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function myRole() {
       return get(/databases/$(database)/documents/roles/$(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleId)).data;
     }
@@ -25,11 +29,15 @@ service cloud.firestore {
     }
 
     // Profil: pemiliknya selalu boleh membaca (juga bila dinonaktifkan, agar aplikasi dapat menampilkan
-    // pesan). Pemegang izin "users" hanya boleh membaca akun berlevel di bawahnya; kueri klien wajib
-    // memakai where('level', '<', levelSendiri).
+    // pesan). Pemegang izin "users" hanya boleh membaca akun berlevel di bawahnya DAN, bila tidak punya
+    // izin "projects" (lihat semua), hanya akun yang berbagi proyek dengannya. Kueri klien wajib memuat
+    // where('level', '<', levelSendiri) dan, untuk pelaku berlingkup proyek,
+    // where('projectIds', 'array-contains-any', proyekSendiri) (maksimal 30 proyek).
     match /users/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
-      allow get, list: if can('users') && resource.data.level < myRole().level;
+      allow get, list: if can('users')
+        && resource.data.level < myRole().level
+        && (can('projects') || resource.data.projectIds.hasAny(me().projectIds));
       allow create, update, delete: if false;
     }
 
@@ -41,13 +49,45 @@ service cloud.firestore {
 
     // Permintaan reset: hanya role di atas pemohon (kueri: where('requesterLevel', '<', levelSendiri)).
     match /resetRequests/{id} {
-      allow get, list: if can('resets') && resource.data.requesterLevel < myRole().level;
+      allow get, list: if can('resets')
+        && resource.data.requesterLevel < myRole().level
+        && (can('projects') || resource.data.targetProjectIds.hasAny(me().projectIds));
       allow write: if false;
     }
 
     // Log audit: hanya untuk pemegang izin "audit". Tidak ada yang dapat menulis dari klien.
     match /auditLog/{id} {
       allow get, list: if can('audit');
+      allow write: if false;
+    }
+
+    // Perusahaan dan katalog barang: terbuka bagi akun aktif (bukan rahasia); penulisan hanya lewat Worker.
+    match /companies/{id} {
+      allow get, list: if active();
+      allow write: if false;
+    }
+    match /catalog/{id} {
+      allow get, list: if active();
+      allow write: if false;
+    }
+
+    // Proyek: pemegang izin "projects" melihat semua dan dapat mendaftar; akun lain hanya dapat membaca
+    // proyek yang ditugaskan kepadanya (per dokumen, bukan daftar).
+    match /projects/{pid} {
+      allow get: if can('projects') || (active() && (pid in me().projectIds));
+      allow list: if can('projects');
+      allow write: if false;
+
+      // Barang per proyek beserta saldo awalnya.
+      match /items/{iid} {
+        allow get, list: if can('projects') || (can('inventory.read') && (pid in me().projectIds));
+        allow write: if false;
+      }
+    }
+
+    // Passkey (login biometrik): hanya pemiliknya yang boleh melihat daftar perangkatnya.
+    match /webauthnCredentials/{id} {
+      allow get, list: if active() && resource.data.uid == request.auth.uid;
       allow write: if false;
     }
 

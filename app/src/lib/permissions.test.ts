@@ -3,6 +3,10 @@ import { ROUTES } from '../layout/routes'
 import { PERMISSION_KEYS, PERMISSION_LABELS } from './permissions'
 
 describe('izin', () => {
+  it('menu Proyek & Perusahaan terbuka bagi pemegang inventory.read (proyek yang ditugaskan)', () => {
+    const r = ROUTES.find((x) => x.id === 'projects')!
+    expect(r.perm).toEqual(['projects', 'inventory.read'])
+  })
   it('setiap izin memiliki label, dan tidak ada label yatim', () => {
     expect(Object.keys(PERMISSION_LABELS).sort()).toEqual([...PERMISSION_KEYS].sort())
   })

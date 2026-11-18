@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailContact: String(d.emailContact ?? ''),
         roleId: String(d.roleId ?? ''),
         level: Number(d.level ?? 0),
+        projectIds: Array.isArray(d.projectIds) ? (d.projectIds as string[]) : [],
       }
       setState({
         status: 'in',

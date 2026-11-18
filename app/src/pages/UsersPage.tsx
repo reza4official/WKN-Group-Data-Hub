@@ -10,7 +10,7 @@ import { Pill } from '../components/Pill'
 import { ScrollTable } from '../components/ScrollTable'
 import { useToast } from '../components/Toast'
 import { api } from '../lib/api'
-import { listRoles, listUsersBelow, type Role, type UserRow } from '../lib/data'
+import { listProjects, listRoles, listUsersBelow, type Project, type Role, type UserRow } from '../lib/data'
 import { useLoad } from '../lib/useLoad'
 
 type Modal = { kind: 'create' } | { kind: 'edit' | 'reset' | 'delete'; user: UserRow } | null
@@ -28,8 +28,18 @@ export function UsersPage() {
   const { toast } = useToast()
   const level = state.status === 'in' ? state.profile.level : 0
   const myPerms = state.status === 'in' ? state.perms : new Set<string>()
-  const users = useLoad(() => listUsersBelow(level), `users:${level}`)
+  const seeAll = myPerms.has('projects')
+  const myProjects = state.status === 'in' ? state.profile.projectIds : []
+  const users = useLoad(
+    () => listUsersBelow(level, seeAll ? undefined : myProjects),
+    `users:${level}:${seeAll}:${myProjects.join(',')}`,
+  )
   const roles = useLoad(listRoles, 'roles')
+  const projects = useLoad(
+    () => listProjects(seeAll, myProjects),
+    `projects:${seeAll}:${myProjects.join(',')}`,
+  )
+  const pickable = (projects.data ?? []).filter((p) => p.active)
   const [q, setQ] = useState('')
   const [modal, setModal] = useState<Modal>(null)
 
@@ -91,6 +101,7 @@ export function UsersPage() {
                 <tr>
                   <th>Pengguna</th>
                   <th>Role</th>
+                  <th>Proyek</th>
                   <th>Kontak</th>
                   <th>Status</th>
                   <th className="r">Aksi</th>
@@ -113,6 +124,11 @@ export function UsersPage() {
                     <td>
                       <Pill tone="blue">{roleOf(u.roleId)?.name ?? u.roleId}</Pill>{' '}
                       <span className="lvl">{u.level}</span>
+                    </td>
+                    <td className="sm wrap">
+                      {u.projectIds
+                        .map((id) => projects.data?.find((p) => p.id === id)?.name ?? id)
+                        .join(', ') || '—'}
                     </td>
                     <td className="sm">
                       <div>{u.emailContact || '—'}</div>
@@ -150,10 +166,16 @@ export function UsersPage() {
       </Card>
 
       {modal?.kind === 'create' && (
-        <CreateModal roles={assignable} onClose={() => setModal(null)} onDone={done} />
+        <CreateModal roles={assignable} projects={pickable} onClose={() => setModal(null)} onDone={done} />
       )}
       {modal?.kind === 'edit' && (
-        <EditModal user={modal.user} roles={assignable} onClose={() => setModal(null)} onDone={done} />
+        <EditModal
+          user={modal.user}
+          roles={assignable}
+          projects={pickable}
+          onClose={() => setModal(null)}
+          onDone={done}
+        />
       )}
       {modal?.kind === 'reset' && (
         <ResetModal user={modal.user} onClose={() => setModal(null)} onDone={done} />
@@ -206,10 +228,12 @@ function useSubmit(action: () => Promise<string>, onDone: (m: string) => void) {
 
 function CreateModal({
   roles,
+  projects,
   onClose,
   onDone,
 }: {
   roles: Role[]
+  projects: Project[]
   onClose: () => void
   onDone: (m: string) => void
 }) {
@@ -221,10 +245,11 @@ function CreateModal({
     phone: '',
     emailContact: '',
   })
+  const [projectIds, setProjectIds] = useState<string[]>([])
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((s) => ({ ...s, [k]: e.target.value }))
   const { busy, error, submit } = useSubmit(async () => {
-    await api('/users/create', f)
+    await api('/users/create', { ...f, projectIds })
     return `Akun ${f.username.trim()} dibuat.`
   }, onDone)
   return (
@@ -295,6 +320,7 @@ function CreateModal({
               />
             </div>
           </div>
+          <ProjectPicker projects={projects} value={projectIds} onChange={setProjectIds} />
           {error && (
             <div className="form-error" role="alert">
               {error}
@@ -309,11 +335,13 @@ function CreateModal({
 function EditModal({
   user,
   roles,
+  projects,
   onClose,
   onDone,
 }: {
   user: UserRow
   roles: Role[]
+  projects: Project[]
   onClose: () => void
   onDone: (m: string) => void
 }) {
@@ -323,10 +351,13 @@ function EditModal({
     emailContact: user.emailContact,
     roleId: user.roleId,
   })
+  const [projectIds, setProjectIds] = useState<string[]>(
+    user.projectIds.filter((id) => projects.some((p) => p.id === id)),
+  )
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((s) => ({ ...s, [k]: e.target.value }))
   const { busy, error, submit } = useSubmit(async () => {
-    await api('/users/update', { uid: user.id, ...f })
+    await api('/users/update', { uid: user.id, ...f, projectIds })
     return 'Perubahan disimpan.'
   }, onDone)
   const options = roles.some((r) => r.id === user.roleId)
@@ -380,6 +411,7 @@ function EditModal({
             ))}
           </select>
         </div>
+        <ProjectPicker projects={projects} value={projectIds} onChange={setProjectIds} />
         {error && (
           <div className="form-error" role="alert">
             {error}
@@ -477,5 +509,33 @@ function DeleteModal({
         )}
       </form>
     </Overlay>
+  )
+}
+
+function ProjectPicker({
+  projects,
+  value,
+  onChange,
+}: {
+  projects: Project[]
+  value: string[]
+  onChange: (v: string[]) => void
+}) {
+  if (projects.length === 0) return <div className="hint">Belum ada proyek yang dapat Anda tugaskan.</div>
+  const toggle = (id: string) => onChange(value.includes(id) ? value.filter((x) => x !== id) : [...value, id])
+  return (
+    <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
+      <legend className="sm" style={{ fontWeight: 600, color: 'var(--fg-2)', marginBottom: 5 }}>
+        Proyek yang dapat diakses
+      </legend>
+      <div className="matrix" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
+        {projects.map((p) => (
+          <label key={p.id} className="chk">
+            <input type="checkbox" checked={value.includes(p.id)} onChange={() => toggle(p.id)} />
+            <span>{p.name}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   )
 }

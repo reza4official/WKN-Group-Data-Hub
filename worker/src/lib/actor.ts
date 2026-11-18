@@ -12,6 +12,8 @@ export interface Actor {
   roleName: string
   level: number
   perms: ReadonlySet<string>
+  /** Proyek yang ditugaskan kepada pelaku. */
+  projectIds: string[]
 }
 
 /**
@@ -42,6 +44,7 @@ export async function loadActor(authorization: string | null, env: Env, sa: Serv
     roleName: String(role.data.name ?? ''),
     level: Number(role.data.level ?? 0),
     perms: new Set(perms),
+    projectIds: Array.isArray(user.data.projectIds) ? (user.data.projectIds as string[]) : [],
   }
 }
 

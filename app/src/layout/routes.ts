@@ -46,7 +46,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Proyek & Perusahaan',
     icon: 'build',
     group: 'Inventory',
-    perm: ['projects'],
+    perm: ['projects', 'inventory.read'],
     arrives: 'v0.4.0',
     description: 'Perusahaan induk, anak perusahaan, proyek, dan saldo awal barang.',
   },

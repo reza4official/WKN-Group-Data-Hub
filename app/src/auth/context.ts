@@ -7,6 +7,7 @@ export interface Profile {
   emailContact: string
   roleId: string
   level: number
+  projectIds: string[]
 }
 
 export type AuthState =

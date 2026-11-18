@@ -17,7 +17,12 @@ export function ResetsPage() {
   const { state } = useAuth()
   const { toast } = useToast()
   const level = state.status === 'in' ? state.profile.level : 0
-  const reqs = useLoad(() => listResetRequests(level), `resets:${level}`)
+  const seeAll = state.status === 'in' && state.perms.has('projects')
+  const myProjects = state.status === 'in' ? state.profile.projectIds : []
+  const reqs = useLoad(
+    () => listResetRequests(level, seeAll ? undefined : myProjects),
+    `resets:${level}:${seeAll}:${myProjects.join(',')}`,
+  )
   const roles = useLoad(listRoles, 'roles')
   const [target, setTarget] = useState<ResetRequest | null>(null)
 

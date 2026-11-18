@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   listUsersBelow: vi.fn(),
   listResetRequests: vi.fn(),
   listAudit: vi.fn(),
+  listProjects: vi.fn(),
 }))
 vi.mock('../lib/api', () => ({
   api: mocks.api,
@@ -26,9 +27,10 @@ vi.mock('../lib/data', () => ({
   listUsersBelow: mocks.listUsersBelow,
   listResetRequests: mocks.listResetRequests,
   listAudit: mocks.listAudit,
+  listProjects: mocks.listProjects,
 }))
 
-const ALL = ['dashboard', 'inventory.read', 'users', 'roles', 'resets', 'audit', 'export']
+const ALL = ['dashboard', 'inventory.read', 'users', 'roles', 'resets', 'audit', 'export', 'projects']
 const ROLES: Role[] = [
   { id: 'dev', name: 'Developer', level: 100, system: true, perms: ALL },
   { id: 'owner', name: 'Owner', level: 90, system: false, perms: ALL },
@@ -52,6 +54,7 @@ const USERS: UserRow[] = [
     roleId: 'log',
     level: 20,
     disabled: false,
+    projectIds: ['p1'],
   },
   {
     id: 'u2',
@@ -62,6 +65,7 @@ const USERS: UserRow[] = [
     roleId: 'log',
     level: 20,
     disabled: true,
+    projectIds: ['p1'],
   },
 ]
 
@@ -69,7 +73,15 @@ function as(roleId: string, level: number, perms: string[]): AuthApi {
   return {
     state: {
       status: 'in',
-      profile: { uid: 'me', username: 'me', name: 'Saya', emailContact: '', roleId, level },
+      profile: {
+        uid: 'me',
+        username: 'me',
+        name: 'Saya',
+        emailContact: '',
+        roleId,
+        level,
+        projectIds: ['p1'],
+      },
       roleName: roleId,
       perms: new Set(perms),
     },
@@ -95,13 +107,30 @@ beforeEach(() => {
   mocks.listUsersBelow.mockResolvedValue(USERS)
   mocks.listResetRequests.mockResolvedValue([])
   mocks.listAudit.mockResolvedValue([])
+  mocks.listProjects.mockResolvedValue([
+    {
+      id: 'p1',
+      companyId: 'c1',
+      name: 'Proyek Satu',
+      location: '',
+      status: 'berjalan',
+      startDate: null,
+      active: true,
+    },
+  ])
 })
 
 describe('Akun Pengguna', () => {
+  it('pemegang izin projects mendaftar tanpa batas proyek', async () => {
+    wrap(owner(), <UsersPage />)
+    await screen.findByText('Siti Gudang')
+    expect(mocks.listUsersBelow).toHaveBeenCalledWith(90, undefined)
+  })
+
   it('mengambil daftar hanya di bawah level pelaku dan menampilkannya', async () => {
     wrap(pm(), <UsersPage />)
     expect(await screen.findByText('Siti Gudang')).toBeTruthy()
-    expect(mocks.listUsersBelow).toHaveBeenCalledWith(50)
+    expect(mocks.listUsersBelow).toHaveBeenCalledWith(50, ['p1']) // berlingkup proyek (tanpa izin projects)
     expect(screen.getByText('Nonaktif')).toBeTruthy()
   })
 
@@ -252,7 +281,7 @@ describe('Permintaan reset', () => {
     expect(await screen.findByText(/Dieksekusi oleh/)).toBeTruthy()
     expect(screen.getByText(/Hj\. Nur/)).toBeTruthy()
     expect(screen.getByText(/12 Nov 2026 13:41:02 WITA/)).toBeTruthy()
-    expect(mocks.listResetRequests).toHaveBeenCalledWith(50)
+    expect(mocks.listResetRequests).toHaveBeenCalledWith(50, ['p1'])
     fireEvent.click(screen.getByRole('button', { name: 'Eksekusi reset' }))
     fireEvent.change(await screen.findByLabelText('Password baru'), { target: { value: 'baru1234' } })
     fireEvent.click(screen.getByRole('button', { name: 'Simpan password baru' }))

@@ -22,6 +22,15 @@ const ACTIONS: Record<string, { label: string; tone: PillTone }> = {
   'role.create': { label: 'Tambah role', tone: 'blue' },
   'role.update': { label: 'Ubah role', tone: 'blue' },
   'role.delete': { label: 'Hapus role', tone: 'bad' },
+  'company.create': { label: 'Tambah perusahaan', tone: 'blue' },
+  'company.update': { label: 'Ubah perusahaan', tone: 'blue' },
+  'project.create': { label: 'Tambah proyek', tone: 'blue' },
+  'project.update': { label: 'Ubah proyek', tone: 'blue' },
+  'catalog.create': { label: 'Tambah barang katalog', tone: 'blue' },
+  'catalog.update': { label: 'Ubah barang katalog', tone: 'blue' },
+  'item.add': { label: 'Tambah barang ke proyek', tone: 'blue' },
+  'item.set_opening': { label: 'Atur saldo awal', tone: 'warn' },
+  'item.update': { label: 'Ubah barang proyek', tone: 'blue' },
 }
 
 function match(a: AuditRow, q: string): boolean {

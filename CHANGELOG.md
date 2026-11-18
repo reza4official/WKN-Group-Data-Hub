@@ -2,6 +2,17 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.4.0 — Tahap 4: Perusahaan, proyek, katalog, saldo awal, lingkup proyek (+ login biometrik)
+
+- **Perusahaan & Proyek**: tambah dan ubah perusahaan (induk/anak) dan proyek (status, lokasi, tanggal mulai); nonaktifkan, bukan hapus.
+- **Katalog Barang**: daftar baku satu grup; nama unik (tanpa membedakan huruf besar/kecil dan spasi tepi); barang yang sudah dipakai proyek tidak bisa dinonaktifkan atau diganti satuannya.
+- **Barang & saldo awal per proyek**: jumlah dan tanggal saldo awal, batas minimum per proyek; barang tanpa saldo awal ditandai dan belum bisa menerima transaksi. Saldo awal terkunci setelah ada transaksi (Tahap 5).
+- **Lingkup proyek**: Manajer Proyek dan Admin Logistik hanya melihat dan mengelola proyek serta akun yang ditugaskan kepadanya. Akun baru oleh pelaku berlingkup wajib menugaskan minimal satu proyek miliknya, dan proyek target di luar lingkup pelaku tidak ikut hilang saat diubah. Izin "projects" kini berarti melihat dan mengelola SEMUA proyek.
+- **Penugasan proyek** saat membuat dan mengubah akun; kolom Proyek di daftar akun.
+- Validasi jumlah (tidak negatif, maksimal 3 desimal, bukan NaN) dan tanggal "tidak di masa depan" menurut WITA (bukan UTC).
+- `firestore.rules` dan indeks: daftar akun dan permintaan reset dibatasi lingkup proyek (butuh indeks komposit; deploy dengan `firebase deploy --only firestore`).
+- Tes: Worker 79, aplikasi 59, aturan Firestore 20, end-to-end Tahap 4 (29 skenario, aturan aktif).
+
 ## v0.3.0 — Tahap 3: Role, akun bawahan, reset password, log audit
 
 - Halaman **Akun Pengguna**: tambah, ubah, nonaktifkan/aktifkan, hapus, dan reset password akun, hanya untuk level di bawah pelaku.

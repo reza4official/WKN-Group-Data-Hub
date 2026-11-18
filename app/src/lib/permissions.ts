@@ -9,7 +9,7 @@ export const PERMISSION_LABELS: Record<string, string> = {
   'inventory.write': 'Catat barang masuk/keluar',
   'inventory.correct': 'Koreksi transaksi (reversal)',
   catalog: 'Kelola katalog barang',
-  projects: 'Kelola perusahaan & proyek',
+  projects: 'Kelola & lihat SEMUA perusahaan dan proyek',
   users: 'Kelola akun di bawahnya',
   roles: 'Kelola role & akses',
   resets: 'Menangani permintaan reset',

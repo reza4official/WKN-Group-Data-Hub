@@ -19,7 +19,7 @@ const roleDocs = shared.defaultRoles.map((r) => ({ ...r, perms: r.perms === 'all
 async function seedUser(uid: string, username: string, roleId: string, over: Record<string, unknown> = {}) {
   const role = be.getData(`roles/${roleId}`) as { level: number }
   const key = await usernameDigest(username)
-  be.seedDoc(`users/${uid}`, { username, usernameKey: key, name: `Nama ${username}`, phone: '', emailContact: `${username}@x.com`, roleId, level: role.level, disabled: false, companyIds: [], projectIds: [], ...over })
+  be.seedDoc(`users/${uid}`, { username, usernameKey: key, name: `Nama ${username}`, phone: '', emailContact: `${username}@x.com`, roleId, level: role.level, disabled: false, companyIds: [], projectIds: ['p1'], ...over })
   be.seedDoc(`usernames/${key}`, { uid })
   be.seedAuth(uid, await syntheticEmail(username), 'pw-awal-123')
 }
@@ -30,6 +30,8 @@ beforeEach(async () => {
   be = new FakeBackend()
   be.install()
   env = makeEnv(sa)
+  be.seedDoc('projects/p1', { companyId: 'c1', name: 'Proyek 1', active: true })
+  be.seedDoc('projects/p2', { companyId: 'c1', name: 'Proyek 2', active: true })
   for (const r of roleDocs) be.seedDoc(`roles/${r.id}`, { name: r.name, level: r.level, system: r.system, perms: r.perms })
   await seedUser('u-dev', 'dev1', 'dev')
   await seedUser('u-own', 'own1', 'owner')
@@ -67,7 +69,7 @@ describe('autentikasi pelaku', () => {
 })
 
 describe('buat akun', () => {
-  const base = { username: 'Siti Baru', name: 'Siti', roleId: 'log', password: 'rahasia1', emailContact: 'Siti@Contoh.com', phone: '0812' }
+  const base = { username: 'Siti Baru', name: 'Siti', roleId: 'log', password: 'rahasia1', emailContact: 'Siti@Contoh.com', phone: '0812', projectIds: ['p1'] }
 
   it('Owner membuat Manajer Proyek: profil, username, akun Auth, dan audit tercatat', async () => {
     const r = await post('/users/create', { ...base, roleId: 'pm' }, 'u-own')

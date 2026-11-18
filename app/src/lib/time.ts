@@ -34,3 +34,8 @@ export function toMillis(value: unknown): number {
     return (value as TimestampLike).toDate().getTime()
   return 0
 }
+
+/** Tanggal hari ini menurut WITA (YYYY-MM-DD), sama dengan yang dipakai Worker untuk validasi tanggal. */
+export function todayWita(now: Date = new Date()): string {
+  return new Date(now.getTime() + 8 * 3_600_000).toISOString().slice(0, 10)
+}

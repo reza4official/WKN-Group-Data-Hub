@@ -21,6 +21,7 @@ const profile = {
   emailContact: 'r@x.com',
   roleId: 'dev',
   level: 100,
+  projectIds: [],
 }
 
 function renderWith(state: AuthState, over: Partial<AuthApi> = {}) {
@@ -81,7 +82,7 @@ describe('kerangka aplikasi (sudah masuk)', () => {
     const lowPerms = new Set(['dashboard', 'inventory.read'])
     renderWith(signedIn(lowPerms, 'Admin Logistik / Gudang'))
     const labels = accessibleRoutes(lowPerms).map((r) => r.label)
-    expect(labels).toEqual(['Dashboard', 'Transaksi Stok', 'Profil Saya'])
+    expect(labels).toEqual(['Dashboard', 'Transaksi Stok', 'Proyek & Perusahaan', 'Profil Saya'])
     expect(screen.queryByRole('link', { name: 'Akun Pengguna' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Log Audit' })).toBeNull()
   })

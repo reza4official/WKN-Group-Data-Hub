@@ -1,5 +1,8 @@
 import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
+import { createCatalogItem, updateCatalogItem } from './handlers/catalog'
+import { addProjectItem, setOpening, updateProjectItem } from './handlers/items'
+import { createCompany, createProject, updateCompany, updateProject } from './handlers/projects'
 import { createRole, deleteRole, updateRole } from './handlers/roles'
 import { executeReset, requestReset } from './handlers/resets'
 import { createUser, deleteUser, resetPassword, setDisabled, updateUser } from './handlers/users'
@@ -7,7 +10,7 @@ import { loadActor, type Actor } from './lib/actor'
 import { HttpError, type Body } from './lib/http'
 import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.3.0'
+export const VERSION = '0.4.0'
 
 const MAX_BODY = 20_000
 
@@ -52,6 +55,15 @@ const AUTHED: Record<string, (c: Ctx, body: Body) => Promise<unknown>> = {
   '/roles/update': updateRole,
   '/roles/delete': deleteRole,
   '/resets/execute': executeReset,
+  '/companies/create': createCompany,
+  '/companies/update': updateCompany,
+  '/projects/create': createProject,
+  '/projects/update': updateProject,
+  '/catalog/create': createCatalogItem,
+  '/catalog/update': updateCatalogItem,
+  '/items/add': addProjectItem,
+  '/items/set-opening': setOpening,
+  '/items/update': updateProjectItem,
 }
 
 export default {

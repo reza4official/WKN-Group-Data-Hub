@@ -2,7 +2,7 @@ import type { Actor } from './actor'
 import type { Write } from './firestore'
 
 export interface AuditTarget {
-  type: 'user' | 'role' | 'reset' | 'system'
+  type: 'user' | 'role' | 'reset' | 'company' | 'project' | 'catalog' | 'item' | 'biometric' | 'system'
   id: string
   label: string
 }
