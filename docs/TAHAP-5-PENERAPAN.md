@@ -42,10 +42,13 @@ Gunakan satu barang uji dengan saldo awal 100 (mis. di proyek percobaan).
 5. Admin Logistik tidak melihat tombol **Koreksi**. Masuk sebagai Manajer Proyek di proyek yang sama: tombol **Koreksi** ada. Koreksi tanpa alasan ditolak; dengan alasan, baris koreksi muncul, asli bertanda *Sudah dikoreksi*, dan Tersisa mengikuti.
 6. Log Audit (Developer/Owner/Direktur): **Barang masuk**, **Barang keluar**, **Koreksi transaksi** beserta pelaku dan alasan.
 7. Admin Logistik proyek lain tidak melihat proyek ini di pilihan proyek.
-8. Di bulan berikutnya, Tersisa awal harus melanjutkan saldo bulan sebelumnya.
+8. Di bulan berikutnya, Tersisa awal harus melanjutkan saldo bulan sebelumnya. Total di kaki tabel adalah **setelah koreksi**: transaksi yang dikoreksi dan baris koreksinya sama-sama tidak dihitung.
+9. Baris **Saldo awal** menampilkan "—" pada kolom Dicatat oleh; siapa dan kapan mengatur saldo awal ada di Log Audit.
+
+> Bila memfilter **Barang** menampilkan galat "The query requires an index", klik tautan di pesan galat itu untuk membuat indeksnya (satu klik, tunggu *Enabled*). Kueri itu memakai dua kondisi kesetaraan (bulan dan barang); emulator tidak dapat membuktikan apakah produksi memerlukan indeks.
 
 ## Catatan kuota (paket gratis)
-Satu transaksi menulis sekitar 5 dokumen (buku, barang, total harian, total bulanan, audit). Batas gratis Firestore Spark: 20.000 penulisan per hari, jadi sekitar 4.000 transaksi per hari. Pembacaan: tabel satu bulan membaca entri bulan itu ditambah satu dokumen total per bulan per barang.
+Satu transaksi menulis sekitar 5 dokumen (buku, barang, total harian, total bulanan, audit). Batas gratis Firestore Spark: 20.000 penulisan per hari, jadi sekitar 4.000 transaksi per hari. Pembacaan: tabel satu bulan membaca entri bulan itu, dokumen barang, dan total bulan itu dan sesudahnya per barang (saldo awal bulan dihitung mundur dari stok saat ini, jadi riwayat lama tidak ikut dibaca). Melihat bulan berjalan membutuhkan sekitar satu dokumen total per barang.
 
 ## Perilaku penting
 - **Tidak ada ubah atau hapus.** Kesalahan diperbaiki dengan koreksi (entri pembalik) yang tercatat bersama alasan. Setiap transaksi hanya bisa dikoreksi satu kali.

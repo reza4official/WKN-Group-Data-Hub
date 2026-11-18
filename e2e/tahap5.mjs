@@ -150,6 +150,8 @@ ok(
   JSON.stringify(r2),
 )
 ok('Tersisa akhir 70 setelah koreksi', r2.at(-1).includes('70'), r2.at(-1))
+const foot2 = await pg.$$eval('main tfoot td', (c) => c.map((x) => x.textContent.trim()))
+ok('total bulan setelah koreksi: masuk 0 dan keluar 30', foot2[1] === '0' && foot2[2] === '30', JSON.stringify(foot2))
 ok('transaksi yang sudah dikoreksi tidak bisa dikoreksi lagi (tersisa 1 tombol)', (await pg.$$('button:has-text("Koreksi")')).length === 1)
 await pg.fill('#inv-month', '2026-10')
 await pg.waitForSelector('text=Belum ada transaksi di bulan ini')

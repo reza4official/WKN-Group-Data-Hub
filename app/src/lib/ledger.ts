@@ -28,6 +28,8 @@ export interface LedgerItemInfo {
   unit: string
   openingQty: number | null
   openingDate: string | null
+  /** Stok saat ini (dijaga konsisten oleh Worker dalam commit atomik yang sama dengan setiap transaksi). */
+  currentStock: number
 }
 export interface LedgerRow {
   key: string
@@ -52,11 +54,18 @@ const DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 /** 2026-09-10 -> Kamis (kalender tanggal murni, tidak bergantung zona waktu perangkat). */
 export const dayName = (date: string): string => DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()] ?? ''
 
-/** Saldo sebelum bulan `ym` dimulai: saldo awal (bila diisi pada bulan lebih awal) ditambah selisih semua bulan sebelumnya. */
-export function balanceBefore(item: LedgerItemInfo, months: MonthTotals[], ym: string): number {
+/**
+ * Saldo sebelum bulan `ym` dimulai, dihitung mundur dari stok saat ini sehingga hanya total bulan `ym` dan sesudahnya
+ * yang perlu dibaca (bukan seluruh riwayat):
+ *   sebelum = stok kini - selisih bulan >= ym - saldo awal (bila diisi pada bulan >= ym)
+ * `monthsFrom` harus memuat semua bulan >= ym (boleh juga lebih awal; diabaikan).
+ */
+export function balanceBefore(item: LedgerItemInfo, monthsFrom: MonthTotals[], ym: string): number {
   if (item.openingQty === null || item.openingDate === null) return 0
-  let m = item.openingDate.slice(0, 7) < ym ? milli(item.openingQty) : 0
-  for (const t of months) if (t.id < ym) m += milli(t.in) - milli(t.out) + milli(t.corrIn) - milli(t.corrOut)
+  let m = milli(item.currentStock)
+  for (const t of monthsFrom)
+    if (t.id >= ym) m -= milli(t.in) - milli(t.out) + milli(t.corrIn) - milli(t.corrOut)
+  if (item.openingDate.slice(0, 7) >= ym) m -= milli(item.openingQty)
   return unmilli(m)
 }
 
@@ -123,11 +132,15 @@ export interface Summary {
   in: number
   out: number
 }
-/** Total masuk/keluar pada baris yang tampil (koreksi ikut dihitung sebagai pembalik). */
+/**
+ * Total masuk/keluar setelah koreksi: transaksi yang sudah dibalik dan baris koreksinya sama-sama tidak dihitung
+ * (koreksi selalu sama tanggal dan barang dengan aslinya, jadi keduanya selalu tampil bersama).
+ */
 export function summarize(rows: LedgerRow[]): Summary {
   let i = 0
   let o = 0
   for (const r of rows) {
+    if (r.kind === 'koreksi' || r.corrected) continue
     i += milli(r.in ?? 0)
     o += milli(r.out ?? 0)
   }

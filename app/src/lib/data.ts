@@ -1,4 +1,15 @@
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  documentId,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAt,
+  where,
+} from 'firebase/firestore'
 import { db } from './firebase'
 import type { LedgerEntry, MonthTotals } from './ledger'
 
@@ -285,9 +296,15 @@ export async function listLedger(projectId: string, ym: string, itemId?: string)
   })
 }
 
-/** Total bulanan satu barang (satu dokumen per bulan), dipakai untuk saldo awal bulan. */
-export async function listMonths(projectId: string, itemId: string): Promise<MonthTotals[]> {
-  const snap = await getDocs(collection(db, 'projects', projectId, 'items', itemId, 'months'))
+/** Total bulanan satu barang mulai bulan `fromYm` (satu dokumen per bulan), untuk saldo awal bulan tanpa membaca seluruh riwayat. */
+export async function listMonths(projectId: string, itemId: string, fromYm: string): Promise<MonthTotals[]> {
+  const snap = await getDocs(
+    query(
+      collection(db, 'projects', projectId, 'items', itemId, 'months'),
+      orderBy(documentId()),
+      startAt(fromYm),
+    ),
+  )
   return snap.docs.map((d) => {
     const x = d.data()
     return {

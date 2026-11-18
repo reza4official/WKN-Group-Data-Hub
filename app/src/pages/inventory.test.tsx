@@ -36,7 +36,7 @@ const ITEM = {
   id: 'i1',
   openingQty: 100,
   openingDate: '2026-09-01',
-  currentStock: 140,
+  currentStock: 110,
   minStock: 0,
   txCount: 2,
   active: true,
@@ -94,7 +94,7 @@ beforeEach(() => {
   mocks.listCatalog.mockResolvedValue(CAT)
   mocks.listProjects.mockResolvedValue([P('p1', 'Jalan Maros')])
   mocks.listProjectItems.mockResolvedValue([ITEM])
-  mocks.listMonths.mockResolvedValue([])
+  mocks.listMonths.mockResolvedValue([{ id: '2026-09', in: 40, out: 30, corrIn: 0, corrOut: 0 }])
   mocks.listLedger.mockResolvedValue([
     E('e1', { in: 40, note: 'Kiriman', seq: 1 }),
     E('e2', { type: 'keluar', out: 30, date: '2026-09-12', seq: 2 }),
@@ -202,6 +202,10 @@ describe('Transaksi Stok', () => {
     await screen.findByText('Sudah dikoreksi')
     const buttons = screen.getAllByRole('button', { name: 'Koreksi' })
     expect(buttons).toHaveLength(1) // hanya e3
+    // total setelah koreksi: e1 dan koreksinya tidak dihitung, hanya keluar 5
+    const foot = screen.getByText(/Total bulan ini \(setelah koreksi\)/).closest('tr') as HTMLElement
+    expect(within(foot).getAllByRole('cell')[1].textContent).toBe('0')
+    expect(within(foot).getAllByRole('cell')[2].textContent).toBe('5')
     fireEvent.click(buttons[0])
     const dlg = screen.getByRole('dialog')
     fireEvent.change(within(dlg).getByLabelText('Alasan koreksi'), { target: { value: ' Salah barang ' } })

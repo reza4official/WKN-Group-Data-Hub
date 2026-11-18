@@ -96,7 +96,7 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 5 — v0.5.0 Transaksi stok (ledger)
 
-**Status: kode selesai dan lulus uji (Worker 138, aplikasi 100, aturan 20, e2e 25, konkurensi emulator asli 13). Penerapan: [`TAHAP-5-PENERAPAN.md`](TAHAP-5-PENERAPAN.md). Belum teruji: Firestore produksi (kuota, indeks Tahap 4 masih harus *Enabled*) dan pemakaian nyata di lapangan.**
+**Status: kode selesai dan lulus uji (Worker 138, aplikasi 104, aturan 20, e2e 26, konkurensi emulator asli 13). Penerapan: [`TAHAP-5-PENERAPAN.md`](TAHAP-5-PENERAPAN.md). Belum teruji: Firestore produksi (kuota, indeks Tahap 4 masih harus *Enabled*) dan pemakaian nyata di lapangan.**
 
 - Penulisan ledger **hanya lewat Worker** dalam satu transaksi Firestore: entri ledger + stok item + ringkasan bulanan + audit.
 - Validasi: saldo awal wajib, tanggal tidak sebelum saldo awal dan tidak di masa depan, stok tidak boleh minus.

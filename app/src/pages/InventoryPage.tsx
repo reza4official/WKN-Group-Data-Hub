@@ -60,6 +60,7 @@ export function InventoryPage() {
           id: it.id,
           name: c?.name ?? it.id,
           unit: c?.unit ?? '',
+          currentStock: it.currentStock ?? 0,
           openingQty: it.openingQty,
           openingDate: it.openingDate,
         }
@@ -73,12 +74,12 @@ export function InventoryPage() {
       if (!activePid || shown.length === 0) return { rows: [] as LedgerRow[] }
       const [entries, monthLists] = await Promise.all([
         listLedger(activePid, ym, itemId || undefined),
-        Promise.all(shown.map((i) => listMonths(activePid, i.id))),
+        Promise.all(shown.map((i) => listMonths(activePid, i.id, ym))),
       ])
       const monthsByItem = Object.fromEntries(shown.map((i, n) => [i.id, monthLists[n]]))
       return { rows: buildRows(shown, monthsByItem, entries, ym) }
     },
-    `inv-data:${activePid}:${ym}:${itemId}:${shown.map((i) => i.id).join(',')}:${items.data?.map((i) => i.txCount).join(',')}`,
+    `inv-data:${activePid}:${ym}:${itemId}:${shown.map((i) => i.id).join(',')}:${items.data?.map((i) => `${i.txCount}/${i.currentStock}`).join(',')}`,
   )
 
   const rows = data.data?.rows ?? []
@@ -89,8 +90,8 @@ export function InventoryPage() {
   const done = (m: string) => {
     setModal(null)
     toast(m)
+    // Muat ulang barang saja: perubahan txCount/stok otomatis memicu muat ulang tabel (hemat pembacaan).
     items.reload()
-    data.reload()
   }
 
   if (projects.loading && !projects.data)
@@ -166,7 +167,7 @@ export function InventoryPage() {
                 className="in"
                 type="month"
                 value={ym}
-                onChange={(e) => e.target.value && setYm(e.target.value)}
+                onChange={(e) => /^\d{4}-(0[1-9]|1[0-2])$/.test(e.target.value) && setYm(e.target.value)}
               />
             </div>
             <div className="field">
@@ -274,7 +275,7 @@ export function InventoryPage() {
               <tfoot>
                 <tr>
                   <td colSpan={3}>
-                    <b>Total bulan ini (termasuk koreksi)</b>
+                    <b>Total bulan ini (setelah koreksi)</b>
                   </td>
                   <td className="r num">
                     <b>{fmt(total.in)}</b>
