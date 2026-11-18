@@ -1,5 +1,6 @@
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import { db } from './firebase'
+import type { LedgerEntry, MonthTotals } from './ledger'
 
 export interface Role {
   id: string
@@ -249,6 +250,52 @@ export async function listProjectItems(projectId: string): Promise<ProjectItem[]
       minStock: Number(x.minStock ?? 0),
       txCount: Number(x.txCount ?? 0),
       active: x.active !== false,
+    }
+  })
+}
+
+// ---------- Buku stok (Tahap 5) ----------
+
+/** Transaksi satu bulan. Hanya kueri kesetaraan (tanpa indeks komposit); bila itemId kosong, semua barang proyek. */
+export async function listLedger(projectId: string, ym: string, itemId?: string): Promise<LedgerEntry[]> {
+  const base = collection(db, 'projects', projectId, 'ledger')
+  const snap = await getDocs(
+    itemId
+      ? query(base, where('ym', '==', ym), where('itemId', '==', itemId))
+      : query(base, where('ym', '==', ym)),
+  )
+  return snap.docs.map((d) => {
+    const x = d.data()
+    const t = str(x.type)
+    return {
+      id: d.id,
+      itemId: str(x.itemId),
+      date: str(x.date),
+      ym: str(x.ym),
+      type: t === 'keluar' || t === 'koreksi' ? t : 'masuk',
+      in: Number(x.in ?? 0),
+      out: Number(x.out ?? 0),
+      seq: Number(x.seq ?? 0),
+      note: str(x.note),
+      createdByName: str(x.createdByName),
+      createdByRole: str(x.createdByRole),
+      createdAt: x.createdAt,
+      refEntryId: typeof x.refEntryId === 'string' ? x.refEntryId : null,
+    }
+  })
+}
+
+/** Total bulanan satu barang (satu dokumen per bulan), dipakai untuk saldo awal bulan. */
+export async function listMonths(projectId: string, itemId: string): Promise<MonthTotals[]> {
+  const snap = await getDocs(collection(db, 'projects', projectId, 'items', itemId, 'months'))
+  return snap.docs.map((d) => {
+    const x = d.data()
+    return {
+      id: d.id,
+      in: Number(x.in ?? 0),
+      out: Number(x.out ?? 0),
+      corrIn: Number(x.corrIn ?? 0),
+      corrOut: Number(x.corrOut ?? 0),
     }
   })
 }

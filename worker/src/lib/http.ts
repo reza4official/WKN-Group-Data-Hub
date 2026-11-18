@@ -90,3 +90,10 @@ export function strArray(body: Body, key: string, max = 30, label = key): string
   if (u.length > max) throw new HttpError(400, 'bad_request', `${label} terlalu banyak (maksimal ${max}).`)
   return u
 }
+
+/** Jumlah transaksi: lebih dari 0 (nol tidak sah), maksimal 3 desimal. */
+export function positiveQuantity(body: Body, key: string, label = key): number {
+  const q = quantity(body, key, label)
+  if (q <= 0) throw new HttpError(400, 'bad_request', `${label} harus lebih dari 0.`)
+  return q
+}

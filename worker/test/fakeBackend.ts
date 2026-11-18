@@ -109,7 +109,7 @@ export class FakeBackend {
     const docsBase = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`
     if (url.startsWith(docsBase)) {
       const rest = url.slice(docsBase.length)
-      if (rest === ':runQuery') return this.runQuery(body as Raw)
+      if (rest.endsWith(':runQuery')) return this.runQuery(body as Raw, rest.slice(1, -':runQuery'.length))
       if (rest === ':commit') return this.commit(body as Raw)
       const path = rest.replace(/^\//, '')
       const d = this.docs.get(path)
@@ -121,7 +121,7 @@ export class FakeBackend {
     return new Response('unexpected ' + url, { status: 500 })
   }
 
-  private runQuery(q: Raw): Response {
+  private runQuery(q: Raw, parent = ''): Response {
     const sq = q.structuredQuery as { from: { collectionId: string }[]; where?: Raw; limit?: number }
     const col = sq.from[0].collectionId
     type FF = { fieldFilter: { field: { fieldPath: string }; op: string; value: Raw } }
@@ -130,16 +130,19 @@ export class FakeBackend {
       : 'compositeFilter' in sq.where
         ? ((sq.where.compositeFilter as { filters: FF[] }).filters)
         : [sq.where as unknown as FF]
-    const rows = this.list(`${col}`)
+    const base = parent ? `${parent}/${col}` : col
+    const rows = this.list(base)
       .filter((r) =>
         filters.every(({ fieldFilter: f }) => {
           const want = decodeValue(f.value as never)
           const have = r.data[f.field.fieldPath]
-          return f.op === 'EQUAL' ? have === want : Number(have) < Number(want)
+          if (f.op === 'EQUAL') return have === want
+          if (f.op === 'GREATER_THAN_OR_EQUAL') return typeof have === 'string' ? have >= String(want) : Number(have) >= Number(want)
+          return Number(have) < Number(want)
         }),
       )
       .slice(0, sq.limit ?? 100)
-    return this.ok(rows.length ? rows.map((r) => ({ document: this.raw(`${col}/${r.id}`, this.docs.get(`${col}/${r.id}`) as StoredDoc) })) : [{ readTime: 'x' }])
+    return this.ok(rows.length ? rows.map((r) => ({ document: this.raw(`${base}/${r.id}`, this.docs.get(`${base}/${r.id}`) as StoredDoc) })) : [{ readTime: 'x' }])
   }
 
   /** Commit atomik: semua prasyarat diperiksa dulu; satu gagal berarti tidak ada yang berubah. */

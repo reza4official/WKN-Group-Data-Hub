@@ -2,6 +2,19 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.5.0 — Tahap 5: Transaksi stok (ledger)
+
+- **Transaksi Stok**: catat barang masuk dan keluar per proyek (tanggal, jumlah, keterangan). Tabel Hari/Tanggal, Nama Barang, Satuan, Masuk, Keluar, Tersisa, Keterangan, Dicatat oleh beserta waktu WITA. Filter proyek, bulan, dan barang; total bulan di kaki tabel. Kolom Tersisa dihitung saat tampil dari saldo awal dan total bulan sebelumnya.
+- **Penulisan hanya lewat Worker**, satu commit atomik: entri buku + stok barang + total harian + total bulanan + audit. Klien tidak dapat menulis (aturan Firestore menolak).
+- **Aturan stok**: saldo awal wajib, tanggal tidak sebelum saldo awal dan tidak di masa depan (WITA), stok tidak boleh negatif pada titik waktu mana pun. Transaksi bertanggal mundur diperiksa terhadap saldo terendah sesudah tanggalnya. Dalam satu hari, barang masuk dihitung lebih dulu daripada keluar.
+- **Angka tepat**: hitungan dalam bilangan bulat milli (0,1 + 0,2 = 0,3), maksimal 3 desimal.
+- **Idempoten**: ID permintaan dibuat per pembukaan formulir; kirim ulang saat jaringan putus tidak mencatat dua kali.
+- **Konkurensi**: pembaruan bersyarat (updateTime) dengan percobaan ulang; bila terlalu sibuk, galat `busy` yang jelas. Teruji pada emulator Firestore asli.
+- **Koreksi**: entri pembalik yang merujuk transaksi asli, alasan wajib, satu koreksi per transaksi (ID deterministik), tidak ada ubah/hapus. Membalik barang masuk ditolak bila membuat stok negatif. Izin `inventory.correct`.
+- Saldo awal terkunci setelah ada transaksi. Log audit: Barang masuk, Barang keluar, Koreksi transaksi.
+- `firestore.rules`: baca buku dan total bulanan dengan lingkup yang sama seperti barang proyek; tidak ada indeks baru.
+- Tes: Worker 138, aplikasi 100, aturan Firestore 20; end-to-end: Tahap 3 (25), Tahap 4 (29), Tahap 5 (25), konkurensi emulator asli (13).
+
 ## v0.4.1
 
 - Pesan keadaan kosong untuk akun berlingkup proyek kini menjelaskan penyebabnya (belum ditugaskan ke proyek) dan cara mengatasinya, bukan "Belum ada akun di bawah level Anda".

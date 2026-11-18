@@ -65,16 +65,17 @@ export async function getDocument(env: Env, sa: ServiceAccount, path: string): P
 
 export interface Filter {
   field: string
-  op: 'EQUAL' | 'LESS_THAN'
+  op: 'EQUAL' | 'LESS_THAN' | 'GREATER_THAN_OR_EQUAL'
   value: unknown
 }
 
 /** Query sederhana: hanya filter kesamaan (atau satu ketidaksamaan) tanpa pengurutan, agar tidak butuh indeks komposit. */
-export async function queryDocuments(env: Env, sa: ServiceAccount, collection: string, filters: Filter[], limit = 100): Promise<Doc[]> {
+export async function queryDocuments(env: Env, sa: ServiceAccount, collection: string, filters: Filter[], limit = 100, parent = ''): Promise<Doc[]> {
   const fieldFilters = filters.map((f) => ({ fieldFilter: { field: { fieldPath: f.field }, op: f.op, value: encodeValue(f.value) } }))
   const where =
     fieldFilters.length === 0 ? undefined : fieldFilters.length === 1 ? fieldFilters[0] : { compositeFilter: { op: 'AND', filters: fieldFilters } }
-  const res = await fetch(`${endpoints(env).firestoreDocs}:runQuery`, {
+  // `parent` = jalur dokumen induk untuk subkoleksi, mis. projects/p1/items/i1
+  const res = await fetch(`${endpoints(env).firestoreDocs}${parent ? `/${parent}` : ''}:runQuery`, {
     method: 'POST',
     headers: await headers(env, sa),
     body: JSON.stringify({ structuredQuery: { from: [{ collectionId: collection }], ...(where ? { where } : {}), limit } }),

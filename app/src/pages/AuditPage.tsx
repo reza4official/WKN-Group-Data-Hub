@@ -31,6 +31,9 @@ const ACTIONS: Record<string, { label: string; tone: PillTone }> = {
   'item.add': { label: 'Tambah barang ke proyek', tone: 'blue' },
   'item.set_opening': { label: 'Atur saldo awal', tone: 'warn' },
   'item.update': { label: 'Ubah barang proyek', tone: 'blue' },
+  'ledger.in': { label: 'Barang masuk', tone: 'ok' },
+  'ledger.out': { label: 'Barang keluar', tone: 'warn' },
+  'ledger.correct': { label: 'Koreksi transaksi', tone: 'bad' },
 }
 
 function match(a: AuditRow, q: string): boolean {
