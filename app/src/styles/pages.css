@@ -343,3 +343,6 @@
   }
 }
 .guide .tools{flex-wrap:wrap}.guide .pill{white-space:normal;max-width:100%}
+.guide-toc>div{display:flex;flex-direction:column;gap:2px}
+.guide-toc a{display:block}
+@media (max-width:900px){.guide-toc>div{flex-direction:row;flex-wrap:wrap}.guide-toc h4{width:100%}}
