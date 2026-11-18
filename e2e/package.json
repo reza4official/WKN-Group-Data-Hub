@@ -22,7 +22,8 @@
     "setup-import": "node setup-import.mjs",
     "backup": "node backup.mjs",
     "load": "node load.mjs",
-    "purge": "node purge.mjs"
+    "purge": "node purge.mjs",
+    "guide": "node guide.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",

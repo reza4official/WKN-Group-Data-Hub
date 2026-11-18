@@ -342,3 +342,4 @@
     grid-template-columns: 1fr;
   }
 }
+.guide .tools{flex-wrap:wrap}.guide .pill{white-space:normal;max-width:100%}
