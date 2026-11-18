@@ -1,0 +1,4 @@
+{
+  "_catatan": "Site Key Turnstile bersifat publik. Ganti GANTI dengan Site Key dari Cloudflare. Bila belum diisi, tombol permintaan reset di halaman login disembunyikan.",
+  "siteKey": "GANTI-turnstile-site-key"
+}

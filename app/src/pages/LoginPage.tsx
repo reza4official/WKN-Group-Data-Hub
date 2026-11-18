@@ -4,6 +4,10 @@ import { Button } from '../components/Button'
 import { Logo } from '../components/Logo'
 import { PasswordInput } from '../components/PasswordInput'
 import { Footer } from '../layout/Footer'
+import { Overlay } from '../components/Overlay'
+import { Turnstile } from '../components/Turnstile'
+import { turnstileSiteKey } from '../config'
+import { requestPasswordReset } from '../lib/api'
 
 export function LoginPage({ notice }: { notice?: string }) {
   const { loginWithPassword, loginWithGoogle } = useAuth()
@@ -11,6 +15,7 @@ export function LoginPage({ notice }: { notice?: string }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<'' | 'password' | 'google'>('')
+  const [resetOpen, setResetOpen] = useState(false)
 
   const run = async (kind: 'password' | 'google', fn: () => Promise<void>) => {
     setError('')
@@ -87,9 +92,16 @@ export function LoginPage({ notice }: { notice?: string }) {
               {busy === 'google' ? 'Membuka Google…' : 'Masuk dengan Google'}
             </Button>
           </form>
-          <div className="hint">Lupa password? Hubungi atasan Anda untuk mereset password.</div>
+          {turnstileSiteKey ? (
+            <Button size="sm" onClick={() => setResetOpen(true)} style={{ alignSelf: 'flex-start' }}>
+              Lupa password? Minta reset ke atasan
+            </Button>
+          ) : (
+            <div className="hint">Lupa password? Hubungi atasan Anda untuk mereset password.</div>
+          )}
         </section>
       </div>
+      {resetOpen && <ResetRequestModal siteKey={turnstileSiteKey} onClose={() => setResetOpen(false)} />}
       <Footer />
     </>
   )
@@ -112,5 +124,81 @@ function GoogleMark() {
         d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 003.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z"
       />
     </svg>
+  )
+}
+
+function ResetRequestModal({ siteKey, onClose }: { siteKey: string; onClose: () => void }) {
+  const [username, setUsername] = useState('')
+  const [token, setToken] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!username.trim()) return setError('Username wajib diisi.')
+    if (!token) return setError('Selesaikan verifikasi bot terlebih dahulu.')
+    setBusy(true)
+    setError('')
+    try {
+      await requestPasswordReset(username.trim(), token)
+      setSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Permintaan gagal.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Overlay
+      title="Minta reset password"
+      onClose={onClose}
+      footer={
+        sent ? (
+          <Button variant="primary" onClick={onClose}>
+            Tutup
+          </Button>
+        ) : (
+          <>
+            <Button onClick={onClose}>Batal</Button>
+            <Button type="submit" variant="primary" form="f-reqreset" disabled={busy}>
+              {busy ? 'Mengirim…' : 'Kirim permintaan'}
+            </Button>
+          </>
+        )
+      }
+    >
+      {sent ? (
+        <p style={{ margin: 0 }} role="status">
+          Jika akun itu ada dan memiliki atasan, permintaan sudah diteruskan ke semua atasan Anda. Siapa pun
+          dari mereka dapat mengeksekusinya, dan tercatat siapa serta kapan. Hubungi atasan Anda untuk
+          menerima password baru.
+        </p>
+      ) : (
+        <form id="f-reqreset" className="stack" onSubmit={(e) => void submit(e)} noValidate>
+          <div className="hint">
+            Permintaan dikirim ke semua atasan Anda. Siapa pun dari mereka dapat mengeksekusinya.
+          </div>
+          <div className="field">
+            <label htmlFor="rr-un">Username</label>
+            <input
+              id="rr-un"
+              className="in"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoCapitalize="none"
+            />
+          </div>
+          <Turnstile siteKey={siteKey} onToken={setToken} onError={setError} />
+          {error && (
+            <div className="err" role="alert">
+              {error}
+            </div>
+          )}
+        </form>
+      )}
+    </Overlay>
   )
 }

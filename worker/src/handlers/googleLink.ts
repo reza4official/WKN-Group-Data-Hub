@@ -1,5 +1,6 @@
 import type { Env } from '../env'
-import { deleteAuthUser, findUsersByEmail, getDocument } from '../lib/firestore'
+import { findUsersByEmail, getDocument } from '../lib/firestore'
+import { deleteAuthUser } from '../lib/identityAdmin'
 import { verifyIdToken } from '../lib/idToken'
 import { createCustomToken, parseServiceAccount } from '../lib/serviceAccount'
 

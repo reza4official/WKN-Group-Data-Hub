@@ -25,15 +25,10 @@ for (const [input, want] of VECTORS) {
   if (digest(input) !== want) fatal('Pemeriksaan internal gagal: penurunan username tidak cocok dengan aplikasi.')
 }
 
-// ---------- Role bawaan (sesuai docs/RENCANA-PROYEK.md bagian 5) ----------
-const ALL = ['dashboard', 'inventory.read', 'inventory.write', 'inventory.correct', 'catalog', 'projects', 'users', 'roles', 'resets', 'employees', 'audit', 'export', 'import']
-const ROLES = [
-  { id: 'dev', name: 'Developer', level: 100, system: true, perms: ALL },
-  { id: 'owner', name: 'Owner / Direktur Utama', level: 90, system: false, perms: ALL },
-  { id: 'dir', name: 'Direktur', level: 80, system: false, perms: ALL },
-  { id: 'pm', name: 'Manajer Proyek', level: 50, system: false, perms: ['dashboard', 'inventory.read', 'inventory.write', 'inventory.correct', 'users', 'resets', 'export', 'import'] },
-  { id: 'log', name: 'Admin Logistik / Gudang', level: 20, system: false, perms: ['dashboard', 'inventory.read', 'inventory.write', 'export'] },
-]
+// ---------- Role bawaan (sumber tunggal: shared/permissions.json) ----------
+const SHARED = JSON.parse(readFileSync(new URL('../shared/permissions.json', import.meta.url), 'utf8'))
+const ALL = SHARED.keys
+const ROLES = SHARED.defaultRoles.map((r) => ({ ...r, perms: r.perms === 'all' ? ALL : r.perms }))
 
 // ---------- Argumen ----------
 const args = parseArgs(argv.slice(2))

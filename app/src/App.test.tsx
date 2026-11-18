@@ -5,7 +5,13 @@ import { AuthContext, LoginError, type AuthApi, type AuthState } from './auth/co
 import { ROUTES, accessibleRoutes } from './layout/routes'
 import { footerText } from './lib/version'
 
-vi.mock('./config', () => ({ configMissing: false, useEmulator: false, config: {} }))
+vi.mock('./config', () => ({
+  configMissing: false,
+  useEmulator: false,
+  turnstileSiteKey: '',
+  config: { apiUrl: '', firebase: {} },
+}))
+vi.mock('./lib/firebase', () => ({ auth: {}, db: {} }))
 
 const ALL = new Set(ROUTES.flatMap((r) => r.perm ?? []))
 const profile = {

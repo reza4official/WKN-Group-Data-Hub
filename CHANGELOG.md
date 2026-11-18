@@ -2,6 +2,21 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.3.0 — Tahap 3: Role, akun bawahan, reset password, log audit
+
+- Halaman **Akun Pengguna**: tambah, ubah, nonaktifkan/aktifkan, hapus, dan reset password akun, hanya untuk level di bawah pelaku.
+- Halaman **Role & Akses**: hirarki role, matriks izin yang dapat diedit, role baru, hapus role. Role sistem (Developer) terkunci; level role tidak berubah setelah dibuat.
+- Halaman **Permintaan Reset**: daftar permintaan, eksekusi oleh atasan dengan pencatatan pelaku dan waktu (WITA).
+- Halaman **Log Audit**: catatan permanen siapa melakukan apa dan kapan, dapat dicari.
+- Permintaan reset dari halaman login (Cloudflare Turnstile + pembatas laju KV); jawabannya selalu seragam agar daftar username tidak dapat ditebak.
+- Worker: endpoint `/users/*`, `/roles/*`, `/resets/execute`, `/auth/reset-request`. Pelaku dimuat ulang dari Firestore pada setiap permintaan; level dan izin tidak pernah dipercaya dari klien.
+- Pencegahan eskalasi hak: target dan role harus berlevel di bawah pelaku, role yang diberikan hanya boleh berizin subset dari izin pelaku, hanya izin milik pelaku yang boleh diubah di matriks.
+- Setiap perubahan ditulis atomik bersama entri audit (waktu dari server). Reset password memakai klaim berprasyarat sehingga dua atasan tidak bisa sama-sama mengeksekusi; kegagalan di Auth dibatalkan dan dicatat.
+- Reset password mencabut sesi lama akun tersebut.
+- `firestore.rules`: daftar akun, permintaan reset, dan log audit hanya dapat dibaca sesuai level dan izin; semua penulisan hanya lewat Worker.
+- Daftar izin dan role bawaan kini satu sumber: `shared/permissions.json`.
+- Tes: Worker (56 + skenario hirarki), aplikasi (46), aturan Firestore (13), end-to-end 25 skenario.
+
 ## v0.2.2
 
 - Worker menyertakan ringkasan langkah yang gagal pada `server_error` (tanpa rahasia); aplikasi menampilkannya di pesan gagal Login Google.

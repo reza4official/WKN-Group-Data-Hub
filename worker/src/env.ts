@@ -1,3 +1,9 @@
+/** Bagian KVNamespace yang dipakai Worker. */
+export interface KvLike {
+  get(key: string): Promise<string | null>
+  put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void>
+}
+
 export interface Env {
   /** ID proyek Firebase, mis. wkngroup-datahub. */
   FIREBASE_PROJECT_ID: string
@@ -9,6 +15,10 @@ export interface Env {
    * Hanya untuk pengujian lokal dengan emulator. Berlaku HANYA bila bernilai "true"
    * dan FIREBASE_PROJECT_ID diawali "demo-". Di produksi jangan diisi.
    */
+  /** Rahasia Turnstile (secret). Tanpa ini, permintaan reset password dari halaman login ditolak (gagal tertutup). */
+  TURNSTILE_SECRET?: string
+  /** Namespace KV untuk pembatas laju (opsional; gangguan KV tidak boleh menggagalkan permintaan). */
+  RATE?: KvLike
   USE_EMULATOR?: string
   FIRESTORE_EMULATOR_HOST?: string
   AUTH_EMULATOR_HOST?: string

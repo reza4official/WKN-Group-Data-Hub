@@ -5,6 +5,7 @@ Pusat data PT. Wiratama Karya Nugraha (WKN) dan anak perusahaan. Tahap awal: man
 - Rencana dan rancangan: [`docs/RENCANA-PROYEK.md`](docs/RENCANA-PROYEK.md)
 - Tahap pengerjaan: [`docs/TAHAP-PENGERJAAN.md`](docs/TAHAP-PENGERJAAN.md)
 - Menerapkan Tahap 2 ke proyek asli: [`docs/TAHAP-2-PENERAPAN.md`](docs/TAHAP-2-PENERAPAN.md)
+- Menerapkan Tahap 3 ke proyek asli: [`docs/TAHAP-3-PENERAPAN.md`](docs/TAHAP-3-PENERAPAN.md)
 - Mockup interaktif: [`mockup/index.html`](mockup/index.html)
 - Riwayat perubahan: [`CHANGELOG.md`](CHANGELOG.md)
 
@@ -13,7 +14,8 @@ Pusat data PT. Wiratama Karya Nugraha (WKN) dan anak perusahaan. Tahap awal: man
 | Folder | Isi |
 |--------|-----|
 | `app/` | Aplikasi web (Vite + React + TypeScript) |
-| `worker/` | Cloudflare Worker (API): verifikasi token, login Google |
+| `worker/` | Cloudflare Worker (API): login Google, akun, role, reset password, audit |
+| `shared/` | Daftar izin dan role bawaan (sumber tunggal) |
 | `scripts/` | Skrip setup (akun Developer pertama) |
 | `rules-tests/` | Uji aturan Firestore (emulator) |
 | `e2e/` | Uji end-to-end terhadap emulator |

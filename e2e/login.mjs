@@ -51,7 +51,7 @@ const login = async (u, p) => {
 
 await pg.goto('http://127.0.0.1:4173/')
 await pg.waitForSelector('#login-username')
-ok('form login tampil + footer v0.2.0', (await pg.textContent('footer')).endsWith('v0.2.0'))
+ok('form login tampil + footer berversi', (await pg.textContent('footer')).match(/v\d+\.\d+\.\d+$/) !== null)
 
 await login('reza4official_', 'salahsalah')
 await pg.waitForSelector('[role=alert]')

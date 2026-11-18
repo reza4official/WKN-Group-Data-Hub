@@ -10,3 +10,12 @@ FIREBASE_PROJECT_ID = "wkngroup-datahub"
 # Origin yang boleh memanggil API ini (dipisah koma).
 ALLOWED_ORIGINS = "https://wkngroup-datahub.web.app,https://wkngroup-datahub.firebaseapp.com,http://localhost:5173"
 # USE_EMULATOR sengaja tidak diisi di sini. Hanya untuk pengujian lokal dengan proyek berawalan "demo-".
+
+# Pembatas laju untuk permintaan reset password (opsional tetapi disarankan). Buat namespace KV
+# "wkn-ratelimit" di dashboard Cloudflare, lalu hapus tanda # dan isi ID-nya:
+# [[kv_namespaces]]
+# binding = "RATE"
+# id = "ISI-ID-NAMESPACE-KV"
+#
+# Rahasia Turnstile dipasang terpisah (jangan ditaruh di berkas ini):
+#   Get-Content ... | npx wrangler secret put ...   (lihat docs/TAHAP-3-PENERAPAN.md)

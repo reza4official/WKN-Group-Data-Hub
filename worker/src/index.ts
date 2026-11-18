@@ -1,7 +1,15 @@
 import type { Env } from './env'
 import { googleLink } from './handlers/googleLink'
+import { createRole, deleteRole, updateRole } from './handlers/roles'
+import { executeReset, requestReset } from './handlers/resets'
+import { createUser, deleteUser, resetPassword, setDisabled, updateUser } from './handlers/users'
+import { loadActor, type Actor } from './lib/actor'
+import { HttpError, type Body } from './lib/http'
+import { parseServiceAccount, type ServiceAccount } from './lib/serviceAccount'
 
-export const VERSION = '0.2.2'
+export const VERSION = '0.3.0'
+
+const MAX_BODY = 20_000
 
 function allowedOrigin(request: Request, env: Env): string | null {
   const origin = request.headers.get('Origin')
@@ -14,6 +22,36 @@ function json(body: unknown, status: number, origin: string | null): Response {
   const headers = new Headers({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store', Vary: 'Origin' })
   if (origin) headers.set('Access-Control-Allow-Origin', origin)
   return new Response(JSON.stringify(body), { status, headers })
+}
+
+async function readBody(request: Request): Promise<Body> {
+  const len = Number(request.headers.get('Content-Length') ?? '0')
+  if (len > MAX_BODY) throw new HttpError(400, 'bad_request', 'Permintaan terlalu besar.')
+  const text = await request.text()
+  if (text.length > MAX_BODY) throw new HttpError(400, 'bad_request', 'Permintaan terlalu besar.')
+  if (!text) return {}
+  try {
+    const v = JSON.parse(text) as unknown
+    if (v && typeof v === 'object' && !Array.isArray(v)) return v as Body
+  } catch {
+    /* jatuh ke kesalahan di bawah */
+  }
+  throw new HttpError(400, 'bad_request', 'Isi permintaan tidak valid.')
+}
+
+type Ctx = { actor: Actor; env: Env; sa: ServiceAccount }
+
+/** Rute yang mengubah data: memerlukan pelaku yang masuk. Semuanya POST agar CORS sederhana. */
+const AUTHED: Record<string, (c: Ctx, body: Body) => Promise<unknown>> = {
+  '/users/create': createUser,
+  '/users/update': updateUser,
+  '/users/set-disabled': setDisabled,
+  '/users/delete': deleteUser,
+  '/users/reset-password': resetPassword,
+  '/roles/create': createRole,
+  '/roles/update': updateRole,
+  '/roles/delete': deleteRole,
+  '/resets/execute': executeReset,
 }
 
 export default {
@@ -32,19 +70,35 @@ export default {
       return new Response(null, { status: 204, headers })
     }
 
-    // Permintaan lintas-origin dari origin yang tidak diizinkan ditolak (selain pemeriksaan kesehatan).
+    // Permintaan lintas-origin dari origin yang tidak diizinkan ditolak.
     if (request.headers.get('Origin') && !origin) return json({ error: 'origin_not_allowed' }, 403, null)
 
     try {
       if (request.method === 'GET' && url.pathname === '/health') {
         return json({ ok: true, service: 'wkn-data-hub-api', version: VERSION }, 200, origin)
       }
-      if (request.method === 'POST' && url.pathname === '/auth/google-link') {
+      if (request.method !== 'POST') return json({ error: 'not_found' }, 404, origin)
+
+      if (url.pathname === '/auth/google-link') {
         const r = await googleLink(request.headers.get('Authorization'), env)
         return json(r.body, r.status, origin)
       }
-      return json({ error: 'not_found' }, 404, origin)
+
+      if (url.pathname === '/auth/reset-request') {
+        const body = await readBody(request)
+        const out = await requestReset(body, request.headers.get('CF-Connecting-IP'), env, parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT))
+        return json(out, 200, origin)
+      }
+
+      const handler = AUTHED[url.pathname]
+      if (!handler) return json({ error: 'not_found' }, 404, origin)
+      const body = await readBody(request)
+      const sa = parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT)
+      const actor = await loadActor(request.headers.get('Authorization'), env, sa)
+      const result = await handler({ actor, env, sa }, body)
+      return json({ ok: true, ...((result as object | undefined) ?? {}) }, 200, origin)
     } catch (e) {
+      if (e instanceof HttpError) return json({ error: e.code, message: e.message }, e.status, origin)
       console.error('Kesalahan tak terduga', e)
       // Ringkasan langkah yang gagal (mis. "Firestore get gagal (403)") membantu penelusuran. Pesan ini
       // dibuat oleh kode kita sendiri dan tidak memuat rahasia.

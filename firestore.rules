@@ -1,7 +1,7 @@
 rules_version = '2';
 
-// Tahap 2: aturan dasar. Default menolak semua. Penulisan data dilakukan lewat Worker
-// (service account), bukan dari klien. Aturan diperluas di tahap berikutnya.
+// Penulisan data SELALU lewat Worker (service account); klien hanya boleh membaca sesuai izin role.
+// Default menolak semua.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -16,16 +16,38 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == false;
     }
 
-    // Profil: hanya pemiliknya yang boleh membaca (juga bila dinonaktifkan, agar aplikasi dapat
-    // menampilkan pesan). Tidak ada penulisan dari klien dan tidak boleh melihat daftar akun.
-    match /users/{uid} {
-      allow get: if signedIn() && request.auth.uid == uid;
-      allow list, create, update, delete: if false;
+    function myRole() {
+      return get(/databases/$(database)/documents/roles/$(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleId)).data;
     }
 
-    // Daftar role dan izinnya: hanya untuk akun terdaftar yang aktif.
+    function can(perm) {
+      return active() && (perm in myRole().perms);
+    }
+
+    // Profil: pemiliknya selalu boleh membaca (juga bila dinonaktifkan, agar aplikasi dapat menampilkan
+    // pesan). Pemegang izin "users" hanya boleh membaca akun berlevel di bawahnya; kueri klien wajib
+    // memakai where('level', '<', levelSendiri).
+    match /users/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow get, list: if can('users') && resource.data.level < myRole().level;
+      allow create, update, delete: if false;
+    }
+
+    // Daftar role dan izinnya: untuk akun terdaftar yang aktif.
     match /roles/{roleId} {
       allow get, list: if active();
+      allow write: if false;
+    }
+
+    // Permintaan reset: hanya role di atas pemohon (kueri: where('requesterLevel', '<', levelSendiri)).
+    match /resetRequests/{id} {
+      allow get, list: if can('resets') && resource.data.requesterLevel < myRole().level;
+      allow write: if false;
+    }
+
+    // Log audit: hanya untuk pemegang izin "audit". Tidak ada yang dapat menulis dari klien.
+    match /auditLog/{id} {
+      allow get, list: if can('audit');
       allow write: if false;
     }
 

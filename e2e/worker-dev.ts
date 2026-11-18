@@ -12,6 +12,9 @@ const env = {
 createServer(async (req, res) => {
   const url = `http://127.0.0.1:8787${req.url}`
   const headers = new Headers(); for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v)
-  const r = await worker.fetch(new Request(url, { method: req.method, headers }), env as never)
+  const chunks: Buffer[] = []
+  for await (const c of req) chunks.push(c as Buffer)
+  const body = chunks.length && req.method !== 'GET' ? Buffer.concat(chunks) : undefined
+  const r = await worker.fetch(new Request(url, { method: req.method, headers, body }), env as never)
   res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer()))
 }).listen(8787, '127.0.0.1', () => console.log('worker dev on 8787'))

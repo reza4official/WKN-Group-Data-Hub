@@ -64,6 +64,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 3 — v0.3.0 Role, akun, dan reset password
 
+**Status: kode selesai dan lulus uji emulator (aturan aktif, 25 skenario end-to-end). Penerapan: [`TAHAP-3-PENERAPAN.md`](TAHAP-3-PENERAPAN.md). Belum teruji: Turnstile asli dan perilaku sesi setelah reset di produksi.**
+
 **Tujuan:** hirarki akses berjalan dan teraudit.
 
 - Model role dinamis: level angka, izin per kunci. Role awal: Developer 100, Owner 90, Direktur 80, Manajer Proyek 50, Admin Logistik 20.

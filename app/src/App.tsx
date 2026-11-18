@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { createElement, lazy, Suspense, type ReactElement } from 'react'
 import { useAuth } from './auth/context'
 import { configMissing, useEmulator } from './config'
 import { AppShell } from './layout/AppShell'
@@ -6,8 +6,20 @@ import { accessibleRoutes, canAccess, findRoute } from './layout/routes'
 import { useHashRoute } from './lib/useHashRoute'
 import { AccessDenied } from './pages/AccessDenied'
 import { LoginPage } from './pages/LoginPage'
+import { AuditPage } from './pages/AuditPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { ResetsPage } from './pages/ResetsPage'
+import { RolesPage } from './pages/RolesPage'
+import { UsersPage } from './pages/UsersPage'
 import { ConfigMissingScreen, ErrorScreen, Splash } from './pages/StatusScreens'
+
+/** Halaman yang sudah dibangun; menu lain memakai halaman kerangka. */
+const PAGES: Record<string, () => ReactElement> = {
+  users: UsersPage,
+  roles: RolesPage,
+  resets: ResetsPage,
+  audit: AuditPage,
+}
 
 // Galeri hanya ada di mode pengembangan; pada build produksi cabang ini dibuang.
 const Gallery = import.meta.env.DEV ? lazy(() => import('./pages/Gallery')) : null
@@ -39,7 +51,15 @@ export default function App() {
   const allowed = canAccess(route, state.perms)
   return (
     <AppShell routes={routes} current={route.id} title={route.label}>
-      {allowed ? <PlaceholderPage route={route} /> : <AccessDenied />}
+      {allowed ? (
+        PAGES[route.id] ? (
+          createElement(PAGES[route.id])
+        ) : (
+          <PlaceholderPage route={route} />
+        )
+      ) : (
+        <AccessDenied />
+      )}
     </AppShell>
   )
 }

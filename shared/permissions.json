@@ -1,0 +1,37 @@
+{
+  "_catatan": "Sumber tunggal daftar izin dan role bawaan. Dipakai Worker, aplikasi, dan skrip bootstrap.",
+  "keys": [
+    "dashboard",
+    "inventory.read",
+    "inventory.write",
+    "inventory.correct",
+    "catalog",
+    "projects",
+    "users",
+    "roles",
+    "resets",
+    "employees",
+    "audit",
+    "export",
+    "import"
+  ],
+  "defaultRoles": [
+    { "id": "dev", "name": "Developer", "level": 100, "system": true, "perms": "all" },
+    { "id": "owner", "name": "Owner / Direktur Utama", "level": 90, "system": false, "perms": "all" },
+    { "id": "dir", "name": "Direktur", "level": 80, "system": false, "perms": "all" },
+    {
+      "id": "pm",
+      "name": "Manajer Proyek",
+      "level": 50,
+      "system": false,
+      "perms": ["dashboard", "inventory.read", "inventory.write", "inventory.correct", "users", "resets", "export", "import"]
+    },
+    {
+      "id": "log",
+      "name": "Admin Logistik / Gudang",
+      "level": 20,
+      "system": false,
+      "perms": ["dashboard", "inventory.read", "inventory.write", "export"]
+    }
+  ]
+}

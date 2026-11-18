@@ -1,4 +1,5 @@
 import pub from './public-config.json'
+import turnstile from './turnstile.json'
 
 const env = import.meta.env
 
@@ -17,3 +18,7 @@ export const config = {
 
 /** Benar bila masih ada nilai placeholder. Build produksi menolak kondisi ini (lihat vite.config.ts). */
 export const configMissing = JSON.stringify(config).includes('GANTI')
+
+/** Site Key Turnstile; kosong bila belum dikonfigurasi (fitur permintaan reset disembunyikan). */
+export const turnstileSiteKey: string =
+  env.VITE_TURNSTILE_SITE_KEY || (turnstile.siteKey.includes('GANTI') ? '' : turnstile.siteKey)
