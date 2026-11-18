@@ -1,6 +1,6 @@
 {
   "name": "wkn-e2e",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "description": "Uji end-to-end lokal dengan emulator Firebase (tidak menyentuh proyek asli)",
@@ -21,7 +21,8 @@
     "csp": "node csp.mjs",
     "setup-import": "node setup-import.mjs",
     "backup": "node backup.mjs",
-    "load": "node load.mjs"
+    "load": "node load.mjs",
+    "purge": "node purge.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",

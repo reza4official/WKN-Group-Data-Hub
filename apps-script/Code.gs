@@ -87,9 +87,21 @@ function validateTables(tables) {
   });
 }
 
+/**
+ * Menulis nilai tanpa ditafsirkan ulang oleh Google Sheets: teks diberi format "teks biasa" (@) SEBELUM ditulis, sehingga
+ * nomor HP "0812..." tidak kehilangan nol di depan, tanggal "2026-09-10" tidak berubah menjadi tanggal, dan ID seperti
+ * "1E5" tidak menjadi angka. Angka dan boolean tetap angka dan boolean.
+ */
+function writeRange(sheet, row, values) {
+  if (values.length === 0) return;
+  var range = sheet.getRange(row, 1, values.length, values[0].length);
+  range.setNumberFormats(values.map(function (r) { return r.map(function (v) { return typeof v === 'string' ? '@' : 'General'; }); }));
+  range.setValues(values);
+}
+
 function writeAll(sheet, values) {
   sheet.clearContents();
-  if (values.length > 0) sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+  writeRange(sheet, 1, values);
 }
 
 /** Menerapkan tabel ke spreadsheet `ss`; mengembalikan jumlah baris data per lembar. */
@@ -106,12 +118,12 @@ function applyTables(ss, tables) {
     } else {
       var last = sheet.getLastRow();
       if (last === 0) {
-        sheet.getRange(1, 1, 1, t.header.length).setValues([t.header.slice()]);
+        writeRange(sheet, 1, [t.header.slice()]);
         last = 1;
       }
       var keys = last > 1 ? sheet.getRange(2, 1, last - 1, 1).getValues().map(function (r) { return r[0]; }) : [];
       var plan = planAppend(keys, t.header, t.rows);
-      if (plan.fresh.length > 0) sheet.getRange(last + 1, 1, plan.fresh.length, t.header.length).setValues(plan.fresh);
+      if (plan.fresh.length > 0) writeRange(sheet, last + 1, plan.fresh);
     }
     counts[t.sheet] = Math.max(0, sheet.getLastRow() - 1);
   });

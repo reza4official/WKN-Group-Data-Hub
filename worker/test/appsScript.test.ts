@@ -96,4 +96,19 @@ describe('Code.gs: mode penulisan', () => {
     expect(plan.fresh).toEqual([['y', 2]])
     expect(plan.skipped).toBe(1)
   })
+
+  it('teks yang tampak seperti angka atau tanggal tidak ditafsirkan ulang (nomor HP, tanggal, ID)', () => {
+    const gs = mk()
+    const t = (mode: string) => T({ mode, header: ['ID', 'HP', 'Tanggal', 'Jumlah'], rows: [['E1', '0812345678', '2026-09-10', 5], ['1E5', '+62 812', '007', 2.5]] })
+    for (const mode of ['replace', 'upsert', 'append']) {
+      const sheet = `S-${mode}`
+      expect(gs.post(body([{ ...t(mode), sheet }])).ok).toBe(true)
+      expect(gs.ss.data(sheet).slice(1)).toEqual([['E1', '0812345678', '2026-09-10', 5], ['1E5', "'+62 812", '007', 2.5]])
+    }
+    // pembuktian bahwa tanpa format teks, Sheets MEMANG merusaknya: tulis langsung tanpa writeRange
+    const raw = gs.ss.insertSheet('mentah')
+    raw.getRange(1, 1, 1, 2).setValues([['0812345678', '2026-09-10']])
+    expect(raw.rows[0][0]).toBe(812345678)
+    expect(raw.rows[0][1]).toBeInstanceOf(Date)
+  })
 })

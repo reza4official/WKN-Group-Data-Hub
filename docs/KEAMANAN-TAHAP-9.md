@@ -21,6 +21,9 @@ Metode: pemeriksaan otomatis yang dapat diulang (kode di repo), bukan hanya pemb
 | S-12 | Ganti password sendiri tidak mencabut sesi lain/passkey | Info | **Dengan desain** | Berbeda dari reset oleh atasan (yang mencabut keduanya). Pelaku butuh password lama. |
 | S-13 | Izin akun layanan Worker bertambah (Monitoring Viewer) | Rendah | **Dimitigasi** | Hanya-baca metrik; opsional; panduan menyebut proyek dan peran tepat. |
 
+| S-14 | **Hapus permanen** proyek/perusahaan (tindakan merusak) | Tinggi bila salah | **Dimitigasi** (Tahap 10) | Hanya level ≥ 90 dengan izin `projects` (Direktur ke bawah ditolak 403, diuji di Worker dan e2e); konfirmasi nama dicek di server; penghapusan resumable dan atomik per langkah dengan dokumen induk terakhir; proyek yang sedang dihapus tidak bisa diaktifkan ulang; setiap commit membawa audit. Uji mutasi pada pengecekan level, nama konfirmasi, dan penjaga `deleting`. |
+| S-15 | Cadangan Sheets dapat merusak teks (nomor HP, tanggal) lewat penafsiran otomatis Google Sheets | Sedang (integritas cadangan) | **Diperbaiki** (v0.10.0) | `Code.gs` menetapkan format teks sebelum menulis; tes mensimulasikan perilaku Sheets dan membuktikan pengubahan tanpa format. Sheet yang sudah terisi sebelum perbaikan perlu dibersihkan (RUNBOOK bagian 3). |
+
 ## Aksesibilitas dan responsif
 
 `e2e/a11y.mjs`: axe-core 4.14 (WCAG 2.0/2.1 A dan AA) pada **19 keadaan** (semua halaman, modal Tambah akun / Catat transaksi, laci rincian dashboard, pratinjau impor, halaman login dan "Lupa password") × tema terang dan gelap × lebar 360 dan 1440 px.

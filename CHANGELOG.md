@@ -2,6 +2,14 @@
 
 Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fitur, major untuk perubahan besar.
 
+## v0.10.0 — Tahap 10: calon rilis
+
+- **Hapus permanen proyek dan perusahaan** (Owner/Developer, level ≥ 90 dengan izin proyek) untuk membersihkan data uji, dan **hapus barang katalog** yang tidak terpakai. Pratinjau akibat, konfirmasi dengan mengetik nama (dicek juga di server), penghapusan bertahap dan dapat dilanjutkan di bawah batas Workers gratis (50 sub-permintaan, 500 penulisan per commit), dokumen induk dihapus terakhir secara atomik bersama pembersihan penugasan akun dan audit akhir; penghitung pemakaian katalog dikurangi dalam commit yang sama dengan penghapusan barang. Proyek yang sedang dihapus tidak dapat diaktifkan, diubah, atau diisi (tampil "Sedang dihapus", tombol "Lanjutkan hapus"). Kuota hapus harian habis (429) menghasilkan pesan jelas. Setiap commit penghapusan membawa catatan audit; Log Audit dan cadangan Sheets tidak ikut terhapus.
+- **Cadangan Sheets**: `Code.gs` memberi format teks biasa pada sel teks sebelum menulis, sehingga nomor HP tidak kehilangan nol di depan dan tanggal tidak ditafsirkan ulang oleh Google Sheets (perlu memperbarui penerapan Apps Script; lihat panduan Tahap 10).
+- **Dokumen**: `PANDUAN-PENGGUNA.md` (per role), `RUNBOOK.md` (reset, akun, cadangan, pemulihan, hapus data uji, deploy/rollback, pemantauan), `MIGRASI-DATA-NYATA.md` (urutan, rekonsiliasi, pembersihan, pembekuan), checklist rilis di `TAHAP-10-PENERAPAN.md`.
+- Tes: Worker 221, aplikasi 261; e2e hapus (proyek, perusahaan, katalog, proyek besar bertahap, wewenang, audit).
+- Rilis resmi v1.0.0 menunggu migrasi data nyata, pelatihan, dan periode pembekuan fitur oleh pemilik.
+
 ## v0.9.0 — Tahap 9: Cadangan, kuota, impor penyiapan, pengerasan
 
 - **Cadangan ke Google Sheets**: cron Worker harian (03:00 WITA) + tombol *Cadangkan sekarang* mengirim pengguna (tanpa password), role, perusahaan, proyek, katalog, barang proyek, transaksi (semua kolom), dan audit ke Apps Script (`apps-script/Code.gs`). Inkremental dengan kursor, dedupe di Sheet, kursor hanya maju setelah konfirmasi, dipecah di bawah 50 sub-permintaan Workers gratis, galat dibersihkan dari URL/rahasia, gagal tertutup bila rahasia tak diatur.

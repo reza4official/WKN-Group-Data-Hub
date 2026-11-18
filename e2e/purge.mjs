@@ -58,6 +58,8 @@ for (let i = 0; i < 8000; i++) {
   writes.push({ update: { name: `projects/demo-wkn/databases/(default)/documents/projects/${big.pid}/ledger/seed${i}`, fields: { itemId: enc(big.cats[0]), date: enc(day(3)), ym: enc(day(3).slice(0, 7)), type: enc('masuk'), in: enc(1), out: enc(0), seq: enc(100 + i) } } })
   if (writes.length >= 400) await flush()
 }
+// jumlah transaksi pada barang (dipakai pratinjau) mengikuti data sisipan
+writes.push({ update: { name: `projects/demo-wkn/databases/(default)/documents/projects/${big.pid}/items/${big.cats[0]}`, fields: { txCount: enc(8002) } }, updateMask: { fieldPaths: ['txCount'] }, currentDocument: { exists: true } })
 await flush()
 
 const b = await chromium.launch()
@@ -120,10 +122,10 @@ ok('nama barang yang dihapus dapat dipakai lagi', re.status === 200, JSON.string
 await go('projects')
 await pg.waitForSelector('text=Proyek Besar')
 await pg.locator('.li', { hasText: 'Proyek Besar' }).locator('button:has-text("Hapus")').click()
-await pg.waitForSelector('text=/8.00\\d transaksi/')
+await pg.waitForSelector('text=/8.002 transaksi/')
 await pg.fill('#purge-name', 'Proyek Besar')
 await pg.click('.modal button:has-text("Hapus permanen")')
-await pg.waitForSelector('text=/dihapus permanen/', { timeout: 240000 })
+await pg.waitForSelector('.li:has-text("Proyek Besar")', { state: 'detached', timeout: 240000 })
 ok('proyek besar (8.000+ transaksi) terhapus bertahap sampai tuntas', !(await exists(`projects/${big.pid}`)) && (await list(`projects/${big.pid}`, 'ledger')).length === 0)
 
 // ---- hapus perusahaan (bertingkat)

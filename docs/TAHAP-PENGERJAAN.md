@@ -164,6 +164,8 @@ Panduan langkah demi langkah: [`PERSIAPAN-TAHAP-2.md`](PERSIAPAN-TAHAP-2.md).
 
 ## Tahap 10 — v1.0.0 Rilis resmi
 
+**Status: calon rilis v0.10.0 selesai dan lulus uji; fitur hapus data uji ditambahkan. Panduan pengguna, runbook, panduan migrasi, dan checklist rilis tersedia ([`TAHAP-10-PENERAPAN.md`](TAHAP-10-PENERAPAN.md)). Yang menunggu pemilik: migrasi data nyata, pelatihan per role, periode pembekuan fitur, lalu tag v1.0.0.**
+
 - Migrasi data nyata: anak perusahaan, proyek, akun, katalog, saldo awal.
 - Pelatihan singkat per role, panduan pengguna, runbook (reset, pemulihan dari cadangan).
 - Pembekuan fitur satu periode, perbaikan temuan, tag rilis v1.0.0.

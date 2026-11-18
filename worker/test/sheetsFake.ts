@@ -4,14 +4,31 @@ import vm from 'node:vm'
 /** Spreadsheet dalam memori dengan permukaan API Apps Script yang dipakai Code.gs. */
 class Sheet {
   rows: unknown[][] = []
+  formats: string[][] = []
   getLastRow = () => this.rows.length
   clearContents = () => {
     this.rows = []
+    this.formats = []
   }
   getDataRange = () => ({ getValues: () => this.rows.map((r) => [...r]) })
   getRange = (r: number, c: number, nr: number, nc: number) => ({
     getValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => this.rows[r - 1 + i]?.[c - 1 + j] ?? '')),
+    setNumberFormats: (f: string[][]) => {
+      f.forEach((row, i) => {
+        const t = (this.formats[r - 1 + i] ??= [])
+        row.forEach((x, j) => (t[c - 1 + j] = x))
+      })
+    },
     setValues: (vals: unknown[][]) => {
+      // Meniru Google Sheets: sel TANPA format teks (@) menafsirkan ulang string yang tampak seperti angka atau tanggal.
+      vals = vals.map((row, i) =>
+        row.map((v, j) => {
+          if (typeof v !== 'string' || this.formats[r - 1 + i]?.[c - 1 + j] === '@') return v
+          if (/^\d+(\.\d+)?$/.test(v)) return Number(v)
+          if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(`${v}T00:00:00Z`)
+          return v
+        }),
+      )
       vals.forEach((row, i) => {
         const t = (this.rows[r - 1 + i] ??= [])
         row.forEach((v, j) => (t[c - 1 + j] = v))
