@@ -124,11 +124,6 @@ export function ProfilePage() {
           memaksa jenis tertentu. Reset password oleh atasan otomatis mencabut semua perangkat.
         </p>
       </Card>
-      <Card flush>
-        <EmptyState icon="user" title="Pengaturan profil lainnya belum tersedia">
-          Mengubah nama, no. HP, email, dan password hadir di v0.8.0.
-        </EmptyState>
-      </Card>
       {showEnable && <BiometricEnable onClose={() => setShowEnable(false)} onDone={() => creds.reload()} />}
     </>
   )
