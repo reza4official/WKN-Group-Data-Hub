@@ -283,7 +283,7 @@ export function webauthnErrorMessage(e: unknown): string {
   const name = e instanceof DOMException ? e.name : ''
   if (name === 'NotAllowedError' || (e instanceof Error && e.message === 'dibatalkan'))
     return 'Verifikasi dibatalkan atau waktunya habis.'
-  if (name === 'InvalidStateError') return 'Perangkat ini sudah terdaftar.'
+  if (name === 'InvalidStateError') return 'Perangkat ini sudah memegang kunci untuk akun Anda.'
   if (name === 'SecurityError') return 'Browser menolak karena alamat situs tidak cocok.'
   if (name === 'NotSupportedError') return 'Perangkat ini belum mendukung login biometrik.'
   if (e instanceof Error && e.message) return e.message

@@ -389,3 +389,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.form-ok {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ok);
+  color: var(--fg);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+  font-size: 13px;
+}

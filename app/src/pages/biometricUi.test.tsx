@@ -10,6 +10,9 @@ const mocks = vi.hoisted(() => ({
   fetchRegisterOptions: vi.fn(),
   startRegistration: vi.fn(),
   submitRegistration: vi.fn(),
+  fetchLoginOptions: vi.fn(),
+  startAssertion: vi.fn(),
+  rememberCredential: vi.fn(),
 }))
 vi.mock('../config', () => ({
   config: { apiUrl: '', firebase: {} },
@@ -27,6 +30,9 @@ vi.mock('../lib/biometric', async (orig) => ({
   fetchRegisterOptions: mocks.fetchRegisterOptions,
   startRegistration: mocks.startRegistration,
   submitRegistration: mocks.submitRegistration,
+  fetchLoginOptions: mocks.fetchLoginOptions,
+  startAssertion: mocks.startAssertion,
+  rememberCredential: mocks.rememberCredential,
 }))
 
 const wrap = (api: AuthApi, ui: React.ReactNode) =>
@@ -156,5 +162,35 @@ describe('ajakan mengaktifkan biometrik', () => {
     expect(await screen.findByText(/dibatalkan/)).toBeTruthy()
     await waitFor(() => expect(mocks.fetchRegisterOptions).toHaveBeenCalledTimes(2))
     expect(api.dismissBioPrompt).not.toHaveBeenCalled()
+  })
+
+  it('perangkat sudah memegang kunci: menawarkan "Kenali perangkat ini" (bukan galat buntu) lalu mengingat id-nya', async () => {
+    mocks.fetchRegisterOptions.mockResolvedValue({
+      challenge: 'AAAA',
+      challengeToken: 't',
+      rpId: 'x',
+      user: { id: 'u', name: 'u', displayName: 'U' },
+      exclude: ['ID-LAMA'],
+    })
+    mocks.startRegistration.mockRejectedValueOnce(new DOMException('x', 'InvalidStateError'))
+    mocks.fetchLoginOptions.mockResolvedValue({ challenge: 'BBBB', challengeToken: 'lt', rpId: 'x' })
+    mocks.startAssertion.mockResolvedValue({ credentialId: 'ID-LAMA' })
+    const api = fakeAuth({
+      biometric: { supported: true, kind: 'fingerprint', enabledHere: false },
+      bioPrompt: true,
+    })
+    wrap(api, <BiometricPrompt />)
+    const btn = (await screen.findByRole('button', { name: /Aktifkan sekarang/ })) as HTMLButtonElement
+    await waitFor(() => expect(btn.disabled).toBe(false))
+    fireEvent.click(btn)
+    const rec = await screen.findByRole('button', { name: /Kenali perangkat ini/ })
+    expect(screen.queryByText('Perangkat ini sudah terdaftar.')).toBeNull()
+    fireEvent.click(rec)
+    expect(mocks.startAssertion).toHaveBeenCalledWith(expect.anything(), ['ID-LAMA']) // sinkron dari ketukan
+    await waitFor(() =>
+      expect(mocks.rememberCredential).toHaveBeenCalledWith('ID-LAMA', 'fingerprint', expect.anything()),
+    )
+    await waitFor(() => expect(api.dismissBioPrompt).toHaveBeenCalled())
+    expect(mocks.submitRegistration).not.toHaveBeenCalled()
   })
 })

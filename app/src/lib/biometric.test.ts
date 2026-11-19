@@ -139,7 +139,7 @@ describe('pemanggilan WebAuthn sinkron dari ketukan (syarat Safari)', () => {
 
   it('pesan kesalahan WebAuthn', () => {
     expect(webauthnErrorMessage(new DOMException('x', 'NotAllowedError'))).toContain('dibatalkan')
-    expect(webauthnErrorMessage(new DOMException('x', 'InvalidStateError'))).toContain('sudah terdaftar')
+    expect(webauthnErrorMessage(new DOMException('x', 'InvalidStateError'))).toContain('memegang kunci')
     expect(webauthnErrorMessage(new DOMException('x', 'SecurityError'))).toContain('alamat')
     expect(webauthnErrorMessage(new Error('dibatalkan'))).toContain('dibatalkan')
     expect(webauthnErrorMessage(undefined)).toContain('gagal')
