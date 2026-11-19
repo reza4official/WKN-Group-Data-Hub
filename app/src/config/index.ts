@@ -13,7 +13,10 @@ export const config = {
     projectId: env.VITE_FIREBASE_PROJECT_ID || pub.firebase.projectId,
     appId: env.VITE_FIREBASE_APP_ID || pub.firebase.appId,
   },
-  apiUrl: (env.VITE_API_URL || pub.apiUrl).replace(/\/+$/, ''),
+  apiUrl: (/^https?:\/\//.test(env.VITE_API_URL || pub.apiUrl)
+    ? env.VITE_API_URL || pub.apiUrl
+    : `https://${env.VITE_API_URL || pub.apiUrl}`
+  ).replace(/\/+$/, ''),
 }
 
 /** Benar bila masih ada nilai placeholder. Build produksi menolak kondisi ini (lihat vite.config.ts). */

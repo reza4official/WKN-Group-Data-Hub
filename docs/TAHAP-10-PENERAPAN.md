@@ -63,7 +63,7 @@ Cek `/health` → `version: 1.0.0`. Aturan Firestore tidak berubah di tahap ini 
 - [ ] **Login biometrik** dicoba di ponsel sungguhan (sidik jari dan/atau wajah).
 - [ ] **Cadangan Sheets** berjalan: status "Berhasil" beberapa hari berturut-turut; kolom HP dan Tanggal di Sheet benar (bagian 2 langkah 4).
 - [ ] **Pemantau kuota** menampilkan angka (peran *Monitoring Viewer* diberikan) atau diputuskan dilewati.
-- [ ] **CSP**: ganti `https://*.workers.dev` di `firebase.json` dengan alamat Worker Anda yang tepat (temuan S-04).
+- [x] **CSP**: `connect-src` di `firebase.json` sudah memakai host Worker yang tepat (temuan S-04 selesai).
 - [ ] **Bersihkan data uji** ([`MIGRASI-DATA-NYATA.md`](MIGRASI-DATA-NYATA.md) bagian 7).
 - [ ] **Migrasi data nyata** dan **rekonsiliasi** ([`MIGRASI-DATA-NYATA.md`](MIGRASI-DATA-NYATA.md) bagian 1–6).
 - [ ] **Pelatihan** per role memakai [`PANDUAN-PENGGUNA.md`](PANDUAN-PENGGUNA.md); catat siapa sudah dilatih.

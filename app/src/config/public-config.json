@@ -1,10 +1,10 @@
 {
-  "_catatan": "Nilai di bawah ini PUBLIK (aman masuk repo). Ganti semua yang bertanda GANTI dengan nilai dari Firebase Console dan Cloudflare. Build produksi gagal selama masih ada GANTI.",
+  "_catatan": "Nilai di bawah ini PUBLIK (aman masuk repo). Sudah terisi. Build produksi gagal bila ada nilai bertanda GANTI.",
   "firebase": {
-    "apiKey": "GANTI-apiKey",
+    "apiKey": "AIzaSyCFIfA8gr5UUUutlWWbShGvHD_UElQrkSI",
     "authDomain": "wkngroup-datahub.firebaseapp.com",
     "projectId": "wkngroup-datahub",
-    "appId": "GANTI-appId"
+    "appId": "1:106218317239:web:e7e7725b7379c04617f432"
   },
-  "apiUrl": "GANTI-url-worker"
+  "apiUrl": "https://wkn-data-hub-api.wkngroup.workers.dev"
 }
