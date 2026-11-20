@@ -4,6 +4,11 @@ Format versi: vX.X.X (major.minor.patch). Patch untuk perbaikan, minor untuk fit
 
 ## v1.0.0 — Tahap 10: rilis
 
+- **Manual Book** lengkap (`docs/manual/MANUAL-BOOK.pdf`, 61 halaman): 17 bab dan 4 lampiran, 46 gambar dari aplikasi sungguhan dengan penanda bernomor dan legenda, tutorial pengisian data, ekspor/impor, cara mengisi tiga template Excel kolom demi kolom, tabel pesan galat, dan pemecahan masalah. Gambar dan buku dibuat otomatis (`e2e/manual-shots.mjs`, `e2e/manual-build.mjs`).
+- Perbaikan pendaftaran biometrik: perangkat yang sudah memegang kunci dapat "dikenali" (tidak lagi berhenti pada galat).
+- `public-config.json` terisi; CSP `connect-src` memakai host Worker yang tepat (temuan S-04 selesai).
+- Kartu placeholder usang di Profil Saya dihapus; `deploy.cmd -Pull` berpindah ke `master`.
+
 ### Ditambahkan (sesi terakhir)
 - **Menu Panduan** untuk semua akun: isi menyesuaikan role dan izin akun (dibaca ulang dari server saat dibuka), tabel "Izin Anda", bagian yang belum tersedia beserta siapa yang dapat memberi akses, pencarian, cetak, dan tombol **Tunjukkan** yang menandai elemen yang dimaksud di aplikasi.
 - **Edit level role**: level dapat diubah (harus di bawah level pelaku dan unik); level akun pemegang role ikut disesuaikan dalam commit yang sama dan tercatat di Log Audit.

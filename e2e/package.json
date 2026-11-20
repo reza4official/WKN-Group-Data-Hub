@@ -23,7 +23,9 @@
     "backup": "node backup.mjs",
     "load": "node load.mjs",
     "purge": "node purge.mjs",
-    "guide": "node guide.mjs"
+    "guide": "node guide.mjs",
+    "manual-shots": "node manual-shots.mjs",
+    "manual-build": "node manual-build.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",

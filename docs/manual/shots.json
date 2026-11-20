@@ -1,0 +1,980 @@
+{
+  "login": {
+    "caption": "Halaman masuk",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#login-username",
+        "label": "Username (tidak membedakan huruf besar/kecil)"
+      },
+      {
+        "n": 2,
+        "selector": "input[autocomplete=current-password]",
+        "label": "Password; ikon mata menampilkan atau menyembunyikannya"
+      },
+      {
+        "n": 3,
+        "selector": "button[type=submit]",
+        "label": "Tombol Masuk"
+      },
+      {
+        "n": 4,
+        "selector": "button:has-text(\"Masuk dengan Google\")",
+        "label": "Masuk dengan akun Google (email harus sama dengan email kontak akun)"
+      },
+      {
+        "n": 5,
+        "selector": "button:has-text(\"Lupa password\")",
+        "label": "Minta reset password ke atasan"
+      },
+      {
+        "n": 6,
+        "selector": "button[aria-label*=\"Masuk dengan sidik jari\"], button[aria-label*=\"Masuk dengan wajah\"]",
+        "label": "Masuk dengan sidik jari / wajah (hanya tampil di perangkat yang mendukung; aktifkan dulu di Profil Saya)"
+      }
+    ]
+  },
+  "login-lupa": {
+    "caption": "Jendela \"Lupa password\"",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal input",
+        "label": "Username Anda"
+      },
+      {
+        "n": 2,
+        "selector": ".modal button:has-text(\"Kirim\")",
+        "label": "Kirim permintaan; atasan Anda yang akan mengatur password baru"
+      }
+    ]
+  },
+  "mulai": {
+    "caption": "Tampilan utama dan menu samping",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".nav",
+        "label": "Menu samping: hanya halaman yang boleh Anda buka"
+      },
+      {
+        "n": 2,
+        "selector": ".me",
+        "label": "Nama dan role Anda; tombol Keluar di kanannya"
+      },
+      {
+        "n": 3,
+        "selector": "button[aria-label*=\"tema\"]",
+        "label": "Ganti tema terang/gelap"
+      }
+    ]
+  },
+  "mobile": {
+    "caption": "Tampilan di ponsel",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "button[aria-label*=\"enu\"]",
+        "label": "Tombol menu (garis tiga)"
+      }
+    ]
+  },
+  "profil": {
+    "caption": "Profil Saya",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#pf-name",
+        "label": "Nama lengkap"
+      },
+      {
+        "n": 2,
+        "selector": "#pf-phone",
+        "label": "Nomor HP"
+      },
+      {
+        "n": 3,
+        "selector": "#pf-email",
+        "label": "Email kontak (juga dipakai untuk Login Google)"
+      },
+      {
+        "n": 4,
+        "selector": "[data-guide=pf-save]",
+        "label": "Simpan perubahan"
+      },
+      {
+        "n": 5,
+        "selector": "[data-guide=pf-password]",
+        "label": "Ganti password (butuh password lama)"
+      }
+    ]
+  },
+  "profil-bio": {
+    "caption": "Mengaktifkan login sidik jari / wajah",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal button:has-text(\"Aktifkan sekarang\")",
+        "label": "Aktifkan sekarang, lalu verifikasi dengan sidik jari, wajah, atau kunci layar"
+      }
+    ]
+  },
+  "inventory": {
+    "caption": "Transaksi Stok",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#inv-project",
+        "label": "Pilih proyek"
+      },
+      {
+        "n": 2,
+        "selector": "#inv-month",
+        "label": "Pilih bulan"
+      },
+      {
+        "n": 3,
+        "selector": "#inv-item",
+        "label": "Saring per barang (opsional)"
+      },
+      {
+        "n": 4,
+        "selector": "[data-guide=inv-catat]",
+        "label": "Catat transaksi baru"
+      },
+      {
+        "n": 5,
+        "selector": "[aria-label=\"Transaksi stok\"]",
+        "label": "Buku transaksi; kolom Tersisa dihitung otomatis"
+      },
+      {
+        "n": 6,
+        "selector": "[data-guide=inv-koreksi]",
+        "label": "Koreksi (untuk salah catat)"
+      }
+    ]
+  },
+  "inventory-catat": {
+    "caption": "Mencatat transaksi",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#tx-item",
+        "label": "Barang (hanya yang sudah bersaldo awal); sisa stok tampil di samping nama"
+      },
+      {
+        "n": 2,
+        "selector": ".modal [role=radiogroup]",
+        "label": "Barang masuk atau barang keluar"
+      },
+      {
+        "n": 3,
+        "selector": "#tx-qty",
+        "label": "Jumlah (maksimal 3 desimal)"
+      },
+      {
+        "n": 4,
+        "selector": "#tx-date",
+        "label": "Tanggal transaksi"
+      },
+      {
+        "n": 5,
+        "selector": "#tx-note",
+        "label": "Keterangan (opsional)"
+      },
+      {
+        "n": 6,
+        "selector": ".modal button:text-is(\"Catat\")",
+        "label": "Simpan transaksi"
+      }
+    ]
+  },
+  "inventory-koreksi": {
+    "caption": "Mengoreksi transaksi",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal textarea, .modal input[type=text]",
+        "label": "Alasan koreksi (wajib, minimal 3 karakter)"
+      },
+      {
+        "n": 2,
+        "selector": ".modal button:has-text(\"Buat koreksi\")",
+        "label": "Buat koreksi"
+      }
+    ]
+  },
+  "inventory-koreksi-hasil": {
+    "caption": "Hasil koreksi di buku transaksi",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Transaksi stok\"] tr:has-text(\"Koreksi\") >> nth=0",
+        "label": "Baris koreksi (membalik transaksi yang salah)"
+      }
+    ]
+  },
+  "dashboard": {
+    "caption": "Dashboard ringkasan",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#dash-scope",
+        "label": "Semua proyek atau satu proyek"
+      },
+      {
+        "n": 2,
+        "selector": "#dash-month",
+        "label": "Bulan"
+      },
+      {
+        "n": 3,
+        "selector": "[data-guide=dash-refresh]",
+        "label": "Segarkan (data disimpan 5 menit)"
+      },
+      {
+        "n": 4,
+        "selector": ".kpis",
+        "label": "Kartu ringkasan: jenis barang, transaksi, stok kritis, tidak bergerak"
+      },
+      {
+        "n": 5,
+        "selector": "[aria-label=\"Ringkasan per barang\"]",
+        "label": "Tabel per barang; klik nama barang untuk grafik"
+      }
+    ]
+  },
+  "dashboard-rincian": {
+    "caption": "Rincian barang di Dashboard",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "svg[aria-label*=\"Sisa stok\"]",
+        "label": "Grafik sisa stok (30 hari dan 6 bulan)"
+      }
+    ]
+  },
+  "io": {
+    "caption": "Impor / Ekspor",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#io-project",
+        "label": "Proyek"
+      },
+      {
+        "n": 2,
+        "selector": "#io-month",
+        "label": "Bulan yang diekspor"
+      },
+      {
+        "n": 3,
+        "selector": "[data-guide=io-xlsx]",
+        "label": "Ekspor Excel (.xlsx)"
+      },
+      {
+        "n": 4,
+        "selector": "[data-guide=io-pdf]",
+        "label": "Ekspor PDF"
+      },
+      {
+        "n": 5,
+        "selector": "#io-kind",
+        "label": "Jenis impor: Transaksi stok, Katalog barang, atau Saldo awal proyek"
+      },
+      {
+        "n": 6,
+        "selector": "[data-guide=io-template]",
+        "label": "Unduh template Excel"
+      },
+      {
+        "n": 7,
+        "selector": "button:has-text(\"Pilih berkas\")",
+        "label": "Pilih berkas .xlsx (atau tarik ke area ini)"
+      }
+    ]
+  },
+  "ekspor-transaksi": {
+    "caption": "Isi berkas Excel hasil ekspor: lembar Transaksi",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-ref=A1]",
+        "label": "Kop laporan: perusahaan, proyek, periode, nama pembuat, dan waktu cetak (WITA)"
+      },
+      {
+        "n": 2,
+        "selector": "[data-row=header]",
+        "label": "Judul kolom"
+      },
+      {
+        "n": 3,
+        "selector": "[data-ref=H6]",
+        "label": "Tersisa: saldo berjalan setelah tiap transaksi"
+      },
+      {
+        "n": 4,
+        "selector": "[data-ref=J6]",
+        "label": "Dicatat oleh dan waktu pencatatan"
+      }
+    ]
+  },
+  "ekspor-ringkasan": {
+    "caption": "Isi berkas Excel hasil ekspor: lembar Ringkasan",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-row=header]",
+        "label": "Ringkasan per barang: awal, masuk, keluar, dan sisa"
+      }
+    ]
+  },
+  "ekspor-pdf": {
+    "caption": "Hasil ekspor PDF (halaman pertama)",
+    "marks": []
+  },
+  "tpl-trx-isi": {
+    "caption": "Template transaksi: lembar \"Transaksi\" (yang Anda isi)",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-ref=A1]",
+        "label": "Tanggal: YYYY-MM-DD"
+      },
+      {
+        "n": 2,
+        "selector": "[data-ref=B1]",
+        "label": "Nama Barang: salin persis dari lembar \"Barang\""
+      },
+      {
+        "n": 3,
+        "selector": "[data-ref=C1]",
+        "label": "Jenis: Masuk atau Keluar (pilih dari daftar)"
+      },
+      {
+        "n": 4,
+        "selector": "[data-ref=D1]",
+        "label": "Jumlah: angka lebih dari 0"
+      },
+      {
+        "n": 5,
+        "selector": "[data-ref=E1]",
+        "label": "Keterangan (opsional)"
+      }
+    ]
+  },
+  "tpl-trx-contoh": {
+    "caption": "Template transaksi: lembar \"Contoh Pengisian\" (tidak diimpor)",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-row=benar]",
+        "label": "Baris hijau = isian BENAR"
+      },
+      {
+        "n": 2,
+        "selector": "[data-row=salah]",
+        "label": "Baris merah = isian SALAH beserta penjelasannya"
+      }
+    ]
+  },
+  "tpl-trx-barang": {
+    "caption": "Template transaksi: lembar \"Barang\" (daftar nama yang sah)",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-ref=A1]",
+        "label": "Nama Barang: salin persis ke kolom Nama Barang di lembar Transaksi"
+      }
+    ]
+  },
+  "tpl-kat-isi": {
+    "caption": "Template katalog: lembar \"Katalog\" (yang Anda isi)",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-ref=A1]",
+        "label": "Nama Barang (wajib, unik)"
+      },
+      {
+        "n": 2,
+        "selector": "[data-ref=B1]",
+        "label": "Satuan (wajib)"
+      },
+      {
+        "n": 3,
+        "selector": "[data-ref=C1]",
+        "label": "Kategori (opsional)"
+      },
+      {
+        "n": 4,
+        "selector": "[data-ref=D1]",
+        "label": "Batas Minimum (opsional, kosong = 0)"
+      }
+    ]
+  },
+  "tpl-kat-contoh": {
+    "caption": "Template katalog: lembar \"Contoh Pengisian\"",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-row=benar]",
+        "label": "Isian BENAR"
+      },
+      {
+        "n": 2,
+        "selector": "[data-row=salah]",
+        "label": "Isian SALAH (ditolak) beserta alasannya"
+      }
+    ]
+  },
+  "tpl-saldo-isi": {
+    "caption": "Template saldo awal: lembar \"Saldo Awal\"",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-ref=A2]",
+        "label": "Nama Barang terisi otomatis (barang katalog yang belum ada di proyek); jangan diubah"
+      },
+      {
+        "n": 2,
+        "selector": "[data-ref=B1]",
+        "label": "Saldo Awal: isi untuk barang yang ingin dimasukkan"
+      },
+      {
+        "n": 3,
+        "selector": "[data-ref=C1]",
+        "label": "Tanggal Saldo Awal: YYYY-MM-DD"
+      },
+      {
+        "n": 4,
+        "selector": "[data-ref=D1]",
+        "label": "Batas Minimum (opsional)"
+      }
+    ]
+  },
+  "tpl-saldo-contoh": {
+    "caption": "Template saldo awal: lembar \"Contoh Pengisian\"",
+    "table": true,
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-row=benar]",
+        "label": "Isian BENAR"
+      },
+      {
+        "n": 2,
+        "selector": "[data-row=salah]",
+        "label": "Isian SALAH atau DILEWATI beserta alasannya"
+      }
+    ]
+  },
+  "preview-katalog": {
+    "caption": "Pratinjau impor katalog",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "section.card:has-text(\"Pratinjau ·\") .hd",
+        "label": "Ringkasan: jumlah baris valid dan baris yang perlu diperbaiki"
+      },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Pratinjau impor\"]",
+        "label": "Tabel pratinjau: tiap baris berstatus Valid (hijau) atau berisi alasan penolakan (merah)"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"baris valid\")",
+        "label": "Impor hanya baris yang valid (baris merah dilewati)"
+      },
+      {
+        "n": 4,
+        "selector": "section.card:has-text(\"Pratinjau ·\") button:text-is(\"Batal\")",
+        "label": "Batal tanpa mengimpor"
+      }
+    ]
+  },
+  "preview-saldo": {
+    "caption": "Pratinjau impor saldo awal",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "section.card:has-text(\"Pratinjau ·\") .hd",
+        "label": "Ringkasan: jumlah baris valid dan baris yang perlu diperbaiki"
+      },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Pratinjau impor\"]",
+        "label": "Tabel pratinjau: tiap baris berstatus Valid (hijau) atau berisi alasan penolakan (merah)"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"baris valid\")",
+        "label": "Impor hanya baris yang valid (baris merah dilewati)"
+      },
+      {
+        "n": 4,
+        "selector": "section.card:has-text(\"Pratinjau ·\") button:text-is(\"Batal\")",
+        "label": "Batal tanpa mengimpor"
+      }
+    ]
+  },
+  "preview-trx": {
+    "caption": "Pratinjau impor transaksi",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "section.card:has-text(\"Pratinjau ·\") .hd",
+        "label": "Ringkasan: jumlah baris valid dan baris yang perlu diperbaiki"
+      },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Pratinjau impor\"]",
+        "label": "Tabel pratinjau: tiap baris berstatus Valid (hijau) atau berisi alasan penolakan (merah)"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"baris valid\")",
+        "label": "Impor hanya baris yang valid (baris merah dilewati)"
+      },
+      {
+        "n": 4,
+        "selector": "section.card:has-text(\"Pratinjau ·\") button:text-is(\"Batal\")",
+        "label": "Batal tanpa mengimpor"
+      }
+    ]
+  },
+  "catalog": {
+    "caption": "Katalog Barang",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Cari barang\"]",
+        "label": "Cari barang"
+      },
+      {
+        "n": 2,
+        "selector": "[data-guide=catalog-add]",
+        "label": "Tambah barang"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"Ubah\") >> nth=0",
+        "label": "Ubah data barang"
+      }
+    ]
+  },
+  "catalog-add": {
+    "caption": "Menambah barang ke katalog",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#ci-name",
+        "label": "Nama barang (unik)"
+      },
+      {
+        "n": 2,
+        "selector": "#ci-unit",
+        "label": "Satuan (tidak dapat diganti setelah dipakai proyek)"
+      },
+      {
+        "n": 3,
+        "selector": "#ci-cat",
+        "label": "Kategori (opsional)"
+      },
+      {
+        "n": 4,
+        "selector": "#ci-min",
+        "label": "Batas minimum bawaan"
+      },
+      {
+        "n": 5,
+        "selector": ".modal button:text-is(\"Simpan\")",
+        "label": "Simpan"
+      }
+    ]
+  },
+  "projects": {
+    "caption": "Proyek & Perusahaan",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-guide=projects-add-company]",
+        "label": "Tambah perusahaan"
+      },
+      {
+        "n": 2,
+        "selector": "[data-guide=projects-add-project]",
+        "label": "Tambah proyek"
+      },
+      {
+        "n": 3,
+        "selector": "a:has-text(\"Barang & saldo awal\") >> nth=0",
+        "label": "Barang & saldo awal proyek"
+      },
+      {
+        "n": 4,
+        "selector": "[data-guide=projects-delete]",
+        "label": "Hapus permanen (Owner/Developer)"
+      }
+    ]
+  },
+  "projects-add-company": {
+    "caption": "Menambah perusahaan",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#co-name",
+        "label": "Nama perusahaan"
+      },
+      {
+        "n": 2,
+        "selector": "#co-type",
+        "label": "Jenis: Induk atau Anak perusahaan"
+      },
+      {
+        "n": 3,
+        "selector": ".modal button:text-is(\"Simpan\")",
+        "label": "Simpan"
+      }
+    ]
+  },
+  "projects-add-project": {
+    "caption": "Menambah proyek",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#pr-co",
+        "label": "Perusahaan pemilik proyek"
+      },
+      {
+        "n": 2,
+        "selector": "#pr-name",
+        "label": "Nama proyek"
+      },
+      {
+        "n": 3,
+        "selector": "#pr-loc",
+        "label": "Lokasi"
+      },
+      {
+        "n": 4,
+        "selector": "#pr-st",
+        "label": "Status proyek"
+      },
+      {
+        "n": 5,
+        "selector": "#pr-sd",
+        "label": "Tanggal mulai"
+      }
+    ]
+  },
+  "project-detail": {
+    "caption": "Barang & saldo awal proyek",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "button:has-text(\"Tambah barang\")",
+        "label": "Tambah barang dari katalog ke proyek"
+      },
+      {
+        "n": 2,
+        "selector": "button:has-text(\"Ubah saldo awal\") >> nth=0",
+        "label": "Ubah saldo awal (terkunci setelah ada transaksi)"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"Batas minimum\") >> nth=0",
+        "label": "Atur batas minimum barang ini"
+      }
+    ]
+  },
+  "project-add-item": {
+    "caption": "Menambah barang ke proyek",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal select",
+        "label": "Pilih barang dari katalog"
+      },
+      {
+        "n": 2,
+        "selector": ".modal button:text-is(\"Tambah\")",
+        "label": "Tambah ke proyek"
+      }
+    ]
+  },
+  "projects-hapus": {
+    "caption": "Hapus permanen proyek (data uji)",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal input",
+        "label": "Ketik nama persis untuk konfirmasi"
+      },
+      {
+        "n": 2,
+        "selector": ".modal button:has-text(\"Hapus permanen\")",
+        "label": "Hapus permanen (tidak dapat dibatalkan)"
+      }
+    ]
+  },
+  "users": {
+    "caption": "Akun Pengguna",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Cari akun\"]",
+        "label": "Cari nama atau username"
+      },
+      {
+        "n": 2,
+        "selector": "[data-guide=users-add]",
+        "label": "Tambah akun"
+      },
+      {
+        "n": 3,
+        "selector": "button:has-text(\"Ubah\") >> nth=0",
+        "label": "Ubah data, role, atau proyek akun"
+      },
+      {
+        "n": 4,
+        "selector": "button:has-text(\"Reset password\") >> nth=0",
+        "label": "Atur ulang password"
+      },
+      {
+        "n": 5,
+        "selector": "button:has-text(\"Nonaktifkan\") >> nth=0",
+        "label": "Nonaktifkan / aktifkan akun"
+      }
+    ]
+  },
+  "users-add": {
+    "caption": "Membuat akun baru",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#c-un",
+        "label": "Username"
+      },
+      {
+        "n": 2,
+        "selector": "#c-nm",
+        "label": "Nama lengkap"
+      },
+      {
+        "n": 3,
+        "selector": ".modal input[type=password]",
+        "label": "Password awal (minimal 6 karakter)"
+      },
+      {
+        "n": 4,
+        "selector": "#c-rl",
+        "label": "Role (hanya yang levelnya di bawah Anda)"
+      },
+      {
+        "n": 5,
+        "selector": ".modal label:has-text(\"Perumahan Griya Asri\")",
+        "label": "Proyek yang ditugaskan"
+      },
+      {
+        "n": 6,
+        "selector": ".modal button:has-text(\"Buat akun\")",
+        "label": "Buat akun"
+      }
+    ]
+  },
+  "users-reset": {
+    "caption": "Mereset password dari daftar akun",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal input[type=password]",
+        "label": "Password baru (minimal 6 karakter)"
+      }
+    ]
+  },
+  "resets": {
+    "caption": "Permintaan Reset",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "button:has-text(\"Eksekusi reset\") >> nth=0",
+        "label": "Eksekusi reset pada permintaan yang menunggu"
+      },
+      {
+        "n": 2,
+        "selector": "button:has-text(\"Muat ulang\")",
+        "label": "Muat ulang daftar"
+      }
+    ]
+  },
+  "roles": {
+    "caption": "Role & Akses",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-guide=roles-new]",
+        "label": "Role baru"
+      },
+      {
+        "n": 2,
+        "selector": ".rolerow >> nth=3",
+        "label": "Daftar role menurut level; klik untuk memilih"
+      },
+      {
+        "n": 3,
+        "selector": "#role-name",
+        "label": "Nama role"
+      },
+      {
+        "n": 4,
+        "selector": "#role-level",
+        "label": "Level role (harus di bawah level Anda dan unik)"
+      },
+      {
+        "n": 5,
+        "selector": ".matrix",
+        "label": "Matriks izin: centang untuk memberi, cabut untuk mencabut"
+      },
+      {
+        "n": 6,
+        "selector": "button:has-text(\"Simpan perubahan\")",
+        "label": "Simpan perubahan"
+      }
+    ]
+  },
+  "roles-new": {
+    "caption": "Membuat role baru",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "#nr-name",
+        "label": "Nama role"
+      },
+      {
+        "n": 2,
+        "selector": "#nr-level",
+        "label": "Level (belum dipakai role lain)"
+      },
+      {
+        "n": 3,
+        "selector": "#nr-copy",
+        "label": "Salin izin dari role yang ada (opsional)"
+      },
+      {
+        "n": 4,
+        "selector": ".modal button:has-text(\"Buat role\")",
+        "label": "Buat role"
+      }
+    ]
+  },
+  "employees": {
+    "caption": "Database Karyawan",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Cari karyawan\"]",
+        "label": "Cari nama, username, HP, atau email"
+      },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Filter role\"]",
+        "label": "Saring menurut role"
+      },
+      {
+        "n": 3,
+        "selector": "[aria-label=\"Filter status\"]",
+        "label": "Saring menurut status"
+      },
+      {
+        "n": 4,
+        "selector": "[aria-label=\"Filter proyek\"]",
+        "label": "Saring menurut proyek"
+      },
+      {
+        "n": 5,
+        "selector": "button:text-is(\"Excel\")",
+        "label": "Ekspor Excel dari data tersaring"
+      }
+    ]
+  },
+  "audit": {
+    "caption": "Log Audit",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Cari log\"]",
+        "label": "Cari pelaku atau aksi"
+      },
+      {
+        "n": 2,
+        "selector": "[aria-label=\"Log audit\"]",
+        "label": "Daftar catatan: waktu (WITA), pelaku, aksi, target, rincian"
+      }
+    ]
+  },
+  "backup": {
+    "caption": "Cadangan & Kuota",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[data-guide=backup-run]",
+        "label": "Cadangkan sekarang"
+      }
+    ]
+  },
+  "panduan": {
+    "caption": "Menu Panduan di dalam aplikasi",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "[aria-label=\"Cari di panduan\"]",
+        "label": "Cari di panduan"
+      },
+      {
+        "n": 2,
+        "selector": ".guide-toc",
+        "label": "Daftar isi"
+      },
+      {
+        "n": 3,
+        "selector": "#g-akses-tabel",
+        "label": "Izin akun Anda; bagian panduan mengikuti izin ini"
+      }
+    ]
+  },
+  "impor-selesai": {
+    "caption": "Hasil impor",
+    "marks": [
+      {
+        "n": 1,
+        "selector": "section.card:has-text(\"Hasil impor\")",
+        "label": "Ringkasan hasil: berapa baris diimpor, dilewati, atau ditolak server"
+      }
+    ]
+  },
+  "resets-eksekusi": {
+    "caption": "Mengeksekusi reset password",
+    "marks": [
+      {
+        "n": 1,
+        "selector": ".modal input[type=password]",
+        "label": "Password baru untuk akun tersebut (minimal 6 karakter)"
+      },
+      {
+        "n": 2,
+        "selector": ".modal button:has-text(\"Simpan password baru\")",
+        "label": "Simpan password baru; sesi dan biometrik lama akun itu dicabut"
+      }
+    ]
+  }
+}

@@ -9,3 +9,4 @@ dist/
 # Kunci dan service account tidak boleh masuk repo
 *service-account*.json
 *-firebase-adminsdk-*.json
+docs/manual/MANUAL-BOOK.html

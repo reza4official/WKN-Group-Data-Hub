@@ -1,5 +1,7 @@
 # Panduan Pengguna — WKN Group Data Hub
 
+> Versi lengkap bergambar, tutorial impor/ekspor, dan cara mengisi template: [`manual/MANUAL-BOOK.pdf`](manual/MANUAL-BOOK.pdf). Di dalam aplikasi, menu **Panduan** menyesuaikan isinya dengan role Anda.
+
 Alamat: https://wkngroup-datahub.web.app · Cara masuk: username dan password, atau **Login Google** (bila email Anda terdaftar), atau **sidik jari / wajah** (bila diaktifkan di perangkat).
 Aplikasi tidak keluar sendiri (tanpa auto-logout). Tombol **Keluar** ada di pojok kanan atas.
 

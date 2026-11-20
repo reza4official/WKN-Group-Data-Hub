@@ -16,6 +16,7 @@ Pusat data PT. Wiratama Karya Nugraha (WKN) dan anak perusahaan. Tahap awal: man
 - Tinjauan keamanan dan aksesibilitas: [`docs/KEAMANAN-TAHAP-9.md`](docs/KEAMANAN-TAHAP-9.md)
 - Deploy satu perintah: [`docs/DEPLOY-CEPAT.md`](docs/DEPLOY-CEPAT.md) (`.\deploy.cmd`)
 - Tahap 10 (calon rilis, hapus data uji, checklist rilis): [`docs/TAHAP-10-PENERAPAN.md`](docs/TAHAP-10-PENERAPAN.md)
+- **Manual Book lengkap bergambar (PDF):** [`docs/manual/MANUAL-BOOK.pdf`](docs/manual/MANUAL-BOOK.pdf) · Panduan di dalam aplikasi: menu **Panduan**
 - Panduan pengguna per role: [`docs/PANDUAN-PENGGUNA.md`](docs/PANDUAN-PENGGUNA.md) · Runbook: [`docs/RUNBOOK.md`](docs/RUNBOOK.md) · Migrasi data nyata: [`docs/MIGRASI-DATA-NYATA.md`](docs/MIGRASI-DATA-NYATA.md)
 - Mockup interaktif: [`mockup/index.html`](mockup/index.html)
 - Riwayat perubahan: [`CHANGELOG.md`](CHANGELOG.md)
